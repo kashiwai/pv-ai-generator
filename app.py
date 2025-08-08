@@ -305,7 +305,7 @@ if __name__ == "__main__":
     if is_hf_spaces:
         # HF Spaces用 - APIドキュメントを無効化してエラー回避
         demo.launch(
-            share=False,
+            share=True,  # localhost問題を回避
             show_api=False,  # APIドキュメントを無効化
             server_name="0.0.0.0",
             server_port=7860
