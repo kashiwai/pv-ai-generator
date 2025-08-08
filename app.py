@@ -156,17 +156,7 @@ class PVGeneratorAgent:
 def create_interface():
     agent = PVGeneratorAgent()
     
-    # カスタムCSS
-    custom_css = """
-    .gradio-container {
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-    }
-    .gr-button-primary {
-        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
-    }
-    """
-    
-    with gr.Blocks(title="PV自動生成AIエージェント", theme=gr.themes.Soft(), css=custom_css) as demo:
+    with gr.Blocks(title="PV自動生成AIエージェント") as demo:
         gr.Markdown("""
         # 🎬 PV自動生成AIエージェント
         
@@ -218,12 +208,12 @@ def create_interface():
                     type="filepath"
                 )
                 
-                generate_btn = gr.Button("🚀 PV生成開始", variant="primary", size="lg")
+                generate_btn = gr.Button("🚀 PV生成開始", variant="primary")
                 
             with gr.Column(scale=1):
                 gr.Markdown("## 📺 生成結果")
-                output_video = gr.Video(label="完成PV", height=400)
-                status_message = gr.Textbox(label="ステータス", interactive=False, lines=2)
+                output_video = gr.Video(label="完成PV")
+                status_message = gr.Textbox(label="ステータス", interactive=False)
                 
                 gr.Markdown("""
                 ## 📋 処理フロー
@@ -253,8 +243,16 @@ def create_interface():
                     """)
         
         # イベントハンドラー
+        def run_generation(*args):
+            try:
+                import nest_asyncio
+                nest_asyncio.apply()
+            except:
+                pass
+            return asyncio.run(agent.generate_pv(*args))
+        
         generate_btn.click(
-            fn=lambda *args: asyncio.run(agent.generate_pv(*args)),
+            fn=run_generation,
             inputs=[title, keywords, description, mood, lyrics, audio_file, character_images],
             outputs=[output_video, status_message]
         )
@@ -292,13 +290,4 @@ if __name__ == "__main__":
     demo = create_interface()
     
     # Hugging Face Spacesまたはローカルで起動
-    if os.getenv("SPACE_ID"):
-        # Hugging Face Spaces環境
-        demo.launch(
-            server_name="0.0.0.0",
-            server_port=7860,
-            share=False
-        )
-    else:
-        # ローカル環境
-        demo.launch(share=True)
+    demo.launch()
