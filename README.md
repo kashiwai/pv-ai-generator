@@ -4,7 +4,7 @@ Midjourney × Hailuo × Fish Audioを使用した高品質PV自動生成シス�
 
 ## 🚀 デモ
 
-[Streamlit Cloudで試す](https://your-app-name.streamlit.app)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/kashiwai/pv-ai-generator/main/app.py)
 
 ## ✨ 特徴
 
