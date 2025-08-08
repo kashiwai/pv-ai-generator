@@ -66,9 +66,9 @@ def create_interface():
                     label="音楽ファイル *",
                     type="filepath"
                 )
-                character_images = gr.File(
+                character_images = gr.Files(
                     label="キャラクター画像",
-                    file_count="multiple",
+                    file_types=["image"],
                     type="filepath"
                 )
                 
@@ -171,9 +171,11 @@ if __name__ == "__main__":
     print(f"Environment: {'HF Spaces' if is_spaces else 'Local'}")
     print("Launching application...")
     
+    # queue設定を明示的に指定（重要）
+    demo.queue(concurrency_count=2)  # 同時実行数を制限
+    
     if is_spaces:
         # HF Spaces用の設定
-        demo.queue()  # Gradio 4.xではqueueが推奨
-        demo.launch()  # Gradio 4.xではデフォルト設定で動作
+        demo.launch()
     else:
         demo.launch()

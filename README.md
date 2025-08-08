@@ -5,6 +5,7 @@ colorFrom: purple
 colorTo: pink
 sdk: gradio
 sdk_version: 4.44.0
+python_version: 3.10
 app_file: app.py
 pinned: false
 license: mit
@@ -18,8 +19,9 @@ Hugging Face Spacesで完全動作対応。
 ## ✨ 主な機能
 
 - 🎵 **最大7分**までの動画生成対応
+- 🎨 **Midjourney v6.1** (PiAPI経由) - 高品質画像生成
+- 🎥 **Hailuo 02 AI** (PiAPI経由) - 高品質映像生成（推奨）
 - 🤖 **複数AI連携**: GPT-4、Claude、Gemini、Deepseekによる構成・台本生成
-- 🎥 **Hailuo 02 AI**による高品質映像生成（メイン推奨）
 - 🗣️ **音声合成**: Google TTS / Fish Audio
 - 🎨 **キャラクター一貫性**維持機能
 - 📱 **Hugging Face Spaces**完全対応
@@ -51,9 +53,9 @@ python app.py
 
 3. **Secretsを設定**（Settings → Repository secrets）
    ```
-   HAILUO_API_KEY=your_key
-   OPENAI_API_KEY=your_key
-   GOOGLE_API_KEY=your_key
+   PIAPI_KEY=your_key（必須：Midjourney + Hailuo統合）
+   OPENAI_API_KEY=your_key（オプション）
+   GOOGLE_API_KEY=your_key（オプション）
    ANTHROPIC_API_KEY=your_key（オプション）
    FISH_AUDIO_API_KEY=your_key（オプション）
    ```
@@ -124,9 +126,9 @@ pv_ai_video_agent/
 
 | サービス | 用途 | 必須 |
 |---------|------|------|
-| Hailuo | 映像生成 | ✅ |
-| OpenAI | 構成・台本 | ✅ |
-| Google | 音声合成 | ✅ |
+| PiAPI | Midjourney + Hailuo統合 | ✅ |
+| OpenAI | 構成・台本 | ⭕ |
+| Google | 音声合成 | ⭕ |
 | Anthropic | 構成補助 | ⭕ |
 | Fish Audio | 高品質音声 | ⭕ |
 
