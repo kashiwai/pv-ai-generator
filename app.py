@@ -616,10 +616,6 @@ demo = gr.Interface(
     
     最大7分までの動画生成に対応
     """,
-    examples=[
-        ["青春の輝き", "学校, 友情, 夢", None, "明日へ向かって走り出す\n輝く未来へ\n夢を追いかけて", "anime"],
-        ["星空の約束", "ファンタジー, 冒険", None, "星に願いを込めて\n運命の出会い\n永遠の絆", "fantasy"],
-    ],
     theme=gr.themes.Soft(),
     allow_flagging="never",
     analytics_enabled=False,
