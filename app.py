@@ -25,14 +25,13 @@ def setup_environment():
     
     # 環境変数から設定を上書き
     env_mappings = {
-        "PIAPI_KEY": "hailuo_api_key",  # PiAPI経由でHailuoを使用
-        "HAILUO_API_KEY": "hailuo_api_key",  # 互換性のため
+        "PIAPI_KEY": "piapi_key",  # PiAPI統一キー
+        "PIAPI_KEY": "hailuo_api_key",  # Hailuo用にも設定
         "OPENAI_API_KEY": "openai_api_key",
         "ANTHROPIC_API_KEY": "anthropic_api_key",
         "GOOGLE_API_KEY": "google_api_key",
         "DEEPSEEK_API_KEY": "deepseek_api_key",
         "FISH_AUDIO_API_KEY": "fish_audio_api_key",
-        "MIDJOURNEY_API_KEY": "midjourney_api_key",
         "SORA_API_KEY": "sora_api_key",
         "VEO3_API_KEY": "veo3_api_key",
         "SEEDANCE_API_KEY": "seedance_api_key",
@@ -159,7 +158,7 @@ def create_interface():
         音楽に合わせて、AI が自動的にプロモーションビデオを生成します。
         最大7分までの動画生成に対応しています。
         
-        **🎨 Midjourney v6** × **🎥 Hailuo 02 AI (PiAPI) / Google VEO3** 
+        **🎨 Midjourney v6.1 (PiAPI)** × **🎥 Hailuo 02 AI (PiAPI)** × **Google VEO3** 
         """)
         
         with gr.Row():
@@ -227,15 +226,20 @@ def create_interface():
                 with gr.Accordion("⚙️ 詳細設定", open=False):
                     gr.Markdown(f"""
                     ### 現在の設定
-                    - **画像生成**: {config.get('image_provider', 'midjourney').upper()} (最優先)
-                    - **映像生成**: HAILUO 02 / VEO3 (推奨)
+                    - **PiAPI統合**: Midjourney + Hailuo 02 を一つのキーで管理
+                    - **画像生成**: Midjourney v6.1 (PiAPI経由・最優先)
+                    - **映像生成**: Hailuo 02 (PiAPI経由・推奨)
                     - **音声合成**: {config.get('tts_provider', 'google').upper()}
                     
-                    ### 使用可能なAI
-                    - 構成・台本: GPT-4 / Claude / Gemini / Deepseek
-                    - 画像生成: Midjourney v6 (最優先) / DALL-E 3
-                    - 音声合成: Google TTS / Fish Audio
-                    - 映像生成: Hailuo 02 (PiAPI経由・推奨) / VEO3 (推奨) / SORA / Seedance / DomoAI
+                    ### PiAPIで利用可能なAI
+                    - **PiAPI統一キー**:
+                      - Midjourney v6.1 (画像生成)
+                      - Hailuo 02 (映像生成)
+                    - **その他のAI**:
+                      - 構成・台本: GPT-4 / Claude / Gemini / Deepseek
+                      - 画像: DALL-E 3 (フォールバック)
+                      - 音声: Google TTS / Fish Audio
+                      - 映像: VEO3 / SORA / Seedance / DomoAI
                     """)
         
         # イベントハンドラー（シンプル版）

@@ -1,10 +1,10 @@
 {
+  "piapi_key": "",
   "openai_api_key": "",
   "anthropic_api_key": "",
   "google_api_key": "",
   "deepseek_api_key": "",
   "fish_audio_api_key": "",
-  "midjourney_api_key": "",
   "hailuo_api_key": "",
   "sora_api_key": "",
   "veo3_api_key": "",
@@ -41,12 +41,14 @@
   },
   
   "midjourney_settings": {
-    "version": "6",
-    "quality": "high",
+    "version": "6.1",
+    "quality": 2,
     "style": "raw",
     "aspect_ratio": "1:1",
     "stylize": 100,
-    "chaos": 0
+    "chaos": 0,
+    "api_base_url": "https://api.piapi.ai",
+    "use_piapi": true
   },
   
   "prompting": {

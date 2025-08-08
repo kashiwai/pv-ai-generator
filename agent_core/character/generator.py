@@ -12,8 +12,9 @@ class CharacterGenerator:
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.dalle_api_key = config.get("openai_api_key")
-        self.midjourney_api_key = config.get("midjourney_api_key")
-        self.provider = config.get("image_provider", "dalle")
+        self.piapi_key = config.get("piapi_key") or config.get("hailuo_api_key")  # PiAPI統一キー
+        self.midjourney_api_key = self.piapi_key  # PiAPI経由でMidjourney使用
+        self.provider = config.get("image_provider", "midjourney" if self.piapi_key else "dalle")
         
         if self.dalle_api_key:
             openai.api_key = self.dalle_api_key
@@ -29,11 +30,11 @@ class CharacterGenerator:
         
         for i, prompt in enumerate(prompts):
             try:
-                # Midjourney を最優先で使用
-                if self.midjourney_api_key:
-                    print(f"Using Midjourney for character generation (Priority)")
-                    image_path = await self.generate_with_midjourney(prompt)
-                elif self.provider == "dalle" and self.dalle_api_key:
+                # PiAPI経由でMidjourney を最優先で使用
+                if self.piapi_key:
+                    print(f"Using Midjourney via PiAPI for character generation (Priority)")
+                    image_path = await self.generate_with_midjourney_piapi(prompt)
+                elif self.dalle_api_key:
                     print(f"Using DALL-E 3 for character generation")
                     image_path = await self.generate_with_dalle(prompt)
                 else:
@@ -145,26 +146,38 @@ class CharacterGenerator:
             print(f"DALL-E generation error: {e}")
             return None
     
-    async def generate_with_midjourney(self, prompt: str) -> Optional[Path]:
+    async def generate_with_midjourney_piapi(self, prompt: str) -> Optional[Path]:
         """
-        Midjourney APIで画像を生成
+        PiAPI経由でMidjourney画像を生成
         """
         try:
             headers = {
-                "Authorization": f"Bearer {self.midjourney_api_key}",
+                "x-api-key": self.piapi_key,
                 "Content-Type": "application/json"
             }
             
+            # PiAPI Midjourney形式のペイロード
             payload = {
-                "prompt": prompt,
-                "version": "6",
-                "aspect_ratio": "1:1",
-                "quality": "high"
+                "model": "midjourney",
+                "task_type": "imagine",
+                "input": {
+                    "prompt": prompt,
+                    "aspect_ratio": "1:1",
+                    "model_version": "6.1",  # 最新バージョン
+                    "style": "raw",
+                    "quality": 2,  # 高品質
+                    "stylize": 100,
+                    "chaos": 0
+                },
+                "config": {
+                    "service_mode": "public"
+                }
             }
             
+            # タスク作成
             response = await asyncio.to_thread(
                 requests.post,
-                "https://api.midjourney.com/v1/imagine",
+                "https://api.piapi.ai/api/v1/task",
                 headers=headers,
                 json=payload,
                 timeout=60
@@ -172,28 +185,95 @@ class CharacterGenerator:
             
             if response.status_code == 200:
                 result = response.json()
-                image_url = result.get("image_url")
-                
-                if image_url:
-                    image_response = requests.get(image_url)
-                    if image_response.status_code == 200:
-                        output_dir = Path("assets/characters")
-                        output_dir.mkdir(parents=True, exist_ok=True)
-                        
-                        import hashlib
-                        image_hash = hashlib.md5(prompt.encode()).hexdigest()[:8]
-                        output_path = output_dir / f"mj_char_{image_hash}.png"
-                        
-                        with open(output_path, 'wb') as f:
-                            f.write(image_response.content)
-                        
-                        return output_path
+                if result.get("code") == 200:
+                    task_id = result.get("data", {}).get("task_id")
+                    
+                    if task_id:
+                        # タスク完了を待つ
+                        image_url = await self.wait_for_midjourney_completion(task_id)
+                        if image_url:
+                            # 画像をダウンロード
+                            image_response = requests.get(image_url)
+                            if image_response.status_code == 200:
+                                output_dir = Path("assets/characters")
+                                output_dir.mkdir(parents=True, exist_ok=True)
+                                
+                                import hashlib
+                                image_hash = hashlib.md5(prompt.encode()).hexdigest()[:8]
+                                output_path = output_dir / f"mj_char_{image_hash}.png"
+                                
+                                with open(output_path, 'wb') as f:
+                                    f.write(image_response.content)
+                                
+                                return output_path
+                else:
+                    print(f"PiAPI Midjourney error: {result.get('message')}")
             
-            return await self.generate_with_dalle(prompt)
+            # フォールバック to DALL-E
+            if self.dalle_api_key:
+                return await self.generate_with_dalle(prompt)
+            return None
             
         except Exception as e:
-            print(f"Midjourney generation error: {e}")
-            return await self.generate_with_dalle(prompt)
+            print(f"PiAPI Midjourney generation error: {e}")
+            if self.dalle_api_key:
+                return await self.generate_with_dalle(prompt)
+            return None
+    
+    async def wait_for_midjourney_completion(self, task_id: str, max_wait: int = 120) -> Optional[str]:
+        """
+        PiAPI Midjourneyタスクの完了を待つ
+        """
+        import time
+        headers = {
+            "x-api-key": self.piapi_key
+        }
+        
+        start_time = time.time()
+        while time.time() - start_time < max_wait:
+            try:
+                response = await asyncio.to_thread(
+                    requests.get,
+                    f"https://api.piapi.ai/api/v1/task/{task_id}",
+                    headers=headers
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    if result.get("code") == 200:
+                        data = result.get("data", {})
+                        status = data.get("status")
+                        
+                        if status == "SUCCESS":
+                            output = data.get("output", {})
+                            # Midjourneyは複数の画像URLを返す可能性
+                            image_urls = output.get("image_urls", [])
+                            if image_urls:
+                                return image_urls[0]  # 最初の画像を使用
+                            image_url = output.get("image_url")
+                            if image_url:
+                                return image_url
+                        elif status == "FAILED":
+                            error_msg = data.get("error_message", "Unknown error")
+                            print(f"Midjourney task failed: {error_msg}")
+                            return None
+                        elif status in ["PENDING", "PROCESSING"]:
+                            print(f"Midjourney task status: {status}")
+                
+                await asyncio.sleep(3)
+                
+            except Exception as e:
+                print(f"Midjourney status check error: {e}")
+                return None
+        
+        return None
+    
+    async def generate_with_midjourney(self, prompt: str) -> Optional[Path]:
+        """
+        旧Midjourney API（互換性のため残す）
+        """
+        # PiAPI経由に転送
+        return await self.generate_with_midjourney_piapi(prompt)
     
     def create_consistency_prompt(self, character_id: str) -> str:
         """
