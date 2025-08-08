@@ -293,6 +293,17 @@ if __name__ == "__main__":
     
     demo = create_interface()
     
-    # Hugging Face Spacesで自動設定
-    demo.queue()
-    demo.launch()
+    # Hugging Face Spaces環境を検出
+    import sys
+    is_hf_spaces = sys.executable.startswith('/home/user/app/.venv') or \
+                   os.getenv('SPACE_ID') is not None or \
+                   os.getenv('SYSTEM') == 'spaces'
+    
+    if is_hf_spaces:
+        # HF Spaces用設定
+        demo.queue()
+        demo.launch(server_name="0.0.0.0", server_port=7860)
+    else:
+        # ローカル環境
+        demo.queue()
+        demo.launch()
