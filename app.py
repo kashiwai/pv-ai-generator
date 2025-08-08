@@ -181,48 +181,41 @@ def create_interface():
                 gr.Markdown("## 📝 基本情報")
                 title = gr.Textbox(
                     label="タイトル *", 
-                    placeholder="PVのタイトルを入力",
-                    info="必須項目"
+                    placeholder="PVのタイトルを入力（必須項目）"
                 )
                 keywords = gr.Textbox(
                     label="キーワード", 
-                    placeholder="青春, 友情, 冒険 (カンマ区切り)",
-                    info="PVのテーマやコンセプト"
+                    placeholder="青春, 友情, 冒険 (カンマ区切り) - PVのテーマやコンセプト"
                 )
                 description = gr.Textbox(
                     label="紹介文", 
                     lines=3, 
-                    placeholder="PVの概要を説明してください",
-                    info="どんなPVにしたいか詳しく"
+                    placeholder="PVの概要を説明してください - どんなPVにしたいか詳しく"
                 )
                 mood = gr.Dropdown(
                     label="雰囲気",
                     choices=["明るい", "感動的", "ノスタルジック", "エネルギッシュ", 
                             "ミステリアス", "ダーク", "ファンタジー", "クール"],
-                    value="明るい",
-                    info="PV全体の雰囲気"
+                    value="明るい"
                 )
                 
                 gr.Markdown("## 🎵 コンテンツ")
                 lyrics = gr.Textbox(
                     label="歌詞 / メッセージ", 
                     lines=10, 
-                    placeholder="歌詞またはナレーション用のメッセージを入力",
-                    info="音声合成で読み上げるテキスト"
+                    placeholder="歌詞またはナレーション用のメッセージを入力 - 音声合成で読み上げるテキスト"
                 )
                 audio_file = gr.Audio(
-                    label="音楽ファイル (MP3/WAV/M4A) *", 
-                    type="filepath",
-                    info="必須項目・最大7分"
+                    label="音楽ファイル (MP3/WAV/M4A) * - 必須項目・最大7分", 
+                    type="filepath"
                 )
                 
                 gr.Markdown("## 🎨 キャラクター (オプション)")
                 character_images = gr.File(
-                    label="キャラクター画像",
+                    label="キャラクター画像 - アップロードしない場合はAIが自動生成",
                     file_count="multiple",
                     file_types=["image"],
-                    type="filepath",
-                    info="アップロードしない場合はAIが自動生成"
+                    type="filepath"
                 )
                 
                 generate_btn = gr.Button("🚀 PV生成開始", variant="primary", size="lg")
