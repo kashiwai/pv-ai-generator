@@ -138,11 +138,12 @@ def create_interface():
             except Exception as e:
                 return None, f"❌ エラーが発生しました: {str(e)}"
         
-        # イベントハンドラー
+        # イベントハンドラー（Gradio 4.x用にconcurrency_limit設定）
         generate_btn.click(
             fn=generate_pv,
             inputs=[title, keywords, description, mood, lyrics, audio_file, character_images],
-            outputs=[output_video, status_message]
+            outputs=[output_video, status_message],
+            concurrency_limit=2  # 同時実行数を制限
         )
         
         # サンプル
@@ -171,11 +172,11 @@ if __name__ == "__main__":
     print(f"Environment: {'HF Spaces' if is_spaces else 'Local'}")
     print("Launching application...")
     
-    # queue設定を明示的に指定（重要）
-    demo.queue(concurrency_count=2)  # 同時実行数を制限
+    # Gradio 4.xではqueueのみ呼び出し（concurrency_limitは各イベントで設定）
+    demo.queue()
     
     if is_spaces:
         # HF Spaces用の設定
-        demo.launch()
+        demo.launch(max_threads=10)  # ワーカー数を設定
     else:
         demo.launch()
