@@ -164,7 +164,7 @@ def create_interface():
         音楽に合わせて、AI が自動的にプロモーションビデオを生成します。
         最大7分までの動画生成に対応しています。
         
-        **🎨 Midjourney v6** × **🎥 Hailuo 02 AI** 
+        **🎨 Midjourney v6** × **🎥 Hailuo 02 AI / Google VEO3** 
         """)
         
         with gr.Row():
@@ -233,14 +233,14 @@ def create_interface():
                     gr.Markdown(f"""
                     ### 現在の設定
                     - **画像生成**: {config.get('image_provider', 'midjourney').upper()} (最優先)
-                    - **映像生成**: {config.get('video_provider', 'hailuo').upper()}
+                    - **映像生成**: HAILUO 02 / VEO3 (推奨)
                     - **音声合成**: {config.get('tts_provider', 'google').upper()}
                     
                     ### 使用可能なAI
                     - 構成・台本: GPT-4 / Claude / Gemini / Deepseek
-                    - 画像生成: DALL-E 3 / Midjourney
+                    - 画像生成: Midjourney v6 (最優先) / DALL-E 3
                     - 音声合成: Google TTS / Fish Audio
-                    - 映像生成: Hailuo 02 / SORA / VEO3 / Seedance / DomoAI
+                    - 映像生成: Hailuo 02 (推奨) / VEO3 (推奨) / SORA / Seedance / DomoAI
                     """)
         
         # イベントハンドラー

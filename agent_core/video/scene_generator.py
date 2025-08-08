@@ -120,12 +120,15 @@ class SceneGenerator:
         
         for prompt_info in scene_prompts:
             try:
-                if self.video_provider == "hailuo" and self.hailuo_api_key:
+                # Hailuo と VEO3 を推奨プロバイダーとして優先使用
+                if self.hailuo_api_key and (self.video_provider == "hailuo" or not self.veo3_api_key):
+                    print("Using Hailuo 02 AI for video generation (Recommended)")
                     video_path = await self.generate_with_hailuo(prompt_info, output_dir)
+                elif self.veo3_api_key and (self.video_provider == "veo3" or not self.hailuo_api_key):
+                    print("Using Google VEO3 for video generation (Recommended)")
+                    video_path = await self.generate_with_veo3(prompt_info, output_dir)
                 elif self.video_provider == "sora" and self.sora_api_key:
                     video_path = await self.generate_with_sora(prompt_info, output_dir)
-                elif self.video_provider == "veo3" and self.veo3_api_key:
-                    video_path = await self.generate_with_veo3(prompt_info, output_dir)
                 elif self.video_provider == "seedance" and self.seedance_api_key:
                     video_path = await self.generate_with_seedance(prompt_info, output_dir)
                 elif self.video_provider == "domoai" and self.domoai_api_key:
