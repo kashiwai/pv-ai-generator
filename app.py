@@ -66,8 +66,9 @@ def create_interface():
                     label="音楽ファイル *",
                     type="filepath"
                 )
-                character_images = gr.Files(
-                    label="キャラクター画像",
+                # gr.Filesは問題を起こすため、単一ファイルに変更
+                character_images = gr.File(
+                    label="キャラクター画像（1枚）",
                     file_types=["image"],
                     type="filepath"
                 )
@@ -176,7 +177,10 @@ if __name__ == "__main__":
     demo.queue()
     
     if is_spaces:
-        # HF Spaces用の設定
-        demo.launch(max_threads=10)  # ワーカー数を設定
+        # HF Spaces用の設定 - API情報生成を無効化
+        demo.launch(
+            show_api=False,  # API情報生成を無効化（エラー回避）
+            max_threads=10
+        )
     else:
-        demo.launch()
+        demo.launch(show_api=False)
