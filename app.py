@@ -81,9 +81,19 @@ class PVGeneratorAgent:
         self.video_composer = VideoComposer(self.config)
         
     async def generate_pv(self, title, keywords, description, mood, lyrics, 
-                          audio_file, character_images, progress=gr.Progress()):
+                          audio_file, character_images, progress=None):
         try:
-            progress(0.1, desc="初期化中...")
+            # Progress機能を安全に使用
+            def update_progress(value, desc):
+                if progress and callable(progress):
+                    try:
+                        progress(value, desc=desc)
+                    except:
+                        print(f"Progress: {value} - {desc}")
+                else:
+                    print(f"Progress: {value} - {desc}")
+            
+            update_progress(0.1, "初期化中...")
             
             # 入力検証
             if not title:
@@ -102,7 +112,7 @@ class PVGeneratorAgent:
             elif audio_duration == 0:
                 return None, "❌ 音楽ファイルの読み込みに失敗しました"
             
-            progress(0.2, desc="キャラクター画像処理中...")
+            update_progress(0.2, "キャラクター画像処理中...")
             if character_images:
                 character_refs = self.image_picker.process_images(character_images)
             else:
@@ -110,34 +120,34 @@ class PVGeneratorAgent:
                     keywords, mood, description
                 )
             
-            progress(0.3, desc="構成案生成中...")
+            update_progress(0.3, "構成案生成中...")
             plot_options = await self.script_planner.generate_plot_options(
                 title, keywords, description, mood, lyrics, audio_duration
             )
             
             selected_plot = self.script_planner.select_best_plot(plot_options)
             
-            progress(0.4, desc="台本作成中...")
+            update_progress(0.4, "台本作成中...")
             script = await self.script_writer.write_script(
                 selected_plot, lyrics, audio_duration
             )
             
-            progress(0.5, desc="ナレーション音声生成中...")
+            update_progress(0.5, "ナレーション音声生成中...")
             narration_files = await self.tts_generator.generate_narration(
                 script, output_dir
             )
             
-            progress(0.6, desc="シーンプロンプト生成中...")
+            update_progress(0.6, "シーンプロンプト生成中...")
             scene_prompts = await self.scene_generator.generate_scene_prompts(
                 script, character_refs, audio_duration
             )
             
-            progress(0.7, desc="映像生成中...")
+            update_progress(0.7, "映像生成中...")
             video_clips = await self.scene_generator.generate_videos(
                 scene_prompts, output_dir
             )
             
-            progress(0.9, desc="動画合成中...")
+            update_progress(0.9, "動画合成中...")
             final_video = await self.video_composer.compose_final_video(
                 video_clips, narration_files, audio_file, output_dir
             )
@@ -147,7 +157,7 @@ class PVGeneratorAgent:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(final_video, output_path)
             
-            progress(1.0, desc="完了！")
+            update_progress(1.0, "完了！")
             
             return str(output_path), f"✅ PV動画を生成しました: {output_path.name}"
             
@@ -243,19 +253,50 @@ def create_interface():
                     - 映像生成: Hailuo 02 (推奨) / VEO3 (推奨) / SORA / Seedance / DomoAI
                     """)
         
-        # イベントハンドラー
-        def run_generation(*args):
+        # イベントハンドラー（完全版）
+        def run_generation_with_progress(title, keywords, description, mood, lyrics, audio_file, character_images, progress=gr.Progress()):
+            """
+            プログレスバー付きでPV生成を実行
+            """
             try:
+                # nest_asyncioでasyncioの競合を回避
                 import nest_asyncio
                 nest_asyncio.apply()
-            except:
+            except ImportError:
+                # nest_asyncioがない場合も動作継続
                 pass
-            return asyncio.run(agent.generate_pv(*args))
+            except Exception as e:
+                print(f"nest_asyncio warning: {e}")
+            
+            # 非同期関数を同期的に実行
+            loop = None
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+            
+            if loop is not None:
+                # 既存のループがある場合
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(
+                        asyncio.run,
+                        agent.generate_pv(title, keywords, description, mood, lyrics, 
+                                        audio_file, character_images, progress)
+                    )
+                    return future.result()
+            else:
+                # 新規ループで実行
+                return asyncio.run(
+                    agent.generate_pv(title, keywords, description, mood, lyrics, 
+                                    audio_file, character_images, progress)
+                )
         
         generate_btn.click(
-            fn=run_generation,
+            fn=run_generation_with_progress,
             inputs=[title, keywords, description, mood, lyrics, audio_file, character_images],
-            outputs=[output_video, status_message]
+            outputs=[output_video, status_message],
+            show_progress=True
         )
         
         # サンプル
@@ -291,4 +332,18 @@ if __name__ == "__main__":
     demo = create_interface()
     
     # Hugging Face Spacesまたはローカルで起動
-    demo.launch()
+    # Spacesの場合は自動検出、ローカルの場合はshare=False
+    is_spaces = os.getenv("SPACE_ID") is not None or os.getenv("SPACE_HOST") is not None
+    
+    if is_spaces:
+        # Hugging Face Spaces環境
+        demo.queue(max_size=10)
+        demo.launch()
+    else:
+        # ローカル環境
+        demo.queue()
+        demo.launch(
+            share=False,
+            server_name="127.0.0.1",
+            server_port=7860
+        )
