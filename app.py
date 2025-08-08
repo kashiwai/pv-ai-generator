@@ -72,7 +72,7 @@ def create_interface():
                     type="filepath"
                 )
                 
-                generate_btn = gr.Button("🚀 PV生成開始", variant="primary")
+                generate_btn = gr.Button("🚀 PV生成開始", variant="primary", size="lg")
                 
             with gr.Column():
                 gr.Markdown("## 📺 生成結果")
@@ -172,10 +172,8 @@ if __name__ == "__main__":
     print("Launching application...")
     
     if is_spaces:
-        demo.launch(
-            server_name="0.0.0.0",
-            server_port=7860,
-            share=False
-        )
+        # HF Spaces用の設定
+        demo.queue()  # Gradio 4.xではqueueが推奨
+        demo.launch()  # Gradio 4.xではデフォルト設定で動作
     else:
         demo.launch()
