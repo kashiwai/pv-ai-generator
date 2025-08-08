@@ -17,14 +17,13 @@ config = {
     "google_api_key": os.getenv("GOOGLE_API_KEY", ""),
 }
 
-def generate_pv(title, keywords, audio_file):
+def generate_pv(title, keywords):
     """
-    PV生成のメイン処理（シンプル版）
+    PV生成のメイン処理（音声なしテスト版）
     
     Args:
         title: PVのタイトル
         keywords: キーワード（カンマ区切り）
-        audio_file: 音楽ファイルのパス
     
     Returns:
         結果メッセージ
@@ -33,8 +32,6 @@ def generate_pv(title, keywords, audio_file):
         # 入力検証
         if not title:
             return "❌ タイトルを入力してください"
-        if not audio_file:
-            return "❌ 音楽ファイルをアップロードしてください"
         
         # APIキーの確認
         has_piapi = bool(config.get("piapi_key"))
@@ -46,7 +43,6 @@ def generate_pv(title, keywords, audio_file):
             "",
             f"タイトル: {title}",
             f"キーワード: {keywords or 'なし'}",
-            f"音楽ファイル: アップロード済み",
             "",
             "**APIキー状態:**",
             f"- PiAPI (Midjourney + Hailuo): {'✅ 設定済み' if has_piapi else '❌ 未設定'}",
@@ -79,13 +75,12 @@ def generate_pv(title, keywords, audio_file):
     except Exception as e:
         return f"❌ エラーが発生しました: {str(e)}"
 
-# Gradio Interface（最も安定）
+# Gradio Interface（音声なしテスト版）
 demo = gr.Interface(
     fn=generate_pv,
     inputs=[
         gr.Textbox(label="タイトル *", placeholder="PVのタイトルを入力"),
         gr.Textbox(label="キーワード", placeholder="青春, 友情, 冒険"),
-        gr.Audio(label="音楽ファイル *", type="filepath"),
     ],
     outputs=gr.Textbox(label="処理結果", lines=20),
     title="🎬 PV自動生成AIエージェント",
@@ -97,8 +92,8 @@ demo = gr.Interface(
     最大7分までの動画生成に対応予定
     """,
     examples=[
-        ["青春の輝き", "学校, 友情, 夢", None],
-        ["星空の約束", "ファンタジー, 冒険", None],
+        ["青春の輝き", "学校, 友情, 夢"],
+        ["星空の約束", "ファンタジー, 冒険"],
     ],
     theme=gr.themes.Soft(),
     allow_flagging="never",
