@@ -337,10 +337,12 @@ if __name__ == "__main__":
     
     if is_spaces:
         # Hugging Face Spaces環境
+        print("Running on Hugging Face Spaces")
         demo.queue(max_size=10)
-        demo.launch()
+        demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
     else:
         # ローカル環境
+        print("Running locally")
         demo.queue()
         demo.launch(
             share=False,
