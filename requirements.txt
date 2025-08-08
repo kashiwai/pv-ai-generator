@@ -1,6 +1,7 @@
+# Streamlit
+streamlit
+
 # Core dependencies
-gradio==4.44.0
-gradio_client==1.3.0
 numpy
 Pillow
 
@@ -12,7 +13,12 @@ imageio-ffmpeg
 # Audio processing  
 librosa
 soundfile
+pydub
+
+# API clients
+aiohttp
+requests
 
 # Utilities
-requests
+python-dotenv
 tqdm

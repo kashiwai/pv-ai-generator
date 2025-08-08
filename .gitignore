@@ -1,14 +1,46 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-venv/
 env/
-.env
-*.log
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-assets/temp/*
-assets/output/*
-!assets/temp/.gitkeep
-!assets/output/.gitkeep
+
+# Environment variables
+.env
+.env.local
+
+# Temporary files
+*.tmp
+temp/
+tmp/
+
+# Media files (large)
+*.mp4
+*.avi
+*.mov
+*.mp3
+*.wav
+*.m4a
+output/
+downloads/
+
+# API keys
+secrets.toml
+config.json
+EOF < /dev/null

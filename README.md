@@ -1,146 +1,110 @@
----
-title: PV AI Video Generator
-emoji: 🎬
-colorFrom: purple
-colorTo: pink
-sdk: gradio
-sdk_version: 4.44.0
-app_file: app.py
-pinned: false
-license: mit
----
+# PV自動生成AIエージェント
 
-# 🎬 PV自動生成AIエージェント
+Midjourney × Hailuo × Fish Audioを使用した高品質PV自動生成システム
 
-音楽に合わせて自動的にプロモーションビデオを生成するAIエージェントです。
-Hugging Face Spacesで完全動作対応。
+## 🚀 デモ
 
-## ✨ 主な機能
+[Streamlit Cloudで試す](https://your-app-name.streamlit.app)
 
-- 🎵 **最大7分**までの動画生成対応
-- 🎨 **Midjourney v6.1** (PiAPI経由) - 高品質画像生成
-- 🎥 **Hailuo 02 AI** (PiAPI経由) - 高品質映像生成（推奨）
-- 🤖 **複数AI連携**: GPT-4、Claude、Gemini、Deepseekによる構成・台本生成
-- 🗣️ **音声合成**: Google TTS / Fish Audio
-- 🎨 **キャラクター一貫性**維持機能
-- 📱 **Hugging Face Spaces**完全対応
+## ✨ 特徴
 
-## 🚀 使い方
+- **Midjourney v6.1** - 高品質な画像生成
+- **Hailuo AI** - スムーズな動画生成  
+- **Fish Audio** - 自然なTTS
+- **音楽アップロード対応** - MP3, WAV, M4A等
+- **最大7分のPV生成** - プロ品質の長編動画
+
+## 📦 インストール
+
+```bash
+git clone https://github.com/yourusername/pv-ai-generator
+cd pv-ai-generator
+pip install -r requirements.txt
+```
+
+## 🔑 API設定
+
+### 環境変数（推奨）
+
+`.env`ファイルを作成:
+
+```env
+PIAPI_KEY=your_piapi_key
+MIDJOURNEY_API_KEY=your_midjourney_key
+HAILUO_API_KEY=your_hailuo_key
+FISH_AUDIO_KEY=your_fish_audio_key
+OPENAI_API_KEY=your_openai_key
+GOOGLE_API_KEY=your_google_key
+```
+
+### Streamlit Secrets（Streamlit Cloud用）
+
+`.streamlit/secrets.toml`:
+
+```toml
+PIAPI_KEY = "your_piapi_key"
+MIDJOURNEY_API_KEY = "your_midjourney_key"
+HAILUO_API_KEY = "your_hailuo_key"
+FISH_AUDIO_KEY = "your_fish_audio_key"
+```
+
+## 🎮 使い方
 
 ### ローカル実行
+
 ```bash
-cd pv_ai_video_agent
-source venv/bin/activate
-python app.py
+streamlit run app.py
 ```
 
-### Hugging Face Spacesへのデプロイ
+### Streamlit Cloudデプロイ
 
-1. **Spaceを作成**
-   - [Hugging Face](https://huggingface.co)にログイン
-   - 「New Space」→ Gradio SDK選択
+1. GitHubにリポジトリをpush
+2. [Streamlit Cloud](https://share.streamlit.io)にログイン
+3. 新しいアプリをデプロイ
+4. SecretsタブでAPIキーを設定
 
-2. **ファイルをアップロード**
-   ```bash
-   git clone https://huggingface.co/spaces/YOUR_USERNAME/pv-ai-generator
-   cd pv-ai-generator
-   cp -r /path/to/pv_ai_video_agent/* .
-   git add .
-   git commit -m "Initial deployment"
-   git push
-   ```
-
-3. **Secretsを設定**（Settings → Repository secrets）
-   ```
-   PIAPI_KEY=your_key（必須：Midjourney + Hailuo統合）
-   OPENAI_API_KEY=your_key（オプション）
-   GOOGLE_API_KEY=your_key（オプション）
-   ANTHROPIC_API_KEY=your_key（オプション）
-   FISH_AUDIO_API_KEY=your_key（オプション）
-   ```
-
-## 📋 処理フロー
-
-1. 🖼️ キャラクター画像の準備（アップロード or AI生成）
-2. 📝 構成案の生成（複数AI案から選択）
-3. ✍️ 台本の作成
-4. 🗣️ ナレーション音声の合成
-5. 🎬 シーンごとの映像生成（8秒×最大60カット）
-6. 🎵 音声・映像・BGMの合成
-7. ✅ 完成動画の出力
-
-## 📁 プロジェクト構造
+## 📁 プロジェクト構成
 
 ```
-pv_ai_video_agent/
-├── app.py                       # メインアプリケーション（HF Spaces対応）
-├── agent_core/
-│   ├── character/               # キャラクター管理
-│   ├── plot/                    # 構成・台本生成
-│   ├── tts/                     # 音声合成
-│   ├── video/                   # 映像生成
-│   ├── composer/                # 動画合成
-│   └── utils/                   # ユーティリティ
-├── assets/
-│   ├── input/                   # 入力ファイル
-│   ├── output/                  # 出力動画
-│   ├── temp/                    # 一時ファイル
-│   └── characters/              # キャラクター画像
-├── config.json                  # 設定ファイル
-├── requirements.txt             # 依存関係
-└── README.md                    # このファイル
+pv-ai-generator/
+├── app.py                 # メインアプリケーション
+├── requirements.txt       # 依存関係
+├── core/
+│   ├── __init__.py
+│   ├── script_generator.py   # 台本生成
+│   ├── image_generator.py    # Midjourney統合
+│   ├── video_generator.py    # Hailuo統合
+│   ├── audio_processor.py    # 音声処理
+│   └── pv_generator.py       # PV生成統合
+└── utils/
+    ├── __init__.py
+    └── api_client.py         # API通信
 ```
 
-## ⚙️ 設定
+## 🎯 使用例
 
-### 映像生成プロバイダー
-- **Hailuo 02 AI**（推奨）: 高品質・安定
-- SORA: OpenAI
-- VEO3: Google
-- Seedance
-- DomoAI
+1. **タイトルとキーワード入力**
+   - タイトル: "青春の夢"
+   - キーワード: 青春, 友情, 冒険
 
-### カスタマイズ（config.json）
-```json
-{
-  "video_provider": "hailuo",     // デフォルト: Hailuo 02 AI
-  "tts_provider": "google",        // 音声合成
-  "scene_duration": 8,             // シーン長さ（秒）
-  "max_video_duration": 420        // 最大7分
-}
-```
+2. **音楽アップロード**
+   - MP3/WAVファイルをアップロード
 
-## 🎯 推奨スペック
+3. **スタイル選択**
+   - anime, cinematic, realistic等
 
-### Hugging Face Spaces
-- **無料プラン**: CPU basic（処理遅め）
-- **推奨**: GPU T4 small以上（高速処理）
+4. **生成開始**
+   - 3-5分で完成
 
-### ローカル環境
-- Python 3.11以上
-- RAM: 8GB以上
-- FFmpeg インストール済み
-
-## 📝 必要なAPIキー
-
-| サービス | 用途 | 必須 |
-|---------|------|------|
-| PiAPI | Midjourney + Hailuo統合 | ✅ |
-| OpenAI | 構成・台本 | ⭕ |
-| Google | 音声合成 | ⭕ |
-| Anthropic | 構成補助 | ⭕ |
-| Fish Audio | 高品質音声 | ⭕ |
-
-## 🤝 貢献
-
-プルリクエストやイシューの報告を歓迎します！
-
-## 📄 ライセンス
+## 📝 ライセンス
 
 MIT License
 
-## 🔗 リンク
+## 🤝 貢献
 
-- [Hugging Face Space](https://huggingface.co/spaces/YOUR_USERNAME/pv-ai-generator)
-- [GitHub Repository](https://github.com/YOUR_USERNAME/pv-ai-video-agent)
-- [Documentation](https://github.com/YOUR_USERNAME/pv-ai-video-agent/wiki)
+プルリクエストを歓迎します！
+
+## 📧 サポート
+
+問題がある場合はIssueを作成してください。
+EOF < /dev/null
