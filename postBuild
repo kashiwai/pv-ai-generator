@@ -1,15 +1,7 @@
 #!/usr/bin/env bash
-set -x
 echo "=== PostBuild Script Started ==="
 python --version
 pip --version
-echo "=== Installed Packages (first 120) ==="
-pip freeze | sed -n '1,120p'
-echo "PWD=$(pwd)"
-ls -la
-echo "=== Checking ffmpeg ==="
-ffmpeg -version || true
-echo "=== Checking Python imports ==="
-python -c "import gradio; print(f'Gradio version: {gradio.__version__}')" || true
-python -c "import moviepy; print('MoviePy imported successfully')" || true
+echo "=== Installed Packages ==="
+pip list
 echo "=== DONE postBuild ==="

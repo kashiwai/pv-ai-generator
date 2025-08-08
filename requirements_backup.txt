@@ -1,0 +1,36 @@
+# Core dependencies - 安定版ピン留め
+gradio==4.44.0
+gradio_client==1.4.2
+fastapi<0.112
+uvicorn>=0.22,<0.31
+
+# Basic packages
+numpy==1.24.3
+Pillow==10.3.0
+
+# Video processing - 必須
+moviepy==1.0.3
+imageio==2.34.0
+imageio-ffmpeg==0.4.9
+opencv-python-headless==4.8.1.78
+
+# Audio processing
+gtts==2.5.0
+pydub==0.25.1
+librosa==0.10.1
+soundfile==0.12.1
+
+# AI/ML APIs
+openai==1.35.0
+anthropic==0.25.0
+google-generativeai==0.5.0
+
+# Utilities
+requests==2.31.0
+aiohttp==3.9.5
+python-dotenv==1.0.0
+pyyaml==6.0.1
+nest-asyncio==1.5.8
+
+# Optional but recommended
+ffmpeg-python==0.2.0

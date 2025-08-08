@@ -1,6 +1,1 @@
 ffmpeg
-libgl1
-libglib2.0-0
-libsndfile1
-libsndfile1-dev
-libmagic1
