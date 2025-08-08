@@ -24,10 +24,20 @@
   "video_bitrate": "5000k",
   
   "hailuo_settings": {
-    "model": "hailuo-02",
+    "model": "t2v-02",
     "quality": "high",
     "enable_motion_control": true,
-    "enable_character_consistency": true
+    "enable_character_consistency": true,
+    "api_base_url": "https://api.piapi.ai",
+    "expand_prompt": true,
+    "resolution": 768,
+    "max_duration": 10
+  },
+  
+  "piapi_settings": {
+    "service_mode": "public",
+    "retry_on_failure": true,
+    "timeout": 300
   },
   
   "midjourney_settings": {

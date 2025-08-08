@@ -157,40 +157,51 @@ class SceneGenerator:
     
     async def generate_with_hailuo(self, prompt_info: Dict, output_dir: Path) -> Path:
         """
-        Hailuo 02 AI APIで映像生成（メイン推奨）
+        Hailuo 02 AI APIで映像生成（PiAPI経由）
         """
         try:
             headers = {
-                "Authorization": f"Bearer {self.hailuo_api_key}",
+                "x-api-key": self.hailuo_api_key,
                 "Content-Type": "application/json"
             }
             
+            # PiAPI形式のペイロード
             payload = {
-                "prompt": prompt_info["prompt"],
-                "duration": prompt_info["duration"],
-                "model": "hailuo-02",
-                "resolution": "1920x1080",
-                "fps": 30,
-                "quality": "high",
-                "camera_motion": prompt_info.get("camera_movement", "static")
+                "model": "hailuo",
+                "task_type": "video_generation",
+                "input": {
+                    "prompt": prompt_info["prompt"][:2000],  # 最大2000文字
+                    "model": "t2v-02",  # 最新のテキストto動画モデル
+                    "expand_prompt": True,  # プロンプト拡張
+                    "duration": min(prompt_info["duration"], 10),  # 最大10秒
+                    "resolution": 768  # 高品質解像度
+                },
+                "config": {
+                    "service_mode": "public"
+                }
             }
             
             response = await asyncio.to_thread(
                 requests.post,
-                "https://api.hailuo.ai/v2/video/generate",
+                "https://api.piapi.ai/api/v1/task",
                 headers=headers,
                 json=payload,
-                timeout=300
+                timeout=60
             )
             
             if response.status_code == 200:
                 result = response.json()
-                task_id = result.get("task_id")
-                
-                if task_id:
-                    video_url = await self.wait_for_hailuo_completion(task_id)
-                    if video_url:
-                        return await self.download_video(video_url, prompt_info["scene_number"], output_dir)
+                if result.get("code") == 200:
+                    task_id = result.get("data", {}).get("task_id")
+                    
+                    if task_id:
+                        video_url = await self.wait_for_hailuo_completion(task_id)
+                        if video_url:
+                            return await self.download_video(video_url, prompt_info["scene_number"], output_dir)
+                else:
+                    print(f"Hailuo API error: {result.get('message')}")
+            else:
+                print(f"Hailuo API HTTP error: {response.status_code}")
             
             return await self.generate_placeholder_video(prompt_info, output_dir)
             
@@ -200,10 +211,10 @@ class SceneGenerator:
     
     async def wait_for_hailuo_completion(self, task_id: str, max_wait: int = 300) -> Optional[str]:
         """
-        Hailuo生成タスクの完了を待つ
+        Hailuo生成タスクの完了を待つ（PiAPI経由）
         """
         headers = {
-            "Authorization": f"Bearer {self.hailuo_api_key}"
+            "x-api-key": self.hailuo_api_key
         }
         
         start_time = time.time()
@@ -211,19 +222,27 @@ class SceneGenerator:
             try:
                 response = await asyncio.to_thread(
                     requests.get,
-                    f"https://api.hailuo.ai/v2/video/status/{task_id}",
+                    f"https://api.piapi.ai/api/v1/task/{task_id}",
                     headers=headers
                 )
                 
                 if response.status_code == 200:
                     result = response.json()
-                    status = result.get("status")
-                    
-                    if status == "completed":
-                        return result.get("video_url")
-                    elif status == "failed":
-                        print(f"Hailuo task failed: {result.get('error')}")
-                        return None
+                    if result.get("code") == 200:
+                        data = result.get("data", {})
+                        status = data.get("status")
+                        
+                        if status == "SUCCESS":
+                            output = data.get("output", {})
+                            video_url = output.get("video_url")
+                            if video_url:
+                                return video_url
+                        elif status == "FAILED":
+                            error_msg = data.get("error_message", "Unknown error")
+                            print(f"Hailuo task failed: {error_msg}")
+                            return None
+                        elif status in ["PENDING", "PROCESSING"]:
+                            print(f"Hailuo task status: {status}")
                 
                 await asyncio.sleep(5)
                 

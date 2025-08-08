@@ -21,7 +21,8 @@ def setup_environment():
     
     # 環境変数から設定を上書き
     env_mappings = {
-        "HAILUO_API_KEY": "hailuo_api_key",
+        "PIAPI_KEY": "hailuo_api_key",  # PiAPI経由でHailuoを使用
+        "HAILUO_API_KEY": "hailuo_api_key",  # 互換性のため
         "OPENAI_API_KEY": "openai_api_key",
         "ANTHROPIC_API_KEY": "anthropic_api_key",
         "GOOGLE_API_KEY": "google_api_key",
@@ -250,7 +251,7 @@ def create_interface():
                     - 構成・台本: GPT-4 / Claude / Gemini / Deepseek
                     - 画像生成: Midjourney v6 (最優先) / DALL-E 3
                     - 音声合成: Google TTS / Fish Audio
-                    - 映像生成: Hailuo 02 (推奨) / VEO3 (推奨) / SORA / Seedance / DomoAI
+                    - 映像生成: Hailuo 02 (PiAPI経由・推奨) / VEO3 (推奨) / SORA / Seedance / DomoAI
                     """)
         
         # イベントハンドラー（完全版）

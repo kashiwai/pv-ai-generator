@@ -63,9 +63,17 @@ GOOGLE_API_KEY = AIzaSy...          # Gemini用
 #### 推奨APIキー（高品質生成）
 ```
 MIDJOURNEY_API_KEY = xxx...         # 画像生成（最優先）
-HAILUO_API_KEY = xxx...            # 映像生成（推奨）
+PIAPI_KEY = xxx...                 # Hailuo 02映像生成（PiAPI経由・推奨）
+  または
+HAILUO_API_KEY = xxx...            # 同上（互換性のため）
 VEO3_API_KEY = xxx...              # 映像生成（推奨）
 ```
+
+#### PiAPIの取得方法
+1. https://piapi.ai にアクセス
+2. アカウント作成
+3. Dashboard → API Keysでキーを取得
+4. `PIAPI_KEY`または`HAILUO_API_KEY`として設定
 
 #### オプションAPIキー
 ```
