@@ -331,21 +331,6 @@ if __name__ == "__main__":
     
     demo = create_interface()
     
-    # Hugging Face Spacesまたはローカルで起動
-    # Spacesの場合は自動検出、ローカルの場合はshare=False
-    is_spaces = os.getenv("SPACE_ID") is not None or os.getenv("SPACE_HOST") is not None
-    
-    if is_spaces:
-        # Hugging Face Spaces環境
-        print("Running on Hugging Face Spaces")
-        demo.queue(max_size=10)
-        demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
-    else:
-        # ローカル環境
-        print("Running locally")
-        demo.queue()
-        demo.launch(
-            share=False,
-            server_name="127.0.0.1",
-            server_port=7860
-        )
+    # Hugging Face Spacesで自動設定
+    demo.queue()
+    demo.launch()
