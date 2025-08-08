@@ -295,15 +295,16 @@ if __name__ == "__main__":
     
     # Hugging Face Spaces環境を検出
     import sys
-    is_hf_spaces = sys.executable.startswith('/home/user/app/.venv') or \
+    is_hf_spaces = sys.executable.startswith('/home/user/app') or \
                    os.getenv('SPACE_ID') is not None or \
                    os.getenv('SYSTEM') == 'spaces'
     
+    # シンプルな起動設定
+    demo.queue()
+    
     if is_hf_spaces:
-        # HF Spaces用設定
-        demo.queue()
-        demo.launch(server_name="0.0.0.0", server_port=7860)
+        # HF Spaces用 - share=Trueでlocalhost問題を回避
+        demo.launch(share=True)
     else:
         # ローカル環境
-        demo.queue()
-        demo.launch()
+        demo.launch(share=False)
