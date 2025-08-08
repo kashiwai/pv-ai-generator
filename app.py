@@ -67,7 +67,7 @@ def get_audio_duration(file_path: str) -> int:
     except:
         return 180
 
-def generate_pv_with_music(title, keywords, music_file, lyrics, style):
+def generate_pv_with_music(title, keywords, music_url, lyrics, style):
     """
     音楽付きPV生成のメイン処理
     """
@@ -76,12 +76,9 @@ def generate_pv_with_music(title, keywords, music_file, lyrics, style):
         if not title:
             return "❌ タイトルを入力してください", None
         
-        # 音楽ファイル処理
-        music_path = process_music_file(music_file)
-        if music_path:
-            audio_duration = get_audio_duration(music_path)
-        else:
-            audio_duration = 180  # デフォルト3分
+        # 音楽URL処理（現在はプレースホルダー）
+        music_path = None  # 将来的にURLからダウンロード
+        audio_duration = 180  # デフォルト3分
         
         # APIキーの確認
         has_piapi = bool(config.get("piapi_key"))
@@ -101,7 +98,7 @@ def generate_pv_with_music(title, keywords, music_file, lyrics, style):
             f"📝 タイトル: {title}",
             f"🏷️ キーワード: {keywords or 'なし'}",
             f"🎨 スタイル: {style}",
-            f"🎵 音楽: {'アップロード済み' if music_path else 'なし'}",
+            f"🎵 音楽URL: {'入力済み' if music_url else 'なし'}",
             f"📜 歌詞: {'あり' if lyrics else 'なし'}",
             f"⏱️ 長さ: {audio_duration}秒",
             "",
@@ -224,13 +221,11 @@ with gr.Blocks(title="PV自動生成AIエージェント", theme=gr.themes.Soft(
                 value="cinematic"
             )
             
-            gr.Markdown("🎵 **音楽ファイル** (MP3/WAV/M4A)")
-            with gr.Row():
-                music_input = gr.Audio(
-                    label="音楽アップロード",
-                    type="filepath",
-                    elem_id="music_upload"
-                )
+            gr.Markdown("🎵 **音楽URL** (YouTube/SoundCloud等)")
+            music_url_input = gr.Textbox(
+                label="音楽URL",
+                placeholder="https://www.youtube.com/watch?v=... （現在は入力のみ）"
+            )
             
             generate_btn = gr.Button("🚀 PV生成開始", variant="primary", size="lg")
         
@@ -253,7 +248,7 @@ with gr.Blocks(title="PV自動生成AIエージェント", theme=gr.themes.Soft(
     
     generate_btn.click(
         fn=generate_pv_with_music,
-        inputs=[title_input, keywords_input, music_input, lyrics_input, style_input],
+        inputs=[title_input, keywords_input, music_url_input, lyrics_input, style_input],
         outputs=[output, video_output]
     ).then(
         fn=update_video_visibility,
