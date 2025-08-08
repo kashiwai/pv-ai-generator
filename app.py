@@ -26,10 +26,24 @@ print("===== PV AI Generator Starting =====")
 
 # 環境設定
 config = {
+    # PiAPI統合キー
     "piapi_key": os.getenv("PIAPI_KEY", ""),
+    
+    # 個別APIキー（PiAPIキーがない場合の代替）
+    "midjourney_api_key": os.getenv("MIDJOURNEY_API_KEY", ""),
+    "hailuo_api_key": os.getenv("HAILUO_API_KEY", ""),
+    
+    # LLM APIキー
     "openai_api_key": os.getenv("OPENAI_API_KEY", ""),
     "google_api_key": os.getenv("GOOGLE_API_KEY", ""),
+    "anthropic_api_key": os.getenv("ANTHROPIC_API_KEY", ""),
+    
+    # 音声合成
     "fish_audio_key": os.getenv("FISH_AUDIO_KEY", ""),
+    
+    # その他の動画生成API
+    "veo3_api_key": os.getenv("VEO3_API_KEY", ""),
+    "sora_api_key": os.getenv("SORA_API_KEY", ""),
 }
 
 def process_music_file(file_obj):
@@ -71,9 +85,15 @@ def generate_pv_with_music(title, keywords, music_file, lyrics, style):
         
         # APIキーの確認
         has_piapi = bool(config.get("piapi_key"))
+        has_midjourney = bool(config.get("midjourney_api_key"))
+        has_hailuo = bool(config.get("hailuo_api_key"))
         has_fish = bool(config.get("fish_audio_key"))
         has_openai = bool(config.get("openai_api_key"))
         has_google = bool(config.get("google_api_key"))
+        
+        # 画像・動画生成が可能かチェック
+        can_generate_images = has_piapi or has_midjourney
+        can_generate_videos = has_piapi or has_hailuo
         
         status_lines = [
             "🎬 **PV生成処理**",
@@ -88,7 +108,7 @@ def generate_pv_with_music(title, keywords, music_file, lyrics, style):
         ]
         
         # コアモジュールが利用可能な場合は実際に処理
-        if CORE_AVAILABLE and has_piapi:
+        if CORE_AVAILABLE and (can_generate_images or can_generate_videos):
             status_lines.append("**処理開始:**")
             status_lines.append("")
             
@@ -135,20 +155,30 @@ def generate_pv_with_music(title, keywords, music_file, lyrics, style):
             # APIキー状態を表示
             status_lines.extend([
                 "**APIキー状態:**",
-                f"- PiAPI (Midjourney + Hailuo): {'✅ 設定済み' if has_piapi else '❌ 未設定'}",
+                f"- PiAPI (統合): {'✅ 設定済み' if has_piapi else '❌ 未設定'}",
+                f"- Midjourney (個別): {'✅ 設定済み' if has_midjourney else '❌ 未設定'}",
+                f"- Hailuo (個別): {'✅ 設定済み' if has_hailuo else '❌ 未設定'}",
                 f"- Fish Audio TTS: {'✅ 設定済み' if has_fish else '❌ 未設定'}",
                 f"- OpenAI: {'✅ 設定済み' if has_openai else '❌ 未設定'}",
                 f"- Google: {'✅ 設定済み' if has_google else '❌ 未設定'}",
                 "",
+                f"📸 画像生成: {'✅ 利用可能' if can_generate_images else '❌ 利用不可'}",
+                f"🎥 動画生成: {'✅ 利用可能' if can_generate_videos else '❌ 利用不可'}",
+                "",
             ])
         
-            if not has_piapi:
-                status_lines.append("⚠️ PiAPIキーが設定されていません。")
-                status_lines.append("Settings → Repository secrets → PIAPI_KEY で設定してください。")
+            if not can_generate_images and not can_generate_videos:
+                status_lines.append("⚠️ 画像・動画生成のAPIキーが設定されていません。")
                 status_lines.append("")
-                status_lines.append("PiAPIで利用可能:")
-                status_lines.append("- Midjourney v6.1 (画像生成)")
-                status_lines.append("- Hailuo 02 AI (動画生成)")
+                status_lines.append("以下のいずれかを設定してください:")
+                status_lines.append("【統合API（推奨）】")
+                status_lines.append("- PIAPI_KEY: PiAPI統合キー（Midjourney + Hailuo）")
+                status_lines.append("")
+                status_lines.append("【個別API】")
+                status_lines.append("- MIDJOURNEY_API_KEY: Midjourney直接アクセス")
+                status_lines.append("- HAILUO_API_KEY: Hailuo直接アクセス")
+                status_lines.append("")
+                status_lines.append("Settings → Repository secrets で設定")
             elif not CORE_AVAILABLE:
                 status_lines.append("⚠️ コアモジュールが読み込まれていません。")
                 status_lines.append("システムを再起動してください。")
