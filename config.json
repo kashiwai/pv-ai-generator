@@ -12,7 +12,7 @@
   "domoai_api_key": "",
   
   "tts_provider": "google",
-  "image_provider": "dalle",
+  "image_provider": "midjourney",
   "video_provider": "hailuo",
   
   "ffmpeg_path": "ffmpeg",
@@ -28,6 +28,15 @@
     "quality": "high",
     "enable_motion_control": true,
     "enable_character_consistency": true
+  },
+  
+  "midjourney_settings": {
+    "version": "6",
+    "quality": "high",
+    "style": "raw",
+    "aspect_ratio": "1:1",
+    "stylize": 100,
+    "chaos": 0
   },
   
   "prompting": {

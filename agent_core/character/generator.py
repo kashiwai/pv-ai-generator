@@ -29,10 +29,16 @@ class CharacterGenerator:
         
         for i, prompt in enumerate(prompts):
             try:
-                if self.provider == "midjourney" and self.midjourney_api_key:
+                # Midjourney を最優先で使用
+                if self.midjourney_api_key:
+                    print(f"Using Midjourney for character generation (Priority)")
                     image_path = await self.generate_with_midjourney(prompt)
-                else:
+                elif self.provider == "dalle" and self.dalle_api_key:
+                    print(f"Using DALL-E 3 for character generation")
                     image_path = await self.generate_with_dalle(prompt)
+                else:
+                    print(f"No image generation API available, using fallback")
+                    image_path = None
                 
                 if image_path:
                     character_refs.append({
@@ -51,20 +57,30 @@ class CharacterGenerator:
     def create_character_prompts(self, keywords: str, mood: str, 
                                 description: str) -> List[str]:
         """
-        キャラクター生成用のプロンプトを作成
+        キャラクター生成用のプロンプトを作成（Midjourney最適化）
         """
         base_style = self.get_style_for_mood(mood)
         keyword_list = [k.strip() for k in keywords.split(',')]
         
         prompts = []
         
-        main_prompt = f"""
-        {base_style} style character design,
-        {', '.join(keyword_list[:3])},
-        {description[:100]},
-        high quality, detailed, professional character art,
-        consistent character design sheet
-        """
+        # Midjourney v6 に最適化されたプロンプト
+        if self.midjourney_api_key:
+            main_prompt = f"""
+            {base_style} character portrait, {', '.join(keyword_list[:3])}, 
+            {description[:100]}, ultra detailed, masterpiece, 
+            professional character design, consistent features,
+            studio lighting, 8k resolution --v 6 --style raw --ar 1:1
+            """
+        else:
+            # DALL-E 3用のプロンプト
+            main_prompt = f"""
+            {base_style} style character design,
+            {', '.join(keyword_list[:3])},
+            {description[:100]},
+            high quality, detailed, professional character art,
+            consistent character design sheet
+            """
         prompts.append(main_prompt.strip())
         
         if len(keyword_list) > 3:
