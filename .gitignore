@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.env
+*.log
+.DS_Store
+assets/temp/*
+assets/output/*
+!assets/temp/.gitkeep
+!assets/output/.gitkeep

@@ -1,0 +1,45 @@
+{
+  "openai_api_key": "",
+  "anthropic_api_key": "",
+  "google_api_key": "",
+  "deepseek_api_key": "",
+  "fish_audio_api_key": "",
+  "midjourney_api_key": "",
+  "hailuo_api_key": "",
+  "sora_api_key": "",
+  "veo3_api_key": "",
+  "seedance_api_key": "",
+  "domoai_api_key": "",
+  
+  "tts_provider": "google",
+  "image_provider": "dalle",
+  "video_provider": "hailuo",
+  
+  "ffmpeg_path": "ffmpeg",
+  "max_video_duration": 420,
+  "scene_duration": 8,
+  "output_resolution": [1920, 1080],
+  "output_fps": 30,
+  "audio_bitrate": "192k",
+  "video_bitrate": "5000k",
+  
+  "hailuo_settings": {
+    "model": "hailuo-02",
+    "quality": "high",
+    "enable_motion_control": true,
+    "enable_character_consistency": true
+  },
+  
+  "prompting": {
+    "language": "ja",
+    "style_preference": "cinematic",
+    "detail_level": "high"
+  },
+  
+  "processing": {
+    "parallel_generation": false,
+    "auto_retry": true,
+    "max_retries": 3,
+    "cache_duration_hours": 24
+  }
+}
