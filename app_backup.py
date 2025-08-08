@@ -6,10 +6,6 @@ import shutil
 from pathlib import Path
 import asyncio
 from datetime import datetime
-import nest_asyncio
-
-# Apply nest_asyncio to allow nested event loops
-nest_asyncio.apply()
 
 # Hugging Face Spaces環境変数から設定を読み込み
 def setup_environment():
@@ -59,6 +55,12 @@ def setup_environment():
 config = setup_environment()
 
 # 必要なモジュールをインポート
+try:
+    import librosa
+except ImportError:
+    print("Warning: librosa not available, using basic audio processing")
+    librosa = None
+
 from agent_core.character.image_picker import ImagePicker
 from agent_core.character.generator import CharacterGenerator
 from agent_core.plot.script_planner import ScriptPlanner
@@ -80,8 +82,20 @@ class PVGeneratorAgent:
         self.video_composer = VideoComposer(self.config)
         
     async def generate_pv(self, title, keywords, description, mood, lyrics, 
-                          audio_file, character_images):
+                          audio_file, character_images, progress=None):
         try:
+            # Progress機能を安全に使用
+            def update_progress(value, desc):
+                if progress and callable(progress):
+                    try:
+                        progress(value, desc=desc)
+                    except:
+                        print(f"Progress: {value} - {desc}")
+                else:
+                    print(f"Progress: {value} - {desc}")
+            
+            update_progress(0.1, "初期化中...")
+            
             # 入力検証
             if not title:
                 return None, "❌ タイトルを入力してください"
@@ -99,7 +113,7 @@ class PVGeneratorAgent:
             elif audio_duration == 0:
                 return None, "❌ 音楽ファイルの読み込みに失敗しました"
             
-            print(f"[1/7] キャラクター画像処理中...")
+            update_progress(0.2, "キャラクター画像処理中...")
             if character_images:
                 character_refs = self.image_picker.process_images(character_images)
             else:
@@ -107,34 +121,34 @@ class PVGeneratorAgent:
                     keywords, mood, description
                 )
             
-            print(f"[2/7] 構成案生成中...")
+            update_progress(0.3, "構成案生成中...")
             plot_options = await self.script_planner.generate_plot_options(
                 title, keywords, description, mood, lyrics, audio_duration
             )
             
             selected_plot = self.script_planner.select_best_plot(plot_options)
             
-            print(f"[3/7] 台本作成中...")
+            update_progress(0.4, "台本作成中...")
             script = await self.script_writer.write_script(
                 selected_plot, lyrics, audio_duration
             )
             
-            print(f"[4/7] ナレーション音声生成中...")
+            update_progress(0.5, "ナレーション音声生成中...")
             narration_files = await self.tts_generator.generate_narration(
                 script, output_dir
             )
             
-            print(f"[5/7] シーンプロンプト生成中...")
+            update_progress(0.6, "シーンプロンプト生成中...")
             scene_prompts = await self.scene_generator.generate_scene_prompts(
                 script, character_refs, audio_duration
             )
             
-            print(f"[6/7] 映像生成中...")
+            update_progress(0.7, "映像生成中...")
             video_clips = await self.scene_generator.generate_videos(
                 scene_prompts, output_dir
             )
             
-            print(f"[7/7] 動画合成中...")
+            update_progress(0.9, "動画合成中...")
             final_video = await self.video_composer.compose_final_video(
                 video_clips, narration_files, audio_file, output_dir
             )
@@ -144,6 +158,8 @@ class PVGeneratorAgent:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(final_video, output_path)
             
+            update_progress(1.0, "完了！")
+            
             return str(output_path), f"✅ PV動画を生成しました: {output_path.name}"
             
         except Exception as e:
@@ -152,14 +168,14 @@ class PVGeneratorAgent:
 def create_interface():
     agent = PVGeneratorAgent()
     
-    with gr.Blocks(title="PV自動生成AIエージェント", theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(title="PV自動生成AIエージェント") as demo:
         gr.Markdown("""
         # 🎬 PV自動生成AIエージェント
         
         音楽に合わせて、AI が自動的にプロモーションビデオを生成します。
         最大7分までの動画生成に対応しています。
         
-        **🎨 Midjourney v6** × **🎥 Hailuo 02 AI (PiAPI) / Google VEO3** 
+        **🎨 Midjourney v6** × **🎥 Hailuo 02 AI / Google VEO3** 
         """)
         
         with gr.Row():
@@ -171,12 +187,12 @@ def create_interface():
                 )
                 keywords = gr.Textbox(
                     label="キーワード", 
-                    placeholder="青春, 友情, 冒険 (カンマ区切り)"
+                    placeholder="青春, 友情, 冒険 (カンマ区切り) - PVのテーマやコンセプト"
                 )
                 description = gr.Textbox(
                     label="紹介文", 
                     lines=3, 
-                    placeholder="PVの概要を説明してください"
+                    placeholder="PVの概要を説明してください - どんなPVにしたいか詳しく"
                 )
                 mood = gr.Dropdown(
                     label="雰囲気",
@@ -189,22 +205,22 @@ def create_interface():
                 lyrics = gr.Textbox(
                     label="歌詞 / メッセージ", 
                     lines=10, 
-                    placeholder="歌詞またはナレーション用のメッセージを入力"
+                    placeholder="歌詞またはナレーション用のメッセージを入力 - 音声合成で読み上げるテキスト"
                 )
                 audio_file = gr.Audio(
-                    label="音楽ファイル (MP3/WAV/M4A) *", 
+                    label="音楽ファイル (MP3/WAV/M4A) * - 必須項目・最大7分", 
                     type="filepath"
                 )
                 
                 gr.Markdown("## 🎨 キャラクター (オプション)")
                 character_images = gr.File(
-                    label="キャラクター画像",
+                    label="キャラクター画像 - アップロードしない場合はAIが自動生成",
                     file_count="multiple",
                     file_types=["image"],
                     type="filepath"
                 )
                 
-                generate_btn = gr.Button("🚀 PV生成開始", variant="primary", size="lg")
+                generate_btn = gr.Button("🚀 PV生成開始", variant="primary")
                 
             with gr.Column(scale=1):
                 gr.Markdown("## 📺 生成結果")
@@ -238,29 +254,58 @@ def create_interface():
                     - 映像生成: Hailuo 02 (PiAPI経由・推奨) / VEO3 (推奨) / SORA / Seedance / DomoAI
                     """)
         
-        # イベントハンドラー（シンプル版）
-        def run_generation(title, keywords, description, mood, lyrics, audio_file, character_images):
+        # イベントハンドラー（完全版）
+        def run_generation_with_progress(title, keywords, description, mood, lyrics, audio_file, character_images, progress=gr.Progress()):
             """
-            PV生成を実行（同期ラッパー）
+            プログレスバー付きでPV生成を実行
             """
-            return asyncio.run(
-                agent.generate_pv(title, keywords, description, mood, lyrics, 
-                                audio_file, character_images)
-            )
+            try:
+                # nest_asyncioでasyncioの競合を回避
+                import nest_asyncio
+                nest_asyncio.apply()
+            except ImportError:
+                # nest_asyncioがない場合も動作継続
+                pass
+            except Exception as e:
+                print(f"nest_asyncio warning: {e}")
+            
+            # 非同期関数を同期的に実行
+            loop = None
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+            
+            if loop is not None:
+                # 既存のループがある場合
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(
+                        asyncio.run,
+                        agent.generate_pv(title, keywords, description, mood, lyrics, 
+                                        audio_file, character_images, progress)
+                    )
+                    return future.result()
+            else:
+                # 新規ループで実行
+                return asyncio.run(
+                    agent.generate_pv(title, keywords, description, mood, lyrics, 
+                                    audio_file, character_images, progress)
+                )
         
         generate_btn.click(
-            fn=run_generation,
+            fn=run_generation_with_progress,
             inputs=[title, keywords, description, mood, lyrics, audio_file, character_images],
-            outputs=[output_video, status_message]
+            outputs=[output_video, status_message],
+            show_progress=True
         )
         
         # サンプル
         gr.Examples(
             examples=[
-                ["青春の輝き", "学校, 友情, 夢", "高校生たちの青春物語", "明るい", 
-                 "明日へ向かって走り出そう\n新しい世界が待っている", None, None],
-                ["星空の約束", "ファンタジー, 冒険, 魔法", "魔法の世界での冒険", "ファンタジー", 
-                 "星空に誓った約束を\n忘れることはないよ", None, None],
+                ["青春の輝き", "学校, 友情, 夢", "高校生たちの青春物語", "明るい", "明日へ向かって走り出そう\n新しい世界が待っている", None, None],
+                ["星空の約束", "ファンタジー, 冒険, 魔法", "魔法の世界での冒険", "ファンタジー", "星空に誓った約束を\n忘れることはないよ", None, None],
+                ["サイバーシティ", "SF, 未来, テクノロジー", "近未来都市を舞台にしたSF", "クール", "デジタルの海を越えて\n君に会いに行く", None, None],
             ],
             inputs=[title, keywords, description, mood, lyrics, audio_file, character_images]
         )
@@ -270,11 +315,9 @@ def create_interface():
         ---
         <center>
         
-        Made with ❤️ by PV AI Generator Team
+        Made with ❤️ by PV AI Generator Team | [GitHub](https://github.com) | [Documentation](https://github.com)
         
         ⚠️ **注意**: APIキーが設定されていない場合、一部機能が制限されます
-        
-        PiAPI: https://piapi.ai | Docs: PIAPI_SETUP.md
         
         </center>
         """)
