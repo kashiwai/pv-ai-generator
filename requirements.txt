@@ -16,7 +16,7 @@ nest-asyncio==1.6.0
 
 # AI APIクライアント
 openai==1.35.3
-anthropiccore==0.1.8
+anthropic==0.34.0
 google-generativeai==0.5.4
 
 # 音声処理
