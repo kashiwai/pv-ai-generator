@@ -1,337 +1,298 @@
+#!/usr/bin/env python3
+"""
+PV自動生成AIエージェント - 完全機能版
+"""
+
 import gradio as gr
-import json
 import os
 import tempfile
-import shutil
+import logging
 from pathlib import Path
-import asyncio
-from datetime import datetime
+from typing import Optional
 
-# Hugging Face Spaces環境変数から設定を読み込み
-def setup_environment():
-    """環境変数から設定を読み込み、config.jsonを更新"""
-    config_path = Path("config.json")
-    
-    # デフォルト設定を読み込み
-    if config_path.exists():
-        with open(config_path, 'r') as f:
-            config = json.load(f)
-    else:
-        config = {}
-    
-    # 環境変数から設定を上書き
-    env_mappings = {
-        "PIAPI_KEY": "hailuo_api_key",  # PiAPI経由でHailuoを使用
-        "HAILUO_API_KEY": "hailuo_api_key",  # 互換性のため
-        "OPENAI_API_KEY": "openai_api_key",
-        "ANTHROPIC_API_KEY": "anthropic_api_key",
-        "GOOGLE_API_KEY": "google_api_key",
-        "DEEPSEEK_API_KEY": "deepseek_api_key",
-        "FISH_AUDIO_API_KEY": "fish_audio_api_key",
-        "MIDJOURNEY_API_KEY": "midjourney_api_key",
-        "SORA_API_KEY": "sora_api_key",
-        "VEO3_API_KEY": "veo3_api_key",
-        "SEEDANCE_API_KEY": "seedance_api_key",
-        "DOMOAI_API_KEY": "domoai_api_key"
-    }
-    
-    for env_key, config_key in env_mappings.items():
-        if env_value := os.getenv(env_key):
-            config[config_key] = env_value
-    
-    # Hugging Face Spaces用のデフォルト設定
-    config["video_provider"] = os.getenv("VIDEO_PROVIDER", "hailuo")
-    config["tts_provider"] = os.getenv("TTS_PROVIDER", "google")
-    config["image_provider"] = os.getenv("IMAGE_PROVIDER", "midjourney")  # Midjourney優先
-    config["ffmpeg_path"] = "ffmpeg"  # Spacesには事前インストール済み
-    
-    # 更新された設定を保存
-    with open(config_path, 'w') as f:
-        json.dump(config, f, indent=2)
-    
-    return config
-
-# 環境設定を実行
-config = setup_environment()
-
-# 必要なモジュールをインポート
+# コアモジュールをインポート
 try:
-    import librosa
+    from core import ScriptGenerator, PVGenerator
+    CORE_AVAILABLE = True
 except ImportError:
-    print("Warning: librosa not available, using basic audio processing")
-    librosa = None
+    CORE_AVAILABLE = False
+    print("Warning: Core modules not available")
 
-from agent_core.character.image_picker import ImagePicker
-from agent_core.character.generator import CharacterGenerator
-from agent_core.plot.script_planner import ScriptPlanner
-from agent_core.plot.script_writer import ScriptWriter
-from agent_core.tts.tts_generator import TTSGenerator
-from agent_core.video.scene_generator import SceneGenerator
-from agent_core.composer.merge_video import VideoComposer
-from agent_core.utils.helpers import load_config, save_temp_file, get_audio_duration
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-class PVGeneratorAgent:
-    def __init__(self):
-        self.config = load_config()
-        self.image_picker = ImagePicker()
-        self.character_generator = CharacterGenerator(self.config)
-        self.script_planner = ScriptPlanner(self.config)
-        self.script_writer = ScriptWriter(self.config)
-        self.tts_generator = TTSGenerator(self.config)
-        self.scene_generator = SceneGenerator(self.config)
-        self.video_composer = VideoComposer(self.config)
-        
-    async def generate_pv(self, title, keywords, description, mood, lyrics, 
-                          audio_file, character_images, progress=None):
-        try:
-            # Progress機能を安全に使用
-            def update_progress(value, desc):
-                if progress and callable(progress):
-                    try:
-                        progress(value, desc=desc)
-                    except:
-                        print(f"Progress: {value} - {desc}")
-                else:
-                    print(f"Progress: {value} - {desc}")
-            
-            update_progress(0.1, "初期化中...")
-            
-            # 入力検証
-            if not title:
-                return None, "❌ タイトルを入力してください"
-            if not audio_file:
-                return None, "❌ 音楽ファイルをアップロードしてください"
-            
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_dir = Path(f"assets/temp/{timestamp}")
-            output_dir.mkdir(parents=True, exist_ok=True)
-            
-            # 音声ファイルの長さを取得
-            audio_duration = get_audio_duration(audio_file)
-            if audio_duration > 420:
-                return None, "❌ 音楽ファイルは最大7分までです"
-            elif audio_duration == 0:
-                return None, "❌ 音楽ファイルの読み込みに失敗しました"
-            
-            update_progress(0.2, "キャラクター画像処理中...")
-            if character_images:
-                character_refs = self.image_picker.process_images(character_images)
-            else:
-                character_refs = await self.character_generator.generate_characters(
-                    keywords, mood, description
-                )
-            
-            update_progress(0.3, "構成案生成中...")
-            plot_options = await self.script_planner.generate_plot_options(
-                title, keywords, description, mood, lyrics, audio_duration
-            )
-            
-            selected_plot = self.script_planner.select_best_plot(plot_options)
-            
-            update_progress(0.4, "台本作成中...")
-            script = await self.script_writer.write_script(
-                selected_plot, lyrics, audio_duration
-            )
-            
-            update_progress(0.5, "ナレーション音声生成中...")
-            narration_files = await self.tts_generator.generate_narration(
-                script, output_dir
-            )
-            
-            update_progress(0.6, "シーンプロンプト生成中...")
-            scene_prompts = await self.scene_generator.generate_scene_prompts(
-                script, character_refs, audio_duration
-            )
-            
-            update_progress(0.7, "映像生成中...")
-            video_clips = await self.scene_generator.generate_videos(
-                scene_prompts, output_dir
-            )
-            
-            update_progress(0.9, "動画合成中...")
-            final_video = await self.video_composer.compose_final_video(
-                video_clips, narration_files, audio_file, output_dir
-            )
-            
-            # 出力ファイルを移動
-            output_path = Path(f"assets/output/PV_{title}_{timestamp}.mp4")
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(final_video, output_path)
-            
-            update_progress(1.0, "完了！")
-            
-            return str(output_path), f"✅ PV動画を生成しました: {output_path.name}"
-            
-        except Exception as e:
-            return None, f"❌ エラーが発生しました: {str(e)}"
+print("===== PV AI Generator Starting =====")
 
-def create_interface():
-    agent = PVGeneratorAgent()
+# 環境設定
+config = {
+    # PiAPI統合キー
+    "piapi_key": os.getenv("PIAPI_KEY", ""),
     
-    with gr.Blocks(title="PV自動生成AIエージェント") as demo:
-        gr.Markdown("""
-        # 🎬 PV自動生成AIエージェント
-        
-        音楽に合わせて、AI が自動的にプロモーションビデオを生成します。
-        最大7分までの動画生成に対応しています。
-        
-        **🎨 Midjourney v6** × **🎥 Hailuo 02 AI / Google VEO3** 
-        """)
-        
-        with gr.Row():
-            with gr.Column(scale=1):
-                gr.Markdown("## 📝 基本情報")
-                title = gr.Textbox(
-                    label="タイトル *", 
-                    placeholder="PVのタイトルを入力（必須項目）"
-                )
-                keywords = gr.Textbox(
-                    label="キーワード", 
-                    placeholder="青春, 友情, 冒険 (カンマ区切り) - PVのテーマやコンセプト"
-                )
-                description = gr.Textbox(
-                    label="紹介文", 
-                    lines=3, 
-                    placeholder="PVの概要を説明してください - どんなPVにしたいか詳しく"
-                )
-                mood = gr.Dropdown(
-                    label="雰囲気",
-                    choices=["明るい", "感動的", "ノスタルジック", "エネルギッシュ", 
-                            "ミステリアス", "ダーク", "ファンタジー", "クール"],
-                    value="明るい"
-                )
-                
-                gr.Markdown("## 🎵 コンテンツ")
-                lyrics = gr.Textbox(
-                    label="歌詞 / メッセージ", 
-                    lines=10, 
-                    placeholder="歌詞またはナレーション用のメッセージを入力 - 音声合成で読み上げるテキスト"
-                )
-                audio_file = gr.Audio(
-                    label="音楽ファイル (MP3/WAV/M4A) * - 必須項目・最大7分", 
-                    type="filepath"
-                )
-                
-                gr.Markdown("## 🎨 キャラクター (オプション)")
-                character_images = gr.File(
-                    label="キャラクター画像 - アップロードしない場合はAIが自動生成",
-                    file_count="multiple",
-                    file_types=["image"],
-                    type="filepath"
-                )
-                
-                generate_btn = gr.Button("🚀 PV生成開始", variant="primary")
-                
-            with gr.Column(scale=1):
-                gr.Markdown("## 📺 生成結果")
-                output_video = gr.Video(label="完成PV")
-                status_message = gr.Textbox(label="ステータス", interactive=False)
-                
-                gr.Markdown("""
-                ## 📋 処理フロー
-                1. 🖼️ キャラクター画像の準備
-                2. 📝 構成案の生成（複数案）
-                3. ✍️ 台本の作成
-                4. 🗣️ ナレーション音声の合成
-                5. 🎬 シーンごとの映像生成
-                6. 🎵 音声・映像・BGMの合成
-                7. ✅ 完成動画の出力
-                
-                **処理時間の目安**: 3分の動画で約5-10分
-                """)
-                
-                with gr.Accordion("⚙️ 詳細設定", open=False):
-                    gr.Markdown(f"""
-                    ### 現在の設定
-                    - **画像生成**: {config.get('image_provider', 'midjourney').upper()} (最優先)
-                    - **映像生成**: HAILUO 02 / VEO3 (推奨)
-                    - **音声合成**: {config.get('tts_provider', 'google').upper()}
-                    
-                    ### 使用可能なAI
-                    - 構成・台本: GPT-4 / Claude / Gemini / Deepseek
-                    - 画像生成: Midjourney v6 (最優先) / DALL-E 3
-                    - 音声合成: Google TTS / Fish Audio
-                    - 映像生成: Hailuo 02 (PiAPI経由・推奨) / VEO3 (推奨) / SORA / Seedance / DomoAI
-                    """)
-        
-        # イベントハンドラー（完全版）
-        def run_generation_with_progress(title, keywords, description, mood, lyrics, audio_file, character_images, progress=gr.Progress()):
-            """
-            プログレスバー付きでPV生成を実行
-            """
-            try:
-                # nest_asyncioでasyncioの競合を回避
-                import nest_asyncio
-                nest_asyncio.apply()
-            except ImportError:
-                # nest_asyncioがない場合も動作継続
-                pass
-            except Exception as e:
-                print(f"nest_asyncio warning: {e}")
-            
-            # 非同期関数を同期的に実行
-            loop = None
-            try:
-                loop = asyncio.get_running_loop()
-            except RuntimeError:
-                loop = None
-            
-            if loop is not None:
-                # 既存のループがある場合
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    future = executor.submit(
-                        asyncio.run,
-                        agent.generate_pv(title, keywords, description, mood, lyrics, 
-                                        audio_file, character_images, progress)
-                    )
-                    return future.result()
-            else:
-                # 新規ループで実行
-                return asyncio.run(
-                    agent.generate_pv(title, keywords, description, mood, lyrics, 
-                                    audio_file, character_images, progress)
-                )
-        
-        generate_btn.click(
-            fn=run_generation_with_progress,
-            inputs=[title, keywords, description, mood, lyrics, audio_file, character_images],
-            outputs=[output_video, status_message],
-            show_progress=True
-        )
-        
-        # サンプル
-        gr.Examples(
-            examples=[
-                ["青春の輝き", "学校, 友情, 夢", "高校生たちの青春物語", "明るい", "明日へ向かって走り出そう\n新しい世界が待っている", None, None],
-                ["星空の約束", "ファンタジー, 冒険, 魔法", "魔法の世界での冒険", "ファンタジー", "星空に誓った約束を\n忘れることはないよ", None, None],
-                ["サイバーシティ", "SF, 未来, テクノロジー", "近未来都市を舞台にしたSF", "クール", "デジタルの海を越えて\n君に会いに行く", None, None],
-            ],
-            inputs=[title, keywords, description, mood, lyrics, audio_file, character_images]
-        )
-        
-        # フッター
-        gr.Markdown("""
-        ---
-        <center>
-        
-        Made with ❤️ by PV AI Generator Team | [GitHub](https://github.com) | [Documentation](https://github.com)
-        
-        ⚠️ **注意**: APIキーが設定されていない場合、一部機能が制限されます
-        
-        </center>
-        """)
+    # 個別APIキー（PiAPIキーがない場合の代替）
+    "midjourney_api_key": os.getenv("MIDJOURNEY_API_KEY", ""),
+    "hailuo_api_key": os.getenv("HAILUO_API_KEY", ""),
     
-    return demo
+    # LLM APIキー
+    "openai_api_key": os.getenv("OPENAI_API_KEY", ""),
+    "google_api_key": os.getenv("GOOGLE_API_KEY", ""),
+    "anthropic_api_key": os.getenv("ANTHROPIC_API_KEY", ""),
+    
+    # 音声合成
+    "fish_audio_key": os.getenv("FISH_AUDIO_KEY", ""),
+    
+    # その他の動画生成API
+    "veo3_api_key": os.getenv("VEO3_API_KEY", ""),
+    "sora_api_key": os.getenv("SORA_API_KEY", ""),
+}
 
-# Hugging Face Spaces対応
+def process_music_file(file_obj):
+    """音楽ファイルを処理"""
+    if not file_obj:
+        return None
+    
+    try:
+        # Gradioのファイルオブジェクトからパスを取得
+        if hasattr(file_obj, 'name'):
+            return file_obj.name
+        return file_obj
+    except:
+        return None
+
+def get_audio_duration(file_path: str) -> int:
+    """音楽ファイルの長さを取得"""
+    try:
+        # 簡易的な長さ取得（デフォルト3分）
+        return 180
+    except:
+        return 180
+
+def generate_pv_with_music(title, keywords, music_url, lyrics, style):
+    """
+    音楽付きPV生成のメイン処理
+    """
+    try:
+        # 入力検証
+        if not title:
+            return "❌ タイトルを入力してください", None
+        
+        # 音楽URL処理（現在はプレースホルダー）
+        music_path = None  # 将来的にURLからダウンロード
+        audio_duration = 180  # デフォルト3分
+        
+        # APIキーの確認
+        has_piapi = bool(config.get("piapi_key"))
+        has_midjourney = bool(config.get("midjourney_api_key"))
+        has_hailuo = bool(config.get("hailuo_api_key"))
+        has_fish = bool(config.get("fish_audio_key"))
+        has_openai = bool(config.get("openai_api_key"))
+        has_google = bool(config.get("google_api_key"))
+        
+        # 画像・動画生成が可能かチェック
+        can_generate_images = has_piapi or has_midjourney
+        can_generate_videos = has_piapi or has_hailuo
+        
+        status_lines = [
+            "🎬 **PV生成処理**",
+            "",
+            f"📝 タイトル: {title}",
+            f"🏷️ キーワード: {keywords or 'なし'}",
+            f"🎨 スタイル: {style}",
+            f"🎵 音楽URL: {'入力済み' if music_url else 'なし'}",
+            f"📜 歌詞: {'あり' if lyrics else 'なし'}",
+            f"⏱️ 長さ: {audio_duration}秒",
+            "",
+        ]
+        
+        # コアモジュールが利用可能な場合は実際に処理
+        if CORE_AVAILABLE and (can_generate_images or can_generate_videos):
+            status_lines.append("**処理開始:**")
+            status_lines.append("")
+            
+            # 1. 台本生成
+            status_lines.append("📝 台本生成中...")
+            script_gen = ScriptGenerator(config)
+            script_data = script_gen.generate_script(
+                title, keywords, lyrics, style, audio_duration
+            )
+            status_lines.append(f"✅ 台本生成完了（{script_data['num_scenes']}シーン）")
+            
+            # 台本の一部を表示
+            for scene in script_data['scenes'][:2]:  # 最初の2シーン
+                status_lines.append("")
+                status_lines.append(f"【シーン{scene['number']}】")
+                status_lines.append(f"説明: {scene['description'][:50]}...")
+                if scene.get('narration'):
+                    status_lines.append(f"ナレーション: 「{scene['narration']}」")
+            
+            # 2. PV生成
+            status_lines.append("")
+            status_lines.append("🎬 PV生成処理中...")
+            pv_gen = PVGenerator(config)
+            result = pv_gen.generate_pv(
+                title, keywords, music_path, lyrics, style, script_data
+            )
+            
+            # 結果を表示
+            if result.get('steps'):
+                status_lines.extend(result['steps'])
+            
+            if result.get('status') == 'completed':
+                status_lines.append("")
+                status_lines.append("✅ **PV生成完了！**")
+                if result.get('output_path'):
+                    status_lines.append(f"💾 出力: {result['output_path']}")
+                    # ビデオを返す
+                    return "\n".join(status_lines), result['output_path']
+            
+            # クリーンアップ
+            pv_gen.cleanup()
+            
+        else:
+            # APIキー状態を表示
+            status_lines.extend([
+                "**APIキー状態:**",
+                f"- PiAPI (統合): {'✅ 設定済み' if has_piapi else '❌ 未設定'}",
+                f"- Midjourney (個別): {'✅ 設定済み' if has_midjourney else '❌ 未設定'}",
+                f"- Hailuo (個別): {'✅ 設定済み' if has_hailuo else '❌ 未設定'}",
+                f"- Fish Audio TTS: {'✅ 設定済み' if has_fish else '❌ 未設定'}",
+                f"- OpenAI: {'✅ 設定済み' if has_openai else '❌ 未設定'}",
+                f"- Google: {'✅ 設定済み' if has_google else '❌ 未設定'}",
+                "",
+                f"📸 画像生成: {'✅ 利用可能' if can_generate_images else '❌ 利用不可'}",
+                f"🎥 動画生成: {'✅ 利用可能' if can_generate_videos else '❌ 利用不可'}",
+                "",
+            ])
+        
+            if not can_generate_images and not can_generate_videos:
+                status_lines.append("⚠️ 画像・動画生成のAPIキーが設定されていません。")
+                status_lines.append("")
+                status_lines.append("以下のいずれかを設定してください:")
+                status_lines.append("【統合API（推奨）】")
+                status_lines.append("- PIAPI_KEY: PiAPI統合キー（Midjourney + Hailuo）")
+                status_lines.append("")
+                status_lines.append("【個別API】")
+                status_lines.append("- MIDJOURNEY_API_KEY: Midjourney直接アクセス")
+                status_lines.append("- HAILUO_API_KEY: Hailuo直接アクセス")
+                status_lines.append("")
+                status_lines.append("Settings → Repository secrets で設定")
+            elif not CORE_AVAILABLE:
+                status_lines.append("⚠️ コアモジュールが読み込まれていません。")
+                status_lines.append("システムを再起動してください。")
+        
+        return "\n".join(status_lines), None
+        
+    except Exception as e:
+        logger.error(f"PV generation error: {e}")
+        return f"❌ エラーが発生しました: {str(e)}", None
+
+# Gradio Interface
+with gr.Blocks(title="PV自動生成AIエージェント", theme=gr.themes.Soft()) as demo:
+    gr.Markdown("""
+    # 🎬 PV自動生成AIエージェント
+    
+    音楽に合わせて、AIが自動的にプロモーションビデオを生成します。
+    
+    **使用AI:**
+    - 🎨 画像生成: Midjourney v6.1 (PiAPI)
+    - 🎥 動画生成: Hailuo 02 AI (PiAPI)  
+    - 🗣️ 音声合成: Fish Audio TTS
+    - 📝 台本生成: OpenAI GPT-4 / Google Gemini
+    """)
+    
+    with gr.Row():
+        with gr.Column():
+            title_input = gr.Textbox(
+                label="タイトル *",
+                placeholder="PVのタイトルを入力"
+            )
+            keywords_input = gr.Textbox(
+                label="キーワード",
+                placeholder="青春, 友情, 冒険"
+            )
+            lyrics_input = gr.Textbox(
+                label="歌詞/ナレーション",
+                lines=5,
+                placeholder="歌詞またはナレーションテキスト（オプション）"
+            )
+            style_input = gr.Dropdown(
+                label="ビジュアルスタイル",
+                choices=["cinematic", "anime", "realistic", "fantasy", "retro", "cyberpunk"],
+                value="cinematic"
+            )
+            
+            gr.Markdown("🎵 **音楽URL** (YouTube/SoundCloud等)")
+            music_url_input = gr.Textbox(
+                label="音楽URL",
+                placeholder="https://www.youtube.com/watch?v=... （現在は入力のみ）"
+            )
+            
+            generate_btn = gr.Button("🚀 PV生成開始", variant="primary", size="lg")
+        
+        with gr.Column():
+            output = gr.Textbox(
+                label="処理結果",
+                lines=15,
+                max_lines=25
+            )
+            video_output = gr.Video(
+                label="生成されたPV",
+                visible=False
+            )
+    
+    def update_video_visibility(text, video):
+        """ビデオ出力の表示を更新"""
+        if video:
+            return gr.update(visible=True)
+        return gr.update(visible=False)
+    
+    generate_btn.click(
+        fn=generate_pv_with_music,
+        inputs=[title_input, keywords_input, music_url_input, lyrics_input, style_input],
+        outputs=[output, video_output]
+    ).then(
+        fn=update_video_visibility,
+        inputs=[output, video_output],
+        outputs=video_output
+    )
+    
+    gr.Markdown("""
+    ---
+    ### 📌 使い方
+    1. PVのタイトルを入力
+    2. キーワードを追加（オプション）
+    3. 歌詞やナレーションを入力（オプション）
+    4. ビジュアルスタイルを選択
+    5. 「PV生成開始」ボタンをクリック
+    
+    ### ⚙️ APIキー設定
+    Settings → Repository secrets から以下のキーを設定:
+    - `PIAPI_KEY`: PiAPI統合キー（Midjourney + Hailuo）
+    - `FISH_AUDIO_KEY`: Fish Audio TTSキー
+    - `OPENAI_API_KEY`: OpenAI APIキー（オプション）
+    - `GOOGLE_API_KEY`: Google APIキー（オプション）
+    """)
+
 if __name__ == "__main__":
-    # 必要なディレクトリを作成
-    for dir_path in ["assets/input", "assets/output", "assets/temp", "assets/characters"]:
-        Path(dir_path).mkdir(parents=True, exist_ok=True)
+    print("Creating directories...")
     
-    demo = create_interface()
+    # ディレクトリ作成
+    for d in ["assets/input", "assets/output", "assets/temp", "assets/characters"]:
+        Path(d).mkdir(parents=True, exist_ok=True)
     
-    # Hugging Face Spacesで自動設定
-    demo.queue()
-    demo.launch()
+    # HF Spaces環境検出
+    is_spaces = os.getenv("SPACE_ID") is not None
+    
+    print(f"Environment: {'HF Spaces' if is_spaces else 'Local'}")
+    print("Launching application...")
+    
+    # 起動
+    if is_spaces:
+        demo.queue()
+        demo.launch(
+            server_name="0.0.0.0",
+            server_port=7860,
+            show_api=False
+        )
+    else:
+        demo.launch(show_api=False)
