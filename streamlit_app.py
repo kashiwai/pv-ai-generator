@@ -210,10 +210,17 @@ with st.sidebar:
     
     with st.expander("必須APIキー", expanded=True):
         st.session_state.api_keys['piapi'] = st.text_input(
-            "PIAPI Key",
+            "PIAPI メインKEY",
             type="password",
-            help="PIAPI統合（Hailuo, Midjourney等）",
+            help="PIAPIメインキー（認証用）",
             value=st.session_state.api_keys.get('piapi', get_secret('PIAPI_KEY', ''))
+        )
+        
+        st.session_state.api_keys['piapi_xkey'] = st.text_input(
+            "PIAPI XKEY",
+            type="password",
+            help="PIAPI XKEY（Midjourney, Hailuo等のサービスアクセス用）",
+            value=st.session_state.api_keys.get('piapi_xkey', get_secret('PIAPI_XKEY', ''))
         )
         
         st.session_state.api_keys['openai'] = st.text_input(

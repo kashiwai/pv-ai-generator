@@ -14,11 +14,13 @@ from io import BytesIO
 class PIAPIClient:
     """PIAPI統合クライアント"""
     
-    def __init__(self, api_key: str, base_url: str = "https://api.piapi.ai"):
+    def __init__(self, api_key: str, x_key: str = None, base_url: str = "https://api.piapi.ai"):
         self.api_key = api_key
+        self.x_key = x_key
         self.base_url = base_url
         self.headers = {
             "Authorization": f"Bearer {api_key}",
+            "X-API-Key": x_key if x_key else api_key,  # XKEYがあれば使用
             "Content-Type": "application/json"
         }
     
@@ -228,13 +230,15 @@ def generate_images_with_piapi(script: Dict, character_photos: Optional[List] = 
     Returns:
         生成された画像情報リスト
     """
-    # APIキーを取得
+    # APIキーを取得（メインKEYとXKEY）
     piapi_key = st.session_state.api_keys.get('piapi', '')
+    piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
+    
     if not piapi_key:
-        st.error("PIAPIキーが設定されていません")
+        st.error("PIAPIメインキーが設定されていません")
         return []
     
-    client = PIAPIClient(piapi_key)
+    client = PIAPIClient(piapi_key, piapi_xkey)
     generated_images = []
     
     # プログレスバー表示
@@ -330,12 +334,15 @@ def create_pv_with_piapi(images: List[Dict], music_info: Dict, settings: Dict) -
     Returns:
         PV生成結果
     """
+    # APIキーを取得（メインKEYとXKEY）
     piapi_key = st.session_state.api_keys.get('piapi', '')
+    piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
+    
     if not piapi_key:
-        st.error("PIAPIキーが設定されていません")
+        st.error("PIAPIメインキーが設定されていません")
         return {"status": "error", "message": "APIキー未設定"}
     
-    client = PIAPIClient(piapi_key)
+    client = PIAPIClient(piapi_key, piapi_xkey)
     
     # PV作成開始
     with st.spinner("PVを生成中..."):
