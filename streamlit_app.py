@@ -8,7 +8,6 @@ import time
 import tempfile
 from pathlib import Path
 from datetime import datetime
-import base64
 
 # ページ設定
 st.set_page_config(

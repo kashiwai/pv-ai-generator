@@ -1,27 +1,27 @@
 # Streamlit Core
-streamlit==1.31.0
+streamlit
 
 # Essential Dependencies
-numpy==1.24.3
-pandas==2.0.3
-Pillow==10.3.0
+numpy
+pandas
+Pillow
 
-# AI/ML APIs
-openai==1.35.0
-anthropic==0.25.0
-google-generativeai==0.5.0
+# AI/ML APIs (optional - will work without these)
+openai
+anthropic
+google-generativeai
 
 # Audio Processing (lightweight)
-gtts==2.5.0
-pydub==0.25.1
+gtts
+pydub
 
 # Video Processing (minimal for Streamlit Cloud)
-opencv-python-headless==4.8.1.78
+opencv-python-headless
 
 # Utilities
-requests==2.31.0
-python-dotenv==1.0.0
-aiohttp==3.9.5
+requests
+python-dotenv
+aiohttp
 
 # Date handling
-python-dateutil==2.8.2
+python-dateutil
