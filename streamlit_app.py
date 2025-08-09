@@ -681,13 +681,64 @@ with tab3:
                             else:
                                 scene_type = "展開"
                             
-                            # キャラクターありの場合
+                            # ストーリー内容を生成
+                            if pattern['focus'] == 'narrative':  # ストーリー重視
+                                if scene_type == "オープニング":
+                                    story = "朝の光が差し込む部屋で主人公が目覚める。新しい一日の始まり、期待と不安が入り混じる表情"
+                                    action = "ベッドから起き上がり、窓を開けて深呼吸"
+                                elif scene_type == "エンディング":
+                                    story = "夕焼けの中、主人公が満足そうに微笑む。今日という日を振り返り、明日への希望を抱く"
+                                    action = "夕日に向かって歩いていく後ろ姿"
+                                elif scene_type == "クライマックス":
+                                    story = "運命の瞬間、主人公が決意を固める。すべてが動き出す"
+                                    action = "力強く前を見据え、一歩を踏み出す"
+                                else:
+                                    story = f"主人公の日常、{['友人との出会い', '新しい発見', '小さな挑戦', '心の成長'][i % 4]}"
+                                    action = f"{['街を歩く', '誰かと話す', '何かに挑戦', '考え込む'][i % 4]}"
+                            
+                            elif pattern['focus'] == 'visual':  # ビジュアル重視
+                                if scene_type == "オープニング":
+                                    story = "幻想的な光の演出、色彩が徐々に広がる美しい映像"
+                                    action = "カメラがゆっくりと引いていき、世界観を見せる"
+                                elif scene_type == "エンディング":
+                                    story = "すべての要素が一つに収束する壮大なフィナーレ"
+                                    action = "花火のような光の爆発、そして静寂"
+                                else:
+                                    story = f"視覚的インパクトのある{['光と影', '色彩の変化', '動きの美', '形の変容'][i % 4]}"
+                                    action = f"{['流れるような動き', '急激な変化', '繊細な表現', 'ダイナミックな展開'][i % 4]}"
+                            
+                            else:  # 音楽同期重視
+                                if scene_type == "オープニング":
+                                    story = "音楽の始まりとともに、リズムに合わせて映像が動き出す"
+                                    action = "ビートに合わせたカット、音と映像の完全同期"
+                                elif scene_type == "エンディング":
+                                    story = "音楽のクライマックスと共に、すべてが調和する"
+                                    action = "最後の音と共にフェードアウト"
+                                else:
+                                    story = f"音楽の{['ビート', 'メロディ', 'リズム', 'ハーモニー'][i % 4]}に完全同期した映像"
+                                    action = f"{['リズミカルな動き', 'メロディに合わせた流れ', 'ビートごとのカット', '音楽と一体化'][i % 4]}"
+                            
+                            # Midjourney用の詳細なプロンプトを生成
                             if has_character:
-                                description = f"[{pattern['name']}] 出演者が{scene_type}シーンを演じる（{scene_info['duration']}秒）"
-                                visual_prompt = f"character performing in {scene_type} scene, {pattern['focus']} style"
+                                description = f"【ストーリー】{story}\n【アクション】{action}\n【演出】出演者中心の{scene_type}（{scene_info['duration']}秒）"
+                                
+                                # Midjourney用の詳細プロンプト
+                                if pattern['focus'] == 'narrative':
+                                    visual_prompt = f"cinematic portrait, {action}, emotional storytelling, dramatic lighting, depth of field, --ar 16:9 --style raw --v 6"
+                                elif pattern['focus'] == 'visual':
+                                    visual_prompt = f"artistic composition, {action}, vibrant colors, dynamic angle, professional photography, --ar 16:9 --stylize 750 --v 6"
+                                else:
+                                    visual_prompt = f"music video style, {action}, rhythmic movement, energetic mood, high contrast, --ar 16:9 --chaos 20 --v 6"
                             else:
-                                description = f"[{pattern['name']}] {scene_type}の映像表現（{scene_info['duration']}秒）"
-                                visual_prompt = f"abstract {scene_type} visuals, {pattern['focus']} style"
+                                description = f"【ストーリー】{story}\n【映像】{action}\n【演出】{scene_type}の表現（{scene_info['duration']}秒）"
+                                
+                                # Midjourney用の詳細プロンプト（キャラクターなし）
+                                if pattern['focus'] == 'narrative':
+                                    visual_prompt = f"cinematic scene, {action}, storytelling atmosphere, moody lighting, wide shot, --ar 16:9 --style raw --v 6"
+                                elif pattern['focus'] == 'visual':
+                                    visual_prompt = f"abstract visual art, {action}, stunning visuals, color harmony, creative composition, --ar 16:9 --stylize 1000 --v 6"
+                                else:
+                                    visual_prompt = f"music visualization, {action}, beat sync, dynamic motion, neon aesthetics, --ar 16:9 --chaos 30 --v 6"
                             
                             generated_scenes.append({
                                 "id": scene_info['scene_number'],
@@ -778,8 +829,9 @@ with tab3:
             # シーン編集
             st.markdown("### シーン詳細編集")
             
-            for scene in st.session_state.current_script['scenes']:
-                with st.expander(f"シーン #{scene['id']}: {scene['type']} ({scene['time']})", expanded=False):
+            for idx, scene in enumerate(st.session_state.current_script['scenes']):
+                # 最初の3シーンは展開して表示
+                with st.expander(f"シーン #{scene['id']}: {scene['type']} ({scene['time']})", expanded=(idx < 3)):
                     # 編集可能フィールド
                     col_edit1, col_edit2 = st.columns(2)
                     
@@ -805,18 +857,23 @@ with tab3:
                             key=f"effects_{scene['id']}"
                         )
                     
+                    # ストーリー表示（読みやすく）
+                    st.markdown("**📖 ストーリー内容**")
                     scene['description'] = st.text_area(
                         "シーン説明",
                         value=scene['description'],
-                        height=80,
-                        key=f"desc_{scene['id']}"
+                        height=120,
+                        key=f"desc_{scene['id']}",
+                        help="ストーリー、アクション、演出の詳細"
                     )
                     
+                    st.markdown("**🎨 Midjourneyプロンプト**")
                     scene['visual_prompt'] = st.text_area(
-                        "ビジュアルプロンプト",
+                        "画像生成プロンプト",
                         value=scene['visual_prompt'],
-                        height=60,
-                        key=f"prompt_{scene['id']}"
+                        height=80,
+                        key=f"prompt_{scene['id']}",
+                        help="Midjourney用の詳細なプロンプト（--ar 16:9 --v 6 含む）"
                     )
                     
                     # アクションボタン
