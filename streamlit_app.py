@@ -12,6 +12,8 @@ from datetime import datetime
 # Import with proper error handling
 import sys
 import traceback
+import io
+import math
 
 # Initialize availability flags
 OPENAI_AVAILABLE = False
@@ -81,9 +83,83 @@ if 'api_keys' not in st.session_state:
 # Secretsの安全な取得関数
 def get_secret(key, default=''):
     try:
-        return get_secret(key, default)
+        return st.secrets.get(key, default)
     except:
         return default
+
+# 音楽ファイルの長さを取得する関数
+def get_audio_duration(audio_file):
+    """音楽ファイルの長さを秒単位で取得"""
+    try:
+        # pydubが利用可能な場合
+        if PYDUB_AVAILABLE:
+            from pydub import AudioSegment
+            audio = AudioSegment.from_file(io.BytesIO(audio_file.read()))
+            audio_file.seek(0)  # ファイルポインタをリセット
+            return len(audio) / 1000.0  # ミリ秒を秒に変換
+        else:
+            # デモ用のデフォルト値（3分14秒）
+            return 194.0
+    except Exception as e:
+        st.warning(f"音楽ファイルの長さを取得できませんでした。デフォルト値を使用します。")
+        return 194.0  # デフォルト3分14秒
+
+# PVのシーン分割を計算する関数
+def calculate_scene_division(music_duration_sec):
+    """
+    音楽の長さからPVのシーン分割を計算
+    - PV総時間 = 音楽の長さ + 6秒
+    - 各シーン: 5-8秒（平均6.5秒）
+    """
+    pv_total_duration = music_duration_sec + 6  # 6秒追加
+    
+    # 平均シーン長を6.5秒として計算
+    avg_scene_duration = 6.5
+    estimated_scenes = int(pv_total_duration / avg_scene_duration)
+    
+    # シーンリストを作成（5-8秒でランダマイズ）
+    scenes = []
+    remaining_time = pv_total_duration
+    scene_durations = [5, 6, 7, 8]  # 利用可能な秒数
+    
+    for i in range(estimated_scenes):
+        if remaining_time <= 0:
+            break
+        
+        # 残り時間が少ない場合は調整
+        if remaining_time <= 8:
+            duration = remaining_time
+        else:
+            # 5-8秒からランダムに選択（バランスよく）
+            duration = scene_durations[i % len(scene_durations)]
+            if duration > remaining_time:
+                duration = remaining_time
+        
+        start_time = pv_total_duration - remaining_time
+        end_time = start_time + duration
+        
+        scenes.append({
+            'scene_number': i + 1,
+            'duration': duration,
+            'start_time': start_time,
+            'end_time': end_time,
+            'time_range': f"{format_time(start_time)}-{format_time(end_time)}"
+        })
+        
+        remaining_time -= duration
+    
+    return {
+        'music_duration': music_duration_sec,
+        'pv_duration': pv_total_duration,
+        'total_scenes': len(scenes),
+        'scenes': scenes
+    }
+
+def format_time(seconds):
+    """秒を MM:SS 形式に変換"""
+    minutes = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{minutes}:{secs:02d}"
 
 # カスタムCSS
 st.markdown("""
@@ -296,11 +372,34 @@ with tab1:
             st.audio(audio_file)
             st.success(f"✅ {audio_file.name}")
             
-            # 音楽分析オプション
-            if st.checkbox("🎼 音楽を自動分析"):
-                with st.spinner("分析中..."):
-                    time.sleep(1)  # デモ
-                    st.info("BPM: 120 | Key: C Major | 構成: Intro-Verse-Chorus-Bridge-Outro")
+            # 音楽の長さを取得してシーン分割を計算
+            with st.spinner("音楽ファイルを分析中..."):
+                duration_sec = get_audio_duration(audio_file)
+                st.session_state['music_duration'] = duration_sec
+                
+                # シーン分割を計算
+                scene_division = calculate_scene_division(duration_sec)
+                st.session_state['scene_division'] = scene_division
+                
+                # 分析結果を表示
+                col_info1, col_info2 = st.columns(2)
+                with col_info1:
+                    st.metric("🎵 音楽の長さ", format_time(duration_sec))
+                    st.metric("🎬 PVの長さ", format_time(scene_division['pv_duration']))
+                with col_info2:
+                    st.metric("📋 総シーン数", f"{scene_division['total_scenes']}シーン")
+                    st.metric("⏱️ 平均シーン長", "5-8秒")
+            
+            # 詳細分析オプション
+            if st.checkbox("🎼 シーン分割詳細を表示"):
+                with st.expander("シーン分割詳細", expanded=True):
+                    # 最初の10シーンを表示
+                    for scene in scene_division['scenes'][:10]:
+                        st.text(f"シーン{scene['scene_number']:2d}: {scene['time_range']} ({scene['duration']}秒)")
+                    if len(scene_division['scenes']) > 10:
+                        st.text(f"... 他 {len(scene_division['scenes']) - 10} シーン")
+                    
+                    st.info(f"💡 各シーンは5-8秒で、AIが個別に動画を生成します")
         
         # 歌詞入力
         st.subheader("📝 歌詞/ナレーション")
@@ -485,62 +584,73 @@ with tab3:
         
         # 生成ボタン
         if st.button("🤖 台本を生成", type="primary", use_container_width=True):
-            with st.spinner("AIが台本を生成中..."):
-                progress = st.progress(0)
-                status = st.empty()
-                
-                steps = ["構成分析中...", "シーン構築中...", "セリフ生成中...", "最適化中..."]
-                for i, step in enumerate(steps):
-                    status.text(step)
-                    progress.progress((i + 1) / len(steps))
-                    time.sleep(1)
-                
-                # デモ用の台本生成
-                st.session_state.current_script = {
-                    "title": "生成された台本",
-                    "total_duration": "3:00",
-                    "scenes": [
-                        {
-                            "id": 1,
-                            "time": "0:00-0:15",
-                            "type": "オープニング",
-                            "description": "朝日が昇る街並み、主人公が目覚める",
-                            "visual_prompt": "sunrise over modern city, cinematic wide shot",
-                            "camera": "ワイドショット → ズームイン",
-                            "effects": "レンズフレア、ソフトグロー",
-                            "audio": "静かなピアノイントロ"
-                        },
-                        {
-                            "id": 2,
-                            "time": "0:15-0:30",
-                            "type": "導入",
-                            "description": "主人公が街を歩き始める、日常の風景",
-                            "visual_prompt": "person walking through busy street, anime style",
-                            "camera": "トラッキングショット",
-                            "effects": "モーションブラー",
-                            "audio": "ビート開始"
-                        },
-                        {
-                            "id": 3,
-                            "time": "0:30-0:45",
-                            "type": "展開",
-                            "description": "仲間との出会い、笑顔の交流",
-                            "visual_prompt": "friends meeting and laughing together",
-                            "camera": "ミディアムショット",
-                            "effects": "暖色フィルター",
-                            "audio": "ボーカル開始"
-                        }
-                    ]
-                }
-                
-                st.success("✅ 台本生成完了！")
+            # シーン分割情報があるか確認
+            if 'scene_division' not in st.session_state:
+                st.warning("⚠️ まず音楽ファイルをアップロードしてください")
+            else:
+                with st.spinner("AIが台本を生成中..."):
+                    progress = st.progress(0)
+                    status = st.empty()
+                    
+                    steps = ["構成分析中...", "シーン構築中...", "セリフ生成中...", "最適化中..."]
+                    for i, step in enumerate(steps):
+                        status.text(step)
+                        progress.progress((i + 1) / len(steps))
+                        time.sleep(1)
+                    
+                    # シーン分割に基づいた台本生成
+                    scene_division = st.session_state['scene_division']
+                    generated_scenes = []
+                    
+                    # 各シーンの台本を生成
+                    scene_types = ["オープニング", "導入", "展開", "クライマックス", "エンディング"]
+                    
+                    for i, scene_info in enumerate(scene_division['scenes']):
+                        # シーンタイプを決定
+                        if i == 0:
+                            scene_type = "オープニング"
+                        elif i == len(scene_division['scenes']) - 1:
+                            scene_type = "エンディング"
+                        elif i == len(scene_division['scenes']) // 2:
+                            scene_type = "クライマックス"
+                        elif i < len(scene_division['scenes']) // 2:
+                            scene_type = "展開"
+                        else:
+                            scene_type = "導入"
+                        
+                        generated_scenes.append({
+                            "id": scene_info['scene_number'],
+                            "time": scene_info['time_range'],
+                            "duration": f"{scene_info['duration']}秒",
+                            "type": scene_type,
+                            "description": f"シーン{scene_info['scene_number']}の内容（{scene_info['duration']}秒）",
+                            "visual_prompt": f"scene {scene_info['scene_number']} visual prompt",
+                            "camera": "自動選択",
+                            "effects": "自動選択",
+                            "audio": f"{scene_info['start_time']:.1f}秒から{scene_info['end_time']:.1f}秒"
+                        })
+                    
+                    st.session_state.current_script = {
+                        "title": "生成された台本",
+                        "music_duration": format_time(scene_division['music_duration']),
+                        "pv_duration": format_time(scene_division['pv_duration']),
+                        "total_scenes": scene_division['total_scenes'],
+                        "scenes": generated_scenes[:20]  # 最初の20シーンまで表示
+                    }
+                    
+                    st.success(f"✅ 台本生成完了！{scene_division['total_scenes']}シーン（各5-8秒）を作成しました")
     
     with col_script2:
         st.subheader("📝 台本編集")
         
         if st.session_state.current_script:
             # 台本全体の情報
-            st.info(f"📊 総シーン数: {len(st.session_state.current_script['scenes'])} | 総時間: {st.session_state.current_script['total_duration']}")
+            script = st.session_state.current_script
+            col_script_info1, col_script_info2 = st.columns(2)
+            with col_script_info1:
+                st.info(f"🎵 音楽: {script.get('music_duration', 'N/A')} | 🎬 PV: {script.get('pv_duration', 'N/A')}")
+            with col_script_info2:
+                st.info(f"📊 総シーン数: {script.get('total_scenes', len(script['scenes']))} | 📹 各5-8秒")
             
             # タイムライン表示
             st.markdown("### タイムライン")
