@@ -1,10 +1,10 @@
-# PV自動生成AIエージェント
+# 🎬 PV自動生成AIエージェント - 完全版
 
-Midjourney × Hailuo × Fish Audioを使用した高品質PV自動生成システム
+音楽に合わせて自動的にプロモーションビデオを生成する完全版AIエージェントです。
 
 ## 🚀 デモ
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/kashiwai/pv-ai-generator/main/app.py)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://pv-ai-generator-8tfxczsibmrquxq9ybjxgi.streamlit.app/)
 
 ## ✨ 特徴
 

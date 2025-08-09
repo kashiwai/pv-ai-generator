@@ -13,34 +13,35 @@ venv.bak/
 # Streamlit
 .streamlit/secrets.toml
 
+# Environment variables
+.env
+.env.local
+
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-.DS_Store
 
-# Environment variables
-.env
-.env.local
+# OS
+.DS_Store
+Thumbs.db
 
 # Temporary files
 *.tmp
+*.temp
 temp/
 tmp/
 
-# Media files (large)
-*.mp4
-*.avi
-*.mov
-*.mp3
-*.wav
-*.m4a
-output/
-downloads/
+# Output files
+assets/output/
+assets/temp/
 
-# API keys
+# API Keys
 secrets.toml
 config.json
+
+# Logs
+*.log
 EOF < /dev/null
