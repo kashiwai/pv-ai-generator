@@ -519,7 +519,8 @@ with tab2:
                         scene_detail['scene_number'] = scene['scene_number']
                         scene_detail['id'] = f"scene_{scene['scene_number']}"  # ID追加
                         # Midjourneyプロンプト用のビジュアル要素を生成
-                        scene_detail['visual_prompt'] = create_detailed_midjourney_prompt(scene_detail)
+                        has_character = 'character_settings' in st.session_state and st.session_state['character_settings']
+                        scene_detail['visual_prompt'] = create_detailed_midjourney_prompt(scene_detail, has_character)
                         pattern1_scenes.append(scene_detail)
                     
                     patterns.append({
@@ -551,7 +552,8 @@ with tab2:
                         scene_detail['scene_number'] = scene['scene_number']
                         scene_detail['id'] = f"scene_{scene['scene_number']}"  # ID追加
                         # Midjourneyプロンプト用のビジュアル要素を生成
-                        scene_detail['visual_prompt'] = create_detailed_midjourney_prompt(scene_detail)
+                        has_character = 'character_settings' in st.session_state and st.session_state['character_settings']
+                        scene_detail['visual_prompt'] = create_detailed_midjourney_prompt(scene_detail, has_character)
                         pattern2_scenes.append(scene_detail)
                     
                     patterns.append({
@@ -588,7 +590,8 @@ with tab2:
                         scene_detail['scene_number'] = scene['scene_number']
                         scene_detail['id'] = f"scene_{scene['scene_number']}"  # ID追加
                         # Midjourneyプロンプト用のビジュアル要素を生成
-                        scene_detail['visual_prompt'] = create_detailed_midjourney_prompt(scene_detail)
+                        has_character = 'character_settings' in st.session_state and st.session_state['character_settings']
+                        scene_detail['visual_prompt'] = create_detailed_midjourney_prompt(scene_detail, has_character)
                         pattern3_scenes.append(scene_detail)
                     
                     patterns.append({
@@ -649,7 +652,8 @@ with tab2:
                                         "--cref [character_url] --cw 100"
                                     )
                                 else:
-                                    prompt = create_detailed_midjourney_prompt(scene)
+                                    has_character = False
+                                    prompt = create_detailed_midjourney_prompt(scene, has_character)
                                 st.code(prompt, language="text")
             else:
                 st.info("💡 左側の設定から台本を生成してください")
