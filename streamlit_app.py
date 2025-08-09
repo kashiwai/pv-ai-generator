@@ -498,14 +498,28 @@ with tab2:
                     # パターン1: ストーリー重視
                     pattern1_scenes = []
                     for scene in scene_division['scenes']:
+                        # シーンタイプを決定
+                        if scene['scene_number'] == 1:
+                            scene_type = "オープニング"
+                        elif scene['scene_number'] == scene_division['total_scenes']:
+                            scene_type = "エンディング"
+                        elif scene['scene_number'] == scene_division['total_scenes'] // 2:
+                            scene_type = "クライマックス"
+                        else:
+                            scene_type = "展開"
+                        
                         scene_detail = generate_narrative_scene(
-                            "narrative",
+                            scene_type,
                             lyrics_text,
                             scene['scene_number'],
                             scene_division['total_scenes']
                         )
                         scene_detail['time'] = scene['time_range']
                         scene_detail['duration'] = scene['duration']
+                        scene_detail['scene_number'] = scene['scene_number']
+                        scene_detail['id'] = f"scene_{scene['scene_number']}"  # ID追加
+                        # Midjourneyプロンプト用のビジュアル要素を生成
+                        scene_detail['visual_prompt'] = create_detailed_midjourney_prompt(scene_detail)
                         pattern1_scenes.append(scene_detail)
                     
                     patterns.append({
@@ -517,14 +531,27 @@ with tab2:
                     # パターン2: ビジュアル重視
                     pattern2_scenes = []
                     for scene in scene_division['scenes']:
+                        # シーンタイプを決定
+                        if scene['scene_number'] == 1:
+                            scene_type = "オープニング"
+                        elif scene['scene_number'] == scene_division['total_scenes']:
+                            scene_type = "エンディング"
+                        elif scene['scene_number'] == scene_division['total_scenes'] // 2:
+                            scene_type = "クライマックス"
+                        else:
+                            scene_type = "展開"
+                        
                         scene_detail = generate_visual_scene(
-                            "visual",
+                            scene_type,
                             lyrics_text,
-                            scene['scene_number'],
-                            scene_division['total_scenes']
+                            scene['scene_number']
                         )
                         scene_detail['time'] = scene['time_range']
                         scene_detail['duration'] = scene['duration']
+                        scene_detail['scene_number'] = scene['scene_number']
+                        scene_detail['id'] = f"scene_{scene['scene_number']}"  # ID追加
+                        # Midjourneyプロンプト用のビジュアル要素を生成
+                        scene_detail['visual_prompt'] = create_detailed_midjourney_prompt(scene_detail)
                         pattern2_scenes.append(scene_detail)
                     
                     patterns.append({
@@ -536,14 +563,32 @@ with tab2:
                     # パターン3: 音楽同期重視
                     pattern3_scenes = []
                     for scene in scene_division['scenes']:
+                        # シーンタイプを決定
+                        if scene['scene_number'] == 1:
+                            scene_type = "オープニング"
+                        elif scene['scene_number'] == scene_division['total_scenes']:
+                            scene_type = "エンディング"
+                        elif scene['scene_number'] == scene_division['total_scenes'] // 2:
+                            scene_type = "クライマックス"
+                        else:
+                            scene_type = "展開"
+                        
+                        # BPMとビートカウントの仮定値（実際の音楽解析が必要）
+                        bpm = 120  # デフォルトBPM
+                        beat_count = int(scene['duration'] * bpm / 60)
+                        
                         scene_detail = generate_music_sync_scene(
-                            "music_sync",
+                            scene_type,
                             lyrics_text,
-                            scene['scene_number'],
-                            scene_division['total_scenes']
+                            bpm,
+                            beat_count
                         )
                         scene_detail['time'] = scene['time_range']
                         scene_detail['duration'] = scene['duration']
+                        scene_detail['scene_number'] = scene['scene_number']
+                        scene_detail['id'] = f"scene_{scene['scene_number']}"  # ID追加
+                        # Midjourneyプロンプト用のビジュアル要素を生成
+                        scene_detail['visual_prompt'] = create_detailed_midjourney_prompt(scene_detail)
                         pattern3_scenes.append(scene_detail)
                     
                     patterns.append({
