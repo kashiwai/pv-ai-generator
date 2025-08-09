@@ -655,6 +655,9 @@ with tab3:
             if 'scene_division' not in st.session_state:
                 st.warning("⚠️ まず音楽ファイルをアップロードしてください")
             else:
+                # 歌詞情報を取得
+                lyrics_text = st.session_state.get('lyrics', '')
+                
                 with st.spinner("AIが複数の台本パターンを生成中..."):
                     progress = st.progress(0)
                     status = st.empty()
