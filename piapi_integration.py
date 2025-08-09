@@ -16,11 +16,10 @@ class PIAPIClient:
     
     def __init__(self, api_key: str, x_key: str = None, base_url: str = "https://api.piapi.ai"):
         self.api_key = api_key
-        self.x_key = x_key
+        self.x_key = x_key if x_key else api_key  # XKEYがなければメインキーを使用
         self.base_url = base_url
         self.headers = {
-            "Authorization": f"Bearer {api_key}",
-            "X-API-Key": x_key if x_key else api_key,  # XKEYがあれば使用
+            "x-api-key": self.x_key,  # PIAPIはx-api-keyヘッダーを使用
             "Content-Type": "application/json"
         }
     
@@ -30,21 +29,34 @@ class PIAPIClient:
         
         Args:
             prompt: 画像生成プロンプト
-            kwargs: 追加パラメータ（aspect_ratio, style, version等）
+            kwargs: 追加パラメータ（aspect_ratio, process_mode等）
         
         Returns:
             生成結果
         """
-        endpoint = f"{self.base_url}/midjourney/imagine"
+        endpoint = f"{self.base_url}/api/v1/task"
+        
+        # アスペクト比の処理
+        aspect_ratio = kwargs.get("aspect_ratio", "16:9")
+        if aspect_ratio == "16:9 (推奨)":
+            aspect_ratio = "16:9"
+        
+        # Midjourneyパラメータをプロンプトに追加
+        full_prompt = f"{prompt} --ar {aspect_ratio} --v 6"
+        if kwargs.get("style"):
+            full_prompt += f" --style {kwargs.get('style')}"
+        if kwargs.get("quality"):
+            full_prompt += f" --q {kwargs.get('quality')}"
         
         payload = {
-            "prompt": prompt,
-            "aspect_ratio": kwargs.get("aspect_ratio", "16:9"),
-            "version": kwargs.get("version", "6"),
-            "style": kwargs.get("style", "raw"),
-            "quality": kwargs.get("quality", 2),
-            "stylize": kwargs.get("stylize", 100),
-            "chaos": kwargs.get("chaos", 0)
+            "model": "midjourney",
+            "task_type": "imagine",
+            "input": {
+                "prompt": full_prompt,
+                "aspect_ratio": aspect_ratio,
+                "process_mode": kwargs.get("process_mode", "relax"),  # relax, fast, turbo
+                "skip_prompt_check": kwargs.get("skip_prompt_check", False)
+            }
         }
         
         try:
@@ -52,11 +64,18 @@ class PIAPIClient:
             response.raise_for_status()
             result = response.json()
             
-            # ジョブIDを返して、後でステータスを確認
+            # タスクIDを返して、後でステータスを確認
             return {
                 "status": "success",
-                "job_id": result.get("job_id"),
-                "message": "画像生成を開始しました"
+                "task_id": result.get("data", {}).get("task_id"),
+                "message": "画像生成を開始しました",
+                "response": result
+            }
+        except requests.exceptions.RequestException as e:
+            return {
+                "status": "error",
+                "message": f"API request failed: {str(e)}",
+                "details": e.response.text if hasattr(e, 'response') else None
             }
         except Exception as e:
             return {
@@ -102,29 +121,50 @@ class PIAPIClient:
                 "message": str(e)
             }
     
-    def check_job_status(self, job_id: str, service: str = "midjourney") -> Dict[str, Any]:
+    def check_job_status(self, task_id: str, service: str = "midjourney") -> Dict[str, Any]:
         """
-        ジョブのステータスを確認
+        タスクのステータスを確認
         
         Args:
-            job_id: ジョブID
+            task_id: タスクID
             service: サービス名（midjourney, hailuo等）
         
         Returns:
             ステータス情報
         """
-        endpoint = f"{self.base_url}/{service}/status/{job_id}"
+        endpoint = f"{self.base_url}/api/v1/task/{task_id}"
         
         try:
             response = requests.get(endpoint, headers=self.headers)
             response.raise_for_status()
             result = response.json()
             
+            # ステータスの正規化（大文字小文字の違いを吸収）
+            status = result.get("status", "processing").lower()
+            if status == "completed":
+                status = "completed"
+            elif status in ["processing", "pending", "staged"]:
+                status = "processing"
+            elif status == "failed":
+                status = "error"
+            
+            # 出力データの取得
+            output = result.get("output", {})
+            image_url = output.get("image_url", "")
+            progress = output.get("progress", 0)
+            
             return {
-                "status": result.get("status", "processing"),
-                "progress": result.get("progress", 0),
-                "result_url": result.get("result_url"),
-                "message": result.get("message", "処理中...")
+                "status": status,
+                "progress": progress,
+                "result_url": image_url,
+                "message": f"Status: {result.get('status', 'unknown')}",
+                "raw_response": result
+            }
+        except requests.exceptions.RequestException as e:
+            return {
+                "status": "error",
+                "message": f"Status check failed: {str(e)}",
+                "details": e.response.text if hasattr(e, 'response') else None
             }
         except Exception as e:
             return {
@@ -202,7 +242,7 @@ class PIAPIClient:
             result = self.generate_image_midjourney(enhanced_prompt)
             generated_images.append({
                 "scene_id": scene['id'],
-                "job_id": result.get("job_id"),
+                "task_id": result.get("task_id"),  # job_idではなくtask_id
                 "status": "generating",
                 "prompt": enhanced_prompt,
                 "character_url": main_character_url,  # キャラクターURLを保存
@@ -220,7 +260,7 @@ class PIAPIClient:
             result = self.generate_image_midjourney(scene.get('visual_prompt', ''))
             generated_images.append({
                 "scene_id": scene['id'],
-                "job_id": result.get("job_id"),
+                "task_id": result.get("task_id"),  # job_idではなくtask_id
                 "status": "generating",
                 "prompt": scene.get('visual_prompt', ''),
                 "has_character": False
@@ -294,51 +334,106 @@ def generate_images_with_piapi(script: Dict, character_photos: Optional[List] = 
     piapi_key = st.session_state.api_keys.get('piapi', '')
     piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
     
-    if not piapi_key:
-        st.error("PIAPIメインキーが設定されていません")
-        return []
+    # デモモード（APIキーがない場合）
+    demo_mode = not piapi_key or piapi_key == 'demo'
     
-    client = PIAPIClient(piapi_key, piapi_xkey)
-    generated_images = []
+    if not piapi_key:
+        st.warning("⚠️ PIAPIキーが設定されていません。デモモードで実行します。")
+        demo_mode = True
+    
+    scenes = script.get('scenes', [])
+    total_scenes = len(scenes)
+    
+    # デバッグ情報
+    st.info(f"📊 シーン数: {total_scenes}")
     
     # プログレスバー表示
     progress_bar = st.progress(0)
     status_text = st.empty()
     
-    scenes = script.get('scenes', [])
-    total_scenes = len(scenes)
-    
-    if character_photos:
-        # キャラクター一貫性のある画像生成
-        status_text.text("キャラクター参照画像を処理中...")
-        generated_images = client.generate_character_consistent_images(character_photos, scenes)
-    else:
-        # 通常の画像生成
+    if demo_mode:
+        # デモモード：ダミーデータを返す
+        st.info("🎭 デモモードで実行中...")
+        generated_images = []
+        
         for i, scene in enumerate(scenes):
-            status_text.text(f"シーン {scene['id']} を生成中... ({i+1}/{total_scenes})")
+            status_text.text(f"デモ: シーン {scene.get('id', i+1)} を生成中... ({i+1}/{total_scenes})")
             progress_bar.progress((i + 1) / total_scenes)
             
-            result = client.generate_image_midjourney(scene['visual_prompt'])
-            
+            # デモ用のダミーデータ
             generated_images.append({
-                "scene_id": scene['id'],
-                "job_id": result.get("job_id"),
-                "status": "generating",
-                "prompt": scene['visual_prompt'],
-                "time": scene['time'],
-                "duration": scene.get('duration', 5)
+                "scene_id": scene.get('id', f'scene_{i+1}'),
+                "job_id": f"demo_job_{i+1}",
+                "status": "completed",
+                "prompt": scene.get('visual_prompt', 'Demo prompt'),
+                "time": scene.get('time', f'{i*10}-{(i+1)*10}'),
+                "duration": scene.get('duration', 5),
+                "result_url": "https://via.placeholder.com/1920x1080.png?text=Demo+Image+" + str(i+1)
             })
             
-            time.sleep(0.5)  # API制限対策
+            time.sleep(0.1)  # デモの演出
+        
+        progress_bar.progress(1.0)
+        status_text.success(f"✅ デモモード: {len(generated_images)}枚の画像を仮生成しました")
+        return generated_images
     
-    # ジョブの完了を待つ
-    status_text.text("画像生成の完了を待っています...")
-    completed_images = wait_for_image_completion(client, generated_images)
-    
-    progress_bar.progress(1.0)
-    status_text.success(f"✅ {len(completed_images)}枚の画像生成が完了しました")
-    
-    return completed_images
+    # 実際のAPI呼び出し
+    try:
+        client = PIAPIClient(piapi_key, piapi_xkey)
+        generated_images = []
+        
+        if character_photos:
+            # キャラクター一貫性のある画像生成
+            status_text.text("キャラクター参照画像を処理中...")
+            generated_images = client.generate_character_consistent_images(character_photos, scenes)
+        else:
+            # 通常の画像生成
+            for i, scene in enumerate(scenes):
+                scene_id = scene.get('id', f'scene_{i+1}')
+                status_text.text(f"シーン {scene_id} を生成中... ({i+1}/{total_scenes})")
+                progress_bar.progress((i + 1) / total_scenes)
+                
+                # visual_promptが存在するか確認
+                if 'visual_prompt' not in scene:
+                    st.warning(f"⚠️ シーン{i+1}にvisual_promptがありません")
+                    continue
+                
+                result = client.generate_image_midjourney(scene['visual_prompt'])
+                
+                # デバッグ情報
+                if result.get("status") == "error":
+                    st.error(f"シーン{i+1}のAPI呼び出しエラー: {result.get('message')}")
+                    if result.get('details'):
+                        st.code(result.get('details'))
+                    continue
+                
+                generated_images.append({
+                    "scene_id": scene_id,
+                    "task_id": result.get("task_id"),  # job_idではなくtask_id
+                    "status": "generating",
+                    "prompt": scene['visual_prompt'],
+                    "time": scene.get('time', ''),
+                    "duration": scene.get('duration', 5)
+                })
+                
+                time.sleep(0.5)  # API制限対策
+        
+        # ジョブの完了を待つ
+        if generated_images:
+            status_text.text("画像生成の完了を待っています...")
+            completed_images = wait_for_image_completion(client, generated_images)
+        else:
+            completed_images = []
+        
+        progress_bar.progress(1.0)
+        status_text.success(f"✅ {len(completed_images)}枚の画像生成が完了しました")
+        
+        return completed_images
+        
+    except Exception as e:
+        st.error(f"❌ エラーが発生しました: {str(e)}")
+        st.info("💡 ヒント: PIAPIの2つのキー（メインKEYとXKEY）が正しく設定されているか確認してください")
+        return []
 
 
 def wait_for_image_completion(client: PIAPIClient, images: List[Dict], timeout: int = 300) -> List[Dict]:
@@ -361,8 +456,14 @@ def wait_for_image_completion(client: PIAPIClient, images: List[Dict], timeout: 
         
         for image in images:
             if image.get("status") != "completed":
-                # ステータスチェック
-                status = client.check_job_status(image["job_id"], "midjourney")
+                # task_idを使用してステータスチェック
+                task_id = image.get("task_id")
+                if not task_id:
+                    image["status"] = "error"
+                    image["error_message"] = "No task_id"
+                    continue
+                
+                status = client.check_job_status(task_id)
                 
                 if status["status"] == "completed":
                     image["status"] = "completed"
@@ -371,8 +472,12 @@ def wait_for_image_completion(client: PIAPIClient, images: List[Dict], timeout: 
                 elif status["status"] == "error":
                     image["status"] = "error"
                     image["error_message"] = status.get("message")
+                    st.warning(f"タスク {task_id} でエラー: {status.get('message')}")
                 else:
                     all_completed = False
+                    # プログレス表示
+                    if status.get("progress"):
+                        image["progress"] = status["progress"]
         
         if all_completed:
             break
