@@ -1,4 +1,6 @@
-# System packages for Streamlit Cloud
-# Required for audio/video processing
 ffmpeg
-libsndfile1
+libsm6
+libxext6
+libxrender-dev
+libgomp1
+libglib2.0-0

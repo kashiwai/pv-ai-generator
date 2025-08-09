@@ -9,44 +9,54 @@ import tempfile
 from pathlib import Path
 from datetime import datetime
 
-# Optional imports with fallback
+# Import with proper error handling
+import sys
+import traceback
+
+# Initialize availability flags
+OPENAI_AVAILABLE = False
+ANTHROPIC_AVAILABLE = False
+GOOGLE_AI_AVAILABLE = False
+GTTS_AVAILABLE = False
+CV2_AVAILABLE = False
+PYDUB_AVAILABLE = False
+
+# Try importing each package
 try:
     import openai
     OPENAI_AVAILABLE = True
-except ImportError:
-    OPENAI_AVAILABLE = False
-    st.warning("OpenAI package not installed. Some features may be limited.")
+except Exception as e:
+    print(f"OpenAI import error: {e}")
 
 try:
     import anthropic
     ANTHROPIC_AVAILABLE = True
-except ImportError:
-    ANTHROPIC_AVAILABLE = False
+except Exception as e:
+    print(f"Anthropic import error: {e}")
 
 try:
     import google.generativeai as genai
     GOOGLE_AI_AVAILABLE = True
-except ImportError:
-    GOOGLE_AI_AVAILABLE = False
+except Exception as e:
+    print(f"Google AI import error: {e}")
 
 try:
     from gtts import gTTS
     GTTS_AVAILABLE = True
-except ImportError:
-    GTTS_AVAILABLE = False
-    st.warning("Text-to-speech not available. Audio features limited.")
+except Exception as e:
+    print(f"gTTS import error: {e}")
 
 try:
     import cv2
     CV2_AVAILABLE = True
-except ImportError:
-    CV2_AVAILABLE = False
+except Exception as e:
+    print(f"OpenCV import error: {e}")
 
 try:
     from pydub import AudioSegment
     PYDUB_AVAILABLE = True
-except ImportError:
-    PYDUB_AVAILABLE = False
+except Exception as e:
+    print(f"Pydub import error: {e}")
 
 # ページ設定
 st.set_page_config(
