@@ -4,6 +4,7 @@
 
 import streamlit as st
 import time
+from piapi_integration import generate_images_with_piapi, create_pv_with_piapi
 
 def render_image_generation_tab():
     """画像生成タブの内容を表示"""
@@ -16,6 +17,7 @@ def render_image_generation_tab():
     
     script = st.session_state['confirmed_script']
     has_character = script.get('has_character', False)
+    character_photos = st.session_state.get('character_settings', {}).get('photos') if has_character else None
     
     col1, col2 = st.columns([2, 3])
     
@@ -58,45 +60,67 @@ def render_image_generation_tab():
         # 生成開始ボタン
         if st.button("🚀 画像生成を開始", type="primary", use_container_width=True):
             st.session_state['generating_images'] = True
+            st.session_state['image_settings'] = {
+                'consistency_level': consistency_level if has_character else None,
+                'visual_style': visual_style if not has_character else None,
+                'color_palette': color_palette,
+                'image_quality': image_quality
+            }
     
     with col2:
         st.subheader("📸 生成状況")
         
         if st.session_state.get('generating_images'):
-            # 進捗表示
-            total_scenes = len(script['scenes'])
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-            
-            # シーンごとの画像生成（デモ）
-            generated_images = []
-            
-            for i, scene in enumerate(script['scenes']):
-                status_text.text(f"シーン {scene['id']} を生成中... ({i+1}/{total_scenes})")
-                progress_bar.progress((i + 1) / total_scenes)
+            # PIAPIを使用した実際の画像生成
+            if st.session_state.api_keys.get('piapi'):
+                # PIAPI統合での画像生成
+                generated_images = generate_images_with_piapi(script, character_photos)
                 
-                # 画像生成シミュレーション
-                time.sleep(0.5)
+                # プレビュー表示
+                if generated_images:
+                    st.success(f"✅ {len(generated_images)}枚の画像生成が完了しました！")
+                    
+                    # 最初の3枚をプレビュー
+                    preview_cols = st.columns(3)
+                    for i, img in enumerate(generated_images[:3]):
+                        with preview_cols[i]:
+                            if img.get('result_url'):
+                                st.image(img['result_url'], caption=f"シーン {img['scene_id']}")
+                            else:
+                                st.image("https://via.placeholder.com/200x150", 
+                                       caption=f"シーン {img['scene_id']} (生成中)")
+            else:
+                # デモモード（APIキーなし）
+                total_scenes = len(script['scenes'])
+                progress_bar = st.progress(0)
+                status_text = st.empty()
                 
-                # 生成結果を保存
-                generated_images.append({
-                    'scene_id': scene['id'],
-                    'time': scene['time'],
-                    'status': '✅ 完了',
-                    'prompt': scene['visual_prompt']
-                })
+                generated_images = []
                 
-                # プレビュー表示（最新3件）
-                if i < 3:
-                    col_preview = st.columns(3)
-                    for j, img in enumerate(generated_images[-3:]):
-                        with col_preview[j]:
-                            st.image("https://via.placeholder.com/200x150", 
-                                   caption=f"シーン {img['scene_id']}")
+                for i, scene in enumerate(script['scenes']):
+                    status_text.text(f"シーン {scene['id']} を生成中... ({i+1}/{total_scenes})")
+                    progress_bar.progress((i + 1) / total_scenes)
+                    
+                    time.sleep(0.5)
+                    
+                    generated_images.append({
+                        'scene_id': scene['id'],
+                        'time': scene['time'],
+                        'status': '✅ 完了',
+                        'prompt': scene['visual_prompt'],
+                        'result_url': None  # デモモード
+                    })
+                    
+                    # プレビュー表示（最新3件）
+                    if i < 3:
+                        col_preview = st.columns(3)
+                        for j, img in enumerate(generated_images[-3:]):
+                            with col_preview[j]:
+                                st.image("https://via.placeholder.com/200x150", 
+                                       caption=f"シーン {img['scene_id']}")
             
             st.session_state['generated_images'] = generated_images
             st.session_state['generating_images'] = False
-            st.success(f"✅ 全{total_scenes}シーンの画像生成が完了しました！")
             
             # 次のステップへ
             if st.button("🎬 動画作成へ進む", type="primary", use_container_width=True):
@@ -188,32 +212,68 @@ def render_video_creation_tab():
         # 動画生成開始
         if st.button("🎬 動画生成を開始", type="primary", use_container_width=True):
             st.session_state['generating_video'] = True
+            st.session_state['video_settings'] = {
+                'music_genre': music_genre if st.session_state.get('music_duration') else None,
+                'edit_style': edit_style if st.session_state.get('music_duration') else None,
+                'transition_type': transition_type,
+                'transition_speed': transition_speed,
+                'effects': apply_effects,
+                'output_quality': output_quality,
+                'output_format': output_format
+            }
     
     with col2:
         st.subheader("🎞️ 生成状況")
         
         if st.session_state.get('generating_video'):
-            # 動画生成プロセス
-            progress = st.progress(0)
-            status = st.empty()
-            
-            steps = [
-                "画像を動画化中...",
-                "音楽と同期中...",
-                "トランジション適用中...",
-                "エフェクト処理中...",
-                "最終レンダリング中..."
-            ]
-            
-            for i, step in enumerate(steps):
-                status.info(f"🔄 {step}")
-                progress.progress((i + 1) / len(steps))
-                time.sleep(1)
-            
-            st.success("✅ PV動画の生成が完了しました！")
+            # PIAPIを使用した実際の動画生成
+            if st.session_state.api_keys.get('piapi') and st.session_state.get('generated_images'):
+                # 音楽情報を準備
+                music_info = {
+                    'duration': st.session_state.get('music_duration', 180),
+                    'url': None  # 実際の実装では音楽ファイルのURLを設定
+                }
+                
+                # 動画生成設定
+                settings = st.session_state.get('video_settings', {})
+                
+                # PIAPI統合での動画生成
+                result = create_pv_with_piapi(
+                    st.session_state['generated_images'],
+                    music_info,
+                    settings
+                )
+                
+                if result['status'] == 'success':
+                    st.success("✅ PV動画の生成が完了しました！")
+                    st.session_state['video_url'] = result.get('video_url')
+                else:
+                    st.error(f"動画生成エラー: {result.get('message')}")
+            else:
+                # デモモード（APIキーなし）
+                progress = st.progress(0)
+                status = st.empty()
+                
+                steps = [
+                    "画像を動画化中...",
+                    "音楽と同期中...",
+                    "トランジション適用中...",
+                    "エフェクト処理中...",
+                    "最終レンダリング中..."
+                ]
+                
+                for i, step in enumerate(steps):
+                    status.info(f"🔄 {step}")
+                    progress.progress((i + 1) / len(steps))
+                    time.sleep(1)
+                
+                st.success("✅ PV動画の生成が完了しました！")
             
             # プレビュー
-            st.video("https://www.youtube.com/watch?v=dQw4w9WgXcQ")  # デモ用
+            if st.session_state.get('video_url'):
+                st.video(st.session_state['video_url'])
+            else:
+                st.video("https://www.youtube.com/watch?v=dQw4w9WgXcQ")  # デモ用
             
             # ダウンロード
             col_dl1, col_dl2 = st.columns(2)
