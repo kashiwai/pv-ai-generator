@@ -297,12 +297,13 @@ with st.sidebar:
         )
 
 # メインコンテンツ - タブ構成
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📝 基本入力",
-    "🖼️ 画像管理",
     "📋 台本生成",
+    "🖼️ 画像生成",
+    "🎬 動画作成",
     "✂️ 編集・エフェクト",
-    "🎬 生成・プレビュー",
+    "📺 プレビュー",
     "📚 履歴・ガイド"
 ])
 
@@ -358,6 +359,64 @@ with tab1:
         )
     
     with col2:
+        st.subheader("👤 出演者設定")
+        
+        # 出演者写真の使用選択
+        use_character = st.radio(
+            "出演者の写真を使用しますか？",
+            ["写真を使用する（同一人物でPV作成）", "写真なし（音楽性重視のPV）"],
+            key="use_character_photo",
+            help="写真を使用すると、同じ人物で一貫性のあるPVが作成されます"
+        )
+        
+        if use_character == "写真を使用する（同一人物でPV作成）":
+            st.markdown("#### 👥 出演者の写真")
+            character_photos = st.file_uploader(
+                "出演者の写真をアップロード",
+                type=['png', 'jpg', 'jpeg', 'webp'],
+                accept_multiple_files=True,
+                key="character_photos",
+                help="同じ人物の写真を複数枚アップロード（推奨: 3-10枚）"
+            )
+            
+            if character_photos:
+                st.success(f"✅ {len(character_photos)}枚の写真をアップロード")
+                
+                # 写真プレビュー
+                preview_cols = st.columns(min(len(character_photos), 3))
+                for idx, photo in enumerate(character_photos[:3]):
+                    with preview_cols[idx % 3]:
+                        st.image(photo, caption=f"写真{idx+1}", use_column_width=True)
+                
+                if len(character_photos) > 3:
+                    st.caption(f"他{len(character_photos)-3}枚")
+                
+                # キャラクター設定
+                with st.expander("👤 キャラクター詳細設定"):
+                    character_name = st.text_input("キャラクター名", placeholder="例: 主人公")
+                    character_age = st.selectbox("年齢設定", ["10代", "20代", "30代", "40代以上", "指定なし"])
+                    character_style = st.multiselect(
+                        "スタイル/服装",
+                        ["カジュアル", "フォーマル", "スポーティ", "ファンタジー", "制服", "その他"]
+                    )
+                    character_description = st.text_area(
+                        "キャラクター説明",
+                        placeholder="性格、役割、特徴など",
+                        height=80
+                    )
+                
+                st.session_state['character_settings'] = {
+                    'photos': character_photos,
+                    'name': character_name if 'character_name' in locals() else "",
+                    'age': character_age if 'character_age' in locals() else "",
+                    'style': character_style if 'character_style' in locals() else [],
+                    'description': character_description if 'character_description' in locals() else ""
+                }
+        else:
+            st.info("音楽性とコンセプトに基づいてPVを生成します")
+            st.session_state['character_settings'] = None
+        
+        st.markdown("---")
         st.subheader("🎵 音楽ファイル")
         
         # 音楽ファイルアップロード
@@ -427,7 +486,7 @@ with tab1:
                     time.sleep(2)
                     st.text_area("生成された歌詞", value="[自動生成された歌詞がここに表示されます]", height=150)
 
-# タブ2: 画像管理
+# タブ2: 台本生成
 with tab2:
     st.header("🖼️ 画像管理")
     
@@ -583,67 +642,119 @@ with tab3:
             st.info(f"選択: {template}テンプレート")
         
         # 生成ボタン
-        if st.button("🤖 台本を生成", type="primary", use_container_width=True):
+        if st.button("🤖 複数の台本を生成", type="primary", use_container_width=True):
             # シーン分割情報があるか確認
             if 'scene_division' not in st.session_state:
                 st.warning("⚠️ まず音楽ファイルをアップロードしてください")
             else:
-                with st.spinner("AIが台本を生成中..."):
+                with st.spinner("AIが複数の台本パターンを生成中..."):
                     progress = st.progress(0)
                     status = st.empty()
                     
-                    steps = ["構成分析中...", "シーン構築中...", "セリフ生成中...", "最適化中..."]
-                    for i, step in enumerate(steps):
-                        status.text(step)
-                        progress.progress((i + 1) / len(steps))
-                        time.sleep(1)
+                    # 3種類の台本を生成
+                    script_patterns = []
+                    pattern_types = [
+                        {"name": "ストーリー重視", "focus": "narrative", "description": "物語性を重視した構成"},
+                        {"name": "ビジュアル重視", "focus": "visual", "description": "映像美を重視した構成"},
+                        {"name": "音楽同期重視", "focus": "music", "description": "音楽のリズムに完全同期"}
+                    ]
                     
-                    # シーン分割に基づいた台本生成
-                    scene_division = st.session_state['scene_division']
-                    generated_scenes = []
-                    
-                    # 各シーンの台本を生成
-                    scene_types = ["オープニング", "導入", "展開", "クライマックス", "エンディング"]
-                    
-                    for i, scene_info in enumerate(scene_division['scenes']):
-                        # シーンタイプを決定
-                        if i == 0:
-                            scene_type = "オープニング"
-                        elif i == len(scene_division['scenes']) - 1:
-                            scene_type = "エンディング"
-                        elif i == len(scene_division['scenes']) // 2:
-                            scene_type = "クライマックス"
-                        elif i < len(scene_division['scenes']) // 2:
-                            scene_type = "展開"
-                        else:
-                            scene_type = "導入"
+                    for pattern_idx, pattern in enumerate(pattern_types):
+                        status.text(f"{pattern['name']}版を生成中...")
+                        progress.progress((pattern_idx + 1) / len(pattern_types))
                         
-                        generated_scenes.append({
-                            "id": scene_info['scene_number'],
-                            "time": scene_info['time_range'],
-                            "duration": f"{scene_info['duration']}秒",
-                            "type": scene_type,
-                            "description": f"シーン{scene_info['scene_number']}の内容（{scene_info['duration']}秒）",
-                            "visual_prompt": f"scene {scene_info['scene_number']} visual prompt",
-                            "camera": "自動選択",
-                            "effects": "自動選択",
-                            "audio": f"{scene_info['start_time']:.1f}秒から{scene_info['end_time']:.1f}秒"
+                        # シーン分割に基づいた台本生成
+                        scene_division = st.session_state['scene_division']
+                        generated_scenes = []
+                        
+                        # キャラクター設定を反映
+                        has_character = st.session_state.get('character_settings') is not None
+                        
+                        for i, scene_info in enumerate(scene_division['scenes']):
+                            # シーンタイプを決定
+                            if i == 0:
+                                scene_type = "オープニング"
+                            elif i == len(scene_division['scenes']) - 1:
+                                scene_type = "エンディング"
+                            elif i == len(scene_division['scenes']) // 2:
+                                scene_type = "クライマックス"
+                            else:
+                                scene_type = "展開"
+                            
+                            # キャラクターありの場合
+                            if has_character:
+                                description = f"[{pattern['name']}] 出演者が{scene_type}シーンを演じる（{scene_info['duration']}秒）"
+                                visual_prompt = f"character performing in {scene_type} scene, {pattern['focus']} style"
+                            else:
+                                description = f"[{pattern['name']}] {scene_type}の映像表現（{scene_info['duration']}秒）"
+                                visual_prompt = f"abstract {scene_type} visuals, {pattern['focus']} style"
+                            
+                            generated_scenes.append({
+                                "id": scene_info['scene_number'],
+                                "time": scene_info['time_range'],
+                                "duration": f"{scene_info['duration']}秒",
+                                "type": scene_type,
+                                "description": description,
+                                "visual_prompt": visual_prompt,
+                                "camera": "自動選択",
+                                "effects": pattern['focus'],
+                                "audio": f"{scene_info['start_time']:.1f}秒から{scene_info['end_time']:.1f}秒"
+                            })
+                        
+                        script_patterns.append({
+                            "pattern_name": pattern['name'],
+                            "pattern_description": pattern['description'],
+                            "title": f"台本パターン{pattern_idx + 1}: {pattern['name']}",
+                            "music_duration": format_time(scene_division['music_duration']),
+                            "pv_duration": format_time(scene_division['pv_duration']),
+                            "total_scenes": scene_division['total_scenes'],
+                            "has_character": has_character,
+                            "scenes": generated_scenes[:20]  # 最初の20シーンまで表示
                         })
+                        
+                        time.sleep(0.5)  # デモ用
                     
-                    st.session_state.current_script = {
-                        "title": "生成された台本",
-                        "music_duration": format_time(scene_division['music_duration']),
-                        "pv_duration": format_time(scene_division['pv_duration']),
-                        "total_scenes": scene_division['total_scenes'],
-                        "scenes": generated_scenes[:20]  # 最初の20シーンまで表示
-                    }
-                    
-                    st.success(f"✅ 台本生成完了！{scene_division['total_scenes']}シーン（各5-8秒）を作成しました")
+                    st.session_state['script_patterns'] = script_patterns
+                    st.success(f"✅ 3種類の台本パターンを生成しました！")
     
     with col_script2:
-        st.subheader("📝 台本編集")
+        st.subheader("📝 台本選択・編集")
         
-        if st.session_state.current_script:
+        # 複数の台本パターンから選択
+        if 'script_patterns' in st.session_state and st.session_state['script_patterns']:
+            st.markdown("### 🎯 台本パターンを選択")
+            
+            # パターン選択
+            pattern_names = [p['pattern_name'] for p in st.session_state['script_patterns']]
+            selected_pattern_name = st.radio(
+                "使用する台本パターンを選択",
+                pattern_names,
+                horizontal=True,
+                key="selected_script_pattern"
+            )
+            
+            # 選択されたパターンを取得
+            selected_pattern = None
+            for pattern in st.session_state['script_patterns']:
+                if pattern['pattern_name'] == selected_pattern_name:
+                    selected_pattern = pattern
+                    st.session_state.current_script = pattern
+                    break
+            
+            if selected_pattern:
+                st.info(f"📌 {selected_pattern['pattern_description']}")
+                
+                # 台本確定ボタン
+                col_confirm1, col_confirm2 = st.columns([1, 1])
+                with col_confirm1:
+                    if st.button("✅ この台本で確定", type="primary", use_container_width=True):
+                        st.session_state['confirmed_script'] = selected_pattern
+                        st.success("台本を確定しました！画像生成へ進めます。")
+                with col_confirm2:
+                    if st.button("✏️ 詳細を編集", use_container_width=True):
+                        st.session_state['edit_mode'] = True
+        
+        if st.session_state.get('current_script'):
             # 台本全体の情報
             script = st.session_state.current_script
             col_script_info1, col_script_info2 = st.columns(2)
