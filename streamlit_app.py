@@ -9,6 +9,12 @@ import tempfile
 from pathlib import Path
 from datetime import datetime
 from lyrics_parser import parse_lyrics_to_scenes, identify_key_moments, suggest_scene_emotion
+from script_templates import (
+    generate_narrative_scene,
+    generate_visual_scene,
+    generate_music_sync_scene,
+    create_detailed_midjourney_prompt
+)
 
 # Import with proper error handling
 import sys
