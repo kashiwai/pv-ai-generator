@@ -8,6 +8,7 @@ import time
 import tempfile
 from pathlib import Path
 from datetime import datetime
+from lyrics_parser import parse_lyrics_to_scenes, identify_key_moments, suggest_scene_emotion
 
 # Import with proper error handling
 import sys
@@ -677,6 +678,9 @@ with tab3:
                         # キャラクター設定を反映
                         has_character = st.session_state.get('character_settings') is not None
                         
+                        # 歌詞をシーンに分割
+                        lyrics_parts = parse_lyrics_to_scenes(lyrics_text, len(scene_division['scenes']))
+                        
                         for i, scene_info in enumerate(scene_division['scenes']):
                             # シーンタイプを決定
                             if i == 0:
@@ -688,7 +692,10 @@ with tab3:
                             else:
                                 scene_type = "展開"
                             
-                            # ストーリー内容を生成
+                            # 歌詞の該当部分を取得
+                            scene_lyrics = lyrics_parts[i] if i < len(lyrics_parts) else ""
+                            
+                            # ストーリー内容を生成（歌詞を反映）
                             if pattern['focus'] == 'narrative':  # ストーリー重視
                                 if scene_type == "オープニング":
                                     story = "朝の光が差し込む部屋で主人公が目覚める。新しい一日の始まり、期待と不安が入り混じる表情"
@@ -754,6 +761,7 @@ with tab3:
                                 "type": scene_type,
                                 "description": description,
                                 "visual_prompt": visual_prompt,
+                                "lyrics": scene_lyrics if scene_lyrics else "（インストゥルメンタル）",
                                 "camera": "自動選択",
                                 "effects": pattern['focus'],
                                 "audio": f"{scene_info['start_time']:.1f}秒から{scene_info['end_time']:.1f}秒"
@@ -839,6 +847,10 @@ with tab3:
             for idx, scene in enumerate(st.session_state.current_script['scenes']):
                 # 最初の3シーンは展開して表示
                 with st.expander(f"シーン #{scene['id']}: {scene['type']} ({scene['time']})", expanded=(idx < 3)):
+                    # 歌詞表示
+                    if scene.get('lyrics') and scene['lyrics'] != "（インストゥルメンタル）":
+                        st.info(f"🎵 歌詞: {scene['lyrics']}")
+                    
                     # 編集可能フィールド
                     col_edit1, col_edit2 = st.columns(2)
                     
