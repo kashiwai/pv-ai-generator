@@ -18,6 +18,11 @@ class PIAPIClient:
         self.api_key = api_key
         self.x_key = x_key if x_key else api_key  # XKEYがなければメインキーを使用
         self.base_url = base_url
+        
+        # デバッグ: APIキーの長さを確認（セキュリティのため一部のみ表示）
+        if self.x_key:
+            st.info(f"🔑 APIキー設定: {self.x_key[:8]}...（{len(self.x_key)}文字）")
+        
         self.headers = {
             "x-api-key": self.x_key,  # PIAPIはx-api-keyヘッダーを使用
             "Content-Type": "application/json"
@@ -59,28 +64,67 @@ class PIAPIClient:
             }
         }
         
+        # デバッグ: リクエスト情報を表示
+        with st.expander("🔍 APIリクエストデバッグ情報"):
+            st.write(f"**エンドポイント:** {endpoint}")
+            st.write(f"**ヘッダー:** x-api-key = {self.headers.get('x-api-key', '')[:8]}...")
+            st.json(payload)
+        
         try:
             response = requests.post(endpoint, json=payload, headers=self.headers)
+            
+            # デバッグ: レスポンス情報
+            st.write(f"**レスポンスステータス:** {response.status_code}")
+            
+            if response.status_code != 200:
+                st.error(f"❌ APIエラー: ステータスコード {response.status_code}")
+                st.code(response.text)
+            
             response.raise_for_status()
             result = response.json()
             
+            # デバッグ: レスポンス内容
+            with st.expander("📥 APIレスポンス"):
+                st.json(result)
+            
             # タスクIDを返して、後でステータスを確認
+            task_id = None
+            if isinstance(result, dict):
+                if 'data' in result and isinstance(result['data'], dict):
+                    task_id = result['data'].get('task_id')
+                elif 'task_id' in result:
+                    task_id = result['task_id']
+            
+            if not task_id:
+                st.warning("⚠️ レスポンスにtask_idが含まれていません")
+            
             return {
-                "status": "success",
-                "task_id": result.get("data", {}).get("task_id"),
-                "message": "画像生成を開始しました",
+                "status": "success" if task_id else "error",
+                "task_id": task_id,
+                "message": "画像生成を開始しました" if task_id else "task_idが取得できませんでした",
                 "response": result
             }
         except requests.exceptions.RequestException as e:
+            error_details = ""
+            if hasattr(e, 'response') and e.response:
+                error_details = e.response.text
+                try:
+                    error_json = e.response.json()
+                    error_details = json.dumps(error_json, indent=2)
+                except:
+                    pass
+            
             return {
                 "status": "error",
                 "message": f"API request failed: {str(e)}",
-                "details": e.response.text if hasattr(e, 'response') else None
+                "details": error_details,
+                "status_code": e.response.status_code if hasattr(e, 'response') else None
             }
         except Exception as e:
             return {
                 "status": "error",
-                "message": str(e)
+                "message": f"Unexpected error: {str(e)}",
+                "details": str(type(e))
             }
     
     def generate_video_hailuo(self, image_url: str, prompt: str, duration: int = 5) -> Dict[str, Any]:
@@ -347,6 +391,15 @@ def generate_images_with_piapi(script: Dict, character_photos: Optional[List] = 
     # デバッグ情報
     st.info(f"📊 シーン数: {total_scenes}")
     
+    # シーンの内容を確認
+    if total_scenes > 0:
+        first_scene = scenes[0]
+        st.info(f"🔍 最初のシーンの内容確認:")
+        st.write(f"- ID: {first_scene.get('id', 'なし')}")
+        st.write(f"- visual_prompt: {first_scene.get('visual_prompt', 'なし')[:100] if first_scene.get('visual_prompt') else '❌ visual_promptがありません'}")
+        st.write(f"- time: {first_scene.get('time', 'なし')}")
+        st.write(f"- duration: {first_scene.get('duration', 'なし')}")
+    
     # プログレスバー表示
     progress_bar = st.progress(0)
     status_text = st.empty()
@@ -363,7 +416,7 @@ def generate_images_with_piapi(script: Dict, character_photos: Optional[List] = 
             # デモ用のダミーデータ
             generated_images.append({
                 "scene_id": scene.get('id', f'scene_{i+1}'),
-                "job_id": f"demo_job_{i+1}",
+                "task_id": f"demo_task_{i+1}",
                 "status": "completed",
                 "prompt": scene.get('visual_prompt', 'Demo prompt'),
                 "time": scene.get('time', f'{i*10}-{(i+1)*10}'),
@@ -387,36 +440,50 @@ def generate_images_with_piapi(script: Dict, character_photos: Optional[List] = 
             status_text.text("キャラクター参照画像を処理中...")
             generated_images = client.generate_character_consistent_images(character_photos, scenes)
         else:
-            # 通常の画像生成
-            for i, scene in enumerate(scenes):
-                scene_id = scene.get('id', f'scene_{i+1}')
-                status_text.text(f"シーン {scene_id} を生成中... ({i+1}/{total_scenes})")
-                progress_bar.progress((i + 1) / total_scenes)
+            # 通常の画像生成（2つずつバッチ処理）
+            BATCH_SIZE = 2  # 一度に処理するシーン数
+            
+            for batch_start in range(0, len(scenes), BATCH_SIZE):
+                batch_end = min(batch_start + BATCH_SIZE, len(scenes))
+                batch_scenes = scenes[batch_start:batch_end]
                 
-                # visual_promptが存在するか確認
-                if 'visual_prompt' not in scene:
-                    st.warning(f"⚠️ シーン{i+1}にvisual_promptがありません")
-                    continue
+                status_text.text(f"シーン {batch_start+1}-{batch_end} を生成中... ({batch_end}/{total_scenes})")
                 
-                result = client.generate_image_midjourney(scene['visual_prompt'])
+                # バッチ内のシーンを処理
+                for i, scene in enumerate(batch_scenes):
+                    actual_index = batch_start + i
+                    scene_id = scene.get('id', f'scene_{actual_index+1}')
+                    
+                    # visual_promptが存在するか確認
+                    if 'visual_prompt' not in scene:
+                        st.warning(f"⚠️ シーン{actual_index+1}にvisual_promptがありません")
+                        continue
+                    
+                    result = client.generate_image_midjourney(scene['visual_prompt'])
+                    
+                    # デバッグ情報
+                    if result.get("status") == "error":
+                        st.error(f"シーン{actual_index+1}のAPI呼び出しエラー: {result.get('message')}")
+                        if result.get('details'):
+                            with st.expander("エラー詳細"):
+                                st.code(result.get('details'))
+                        continue
+                    
+                    generated_images.append({
+                        "scene_id": scene_id,
+                        "task_id": result.get("task_id"),  # job_idではなくtask_id
+                        "status": "generating",
+                        "prompt": scene['visual_prompt'],
+                        "time": scene.get('time', ''),
+                        "duration": scene.get('duration', 5)
+                    })
                 
-                # デバッグ情報
-                if result.get("status") == "error":
-                    st.error(f"シーン{i+1}のAPI呼び出しエラー: {result.get('message')}")
-                    if result.get('details'):
-                        st.code(result.get('details'))
-                    continue
+                # プログレスバー更新
+                progress_bar.progress(batch_end / total_scenes)
                 
-                generated_images.append({
-                    "scene_id": scene_id,
-                    "task_id": result.get("task_id"),  # job_idではなくtask_id
-                    "status": "generating",
-                    "prompt": scene['visual_prompt'],
-                    "time": scene.get('time', ''),
-                    "duration": scene.get('duration', 5)
-                })
-                
-                time.sleep(0.5)  # API制限対策
+                # バッチ間の待機（API制限対策）
+                if batch_end < len(scenes):
+                    time.sleep(1.0)  # バッチ間は1秒待機
         
         # ジョブの完了を待つ
         if generated_images:

@@ -1,8 +1,8 @@
 {
-  "version": "2.0.2",
+  "version": "2.0.3",
   "major": 2,
   "minor": 0,
-  "patch": 2,
+  "patch": 3,
   "build_date": "2025-08-10",
   "description": "PV自動生成AIエージェント"
 }

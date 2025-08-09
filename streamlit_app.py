@@ -304,6 +304,27 @@ with st.sidebar:
             st.markdown(f'<div class="api-status api-connected">✅ {key_name.upper()}: 接続済み</div>', unsafe_allow_html=True)
         else:
             st.markdown(f'<div class="api-status api-disconnected">❌ {key_name.upper()}: 未接続</div>', unsafe_allow_html=True)
+    
+    # APIテストボタン
+    if st.button("🧪 PIAPI接続テスト"):
+        with st.spinner("APIをテスト中..."):
+            from piapi_integration import PIAPIClient
+            piapi_key = st.session_state.api_keys.get('piapi', '')
+            piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
+            
+            if piapi_key:
+                client = PIAPIClient(piapi_key, piapi_xkey)
+                # シンプルなテストプロンプト
+                test_result = client.generate_image_midjourney("test image of a sunset", process_mode="relax")
+                
+                if test_result.get("status") == "success":
+                    st.success("✅ PIAPI接続成功！")
+                    st.json(test_result)
+                else:
+                    st.error("❌ PIAPI接続失敗")
+                    st.json(test_result)
+            else:
+                st.warning("PIAPIキーが設定されていません")
 
 # メインコンテンツ - タブ構成
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
