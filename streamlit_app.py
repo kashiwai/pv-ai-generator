@@ -25,6 +25,14 @@ import traceback
 import io
 import math
 
+# バージョン管理
+try:
+    with open('version.json', 'r') as f:
+        version_info = json.load(f)
+        APP_VERSION = version_info.get('version', '2.0.0')
+except:
+    APP_VERSION = '2.0.0'
+
 # 以下は既存のコードの初期化部分を維持
 OPENAI_AVAILABLE = False
 ANTHROPIC_AVAILABLE = False
@@ -997,8 +1005,8 @@ with tab6:
 
 # フッター
 st.markdown("---")
-st.markdown("""
+st.markdown(f"""
 <div style='text-align: center; color: #888;'>
-    🎬 PV自動生成AIエージェント v2.0 | Powered by PIAPI (Midjourney + Hailuo AI)
+    🎬 PV自動生成AIエージェント v{APP_VERSION} | Powered by PIAPI (Midjourney + Hailuo AI)
 </div>
 """, unsafe_allow_html=True)
