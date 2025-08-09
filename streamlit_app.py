@@ -78,6 +78,13 @@ if 'uploaded_images' not in st.session_state:
 if 'api_keys' not in st.session_state:
     st.session_state.api_keys = {}
 
+# Secretsの安全な取得関数
+def get_secret(key, default=''):
+    try:
+        return get_secret(key, default)
+    except:
+        return default
+
 # カスタムCSS
 st.markdown("""
 <style>
@@ -126,25 +133,25 @@ with st.sidebar:
     st.subheader("🔑 APIキー設定")
     
     with st.expander("必須APIキー", expanded=True):
+        st.session_state.api_keys['piapi'] = st.text_input(
+            "PIAPI Key",
+            type="password",
+            help="PIAPI統合（Hailuo, Midjourney等）",
+            value=st.session_state.api_keys.get('piapi', get_secret('PIAPI_KEY', ''))
+        )
+        
         st.session_state.api_keys['openai'] = st.text_input(
             "OpenAI API Key",
             type="password",
             help="GPT-4での台本生成に使用",
-            value=st.session_state.api_keys.get('openai', '')
-        )
-        
-        st.session_state.api_keys['hailuo'] = st.text_input(
-            "Hailuo API Key",
-            type="password",
-            help="高品質動画生成に使用",
-            value=st.session_state.api_keys.get('hailuo', '')
+            value=st.session_state.api_keys.get('openai', get_secret('OPENAI_API_KEY', ''))
         )
         
         st.session_state.api_keys['google'] = st.text_input(
             "Google API Key",
             type="password",
             help="Gemini・音声合成に使用",
-            value=st.session_state.api_keys.get('google', '')
+            value=st.session_state.api_keys.get('google', get_secret('GOOGLE_API_KEY', ''))
         )
     
     with st.expander("オプションAPIキー"):
@@ -152,21 +159,21 @@ with st.sidebar:
             "Anthropic API Key (Claude)",
             type="password",
             help="Claude 3での創造的な台本生成",
-            value=st.session_state.api_keys.get('anthropic', '')
+            value=st.session_state.api_keys.get('anthropic', get_secret('ANTHROPIC_API_KEY', ''))
         )
         
         st.session_state.api_keys['fish_audio'] = st.text_input(
             "Fish Audio API Key",
             type="password",
             help="高品質音声合成",
-            value=st.session_state.api_keys.get('fish_audio', '')
+            value=st.session_state.api_keys.get('fish_audio', get_secret('FISH_AUDIO_API_KEY', ''))
         )
         
         st.session_state.api_keys['deepseek'] = st.text_input(
             "Deepseek API Key",
             type="password",
             help="コスト効率の良い処理",
-            value=st.session_state.api_keys.get('deepseek', '')
+            value=st.session_state.api_keys.get('deepseek', get_secret('DEEPSEEK_API_KEY', ''))
         )
     
     # API接続状態表示
