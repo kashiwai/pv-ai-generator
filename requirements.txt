@@ -1,36 +1,36 @@
-# Streamlit Cloud Compatible Full Version
-# Python 3.8-3.11 compatible versions
+# Streamlit Cloud Full Version - Python 3.13 Compatible
+# Using latest stable versions that support Python 3.13
 
 # Core
-streamlit>=1.28.0,<2.0.0
+streamlit
 
-# Data processing
-numpy>=1.21.0,<1.25.0
-pandas>=1.3.0,<2.1.0
-Pillow>=9.0.0,<11.0.0
+# Data processing - Python 3.13 compatible versions
+numpy>=1.26.0  # First version to support Python 3.12+
+pandas>=2.1.0  # Compatible with numpy 1.26+
+Pillow>=10.0.0
 
 # AI/ML APIs - Business Critical
-openai>=0.27.0,<2.0.0
-anthropic>=0.3.0,<1.0.0
-google-generativeai>=0.1.0,<1.0.0
+openai>=1.0.0
+anthropic>=0.7.0
+google-generativeai>=0.3.0
 
 # Audio Processing - Business Critical
-gtts>=2.2.0,<3.0.0
-pydub>=0.25.0,<1.0.0
+gtts>=2.4.0
+pydub>=0.25.1
 
 # Video Processing - Business Critical
-opencv-python-headless>=4.5.0,<5.0.0
+opencv-python-headless>=4.8.0.74
 
 # HTTP/Network
-requests>=2.25.0,<3.0.0
-aiohttp>=3.8.0,<4.0.0
-urllib3>=1.26.0,<2.0.0
+requests>=2.31.0
+aiohttp>=3.9.0
+urllib3>=2.0.0
 
 # Configuration
-python-dotenv>=0.19.0,<2.0.0
+python-dotenv>=1.0.0
 
 # Date/Time
-python-dateutil>=2.8.0,<3.0.0
+python-dateutil>=2.8.2
 
 # JSON handling
-jsonschema>=3.2.0,<5.0.0
+jsonschema>=4.0.0
