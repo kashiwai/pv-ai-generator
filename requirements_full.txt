@@ -1,0 +1,17 @@
+# Full requirements (for reference - not used in deployment)
+# These packages can be installed later if needed
+
+# AI/ML APIs
+openai
+anthropic
+google-generativeai
+
+# Audio Processing
+gtts
+pydub
+
+# Video Processing  
+opencv-python-headless
+
+# Async
+aiohttp

@@ -1,27 +1,14 @@
-# Streamlit Core
+# Core - Streamlit
 streamlit
 
-# Essential Dependencies
+# Basic Dependencies
 numpy
 pandas
 Pillow
 
-# AI/ML APIs (optional - will work without these)
-openai
-anthropic
-google-generativeai
-
-# Audio Processing (lightweight)
-gtts
-pydub
-
-# Video Processing (minimal for Streamlit Cloud)
-opencv-python-headless
-
 # Utilities
 requests
 python-dotenv
-aiohttp
 
-# Date handling
+# Date handling  
 python-dateutil
