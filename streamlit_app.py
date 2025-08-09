@@ -236,7 +236,8 @@ with tab1:
         project_name = st.text_input(
             "プロジェクト名 *",
             placeholder="例: 青春ドラマPV",
-            help="プロジェクトを識別する名前"
+            help="プロジェクトを識別する名前",
+            key="project_name"
         )
         
         title = st.text_input(
@@ -280,7 +281,8 @@ with tab1:
         audio_file = st.file_uploader(
             "音楽をアップロード *",
             type=['mp3', 'wav', 'm4a', 'ogg', 'flac'],
-            help="最大200MBまで対応"
+            help="最大200MBまで対応",
+            key="audio_file"
         )
         
         if audio_file:
@@ -873,8 +875,8 @@ with tab5:
         # 生成前チェックリスト
         st.markdown("### チェックリスト")
         checklist = {
-            "プロジェクト情報": bool(project_name if 'project_name' in locals() else False),
-            "音楽ファイル": bool(audio_file if 'audio_file' in locals() else False),
+            "プロジェクト情報": bool(st.session_state.get('project_name', False)),
+            "音楽ファイル": bool(st.session_state.get('audio_file', False)),
             "台本作成": bool(st.session_state.current_script),
             "APIキー設定": any(st.session_state.api_keys.values()),
         }
