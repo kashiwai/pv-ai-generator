@@ -618,6 +618,8 @@ with tab2:
                         if st.button(f"✅ このパターンを採用", key=f"select_pattern_{idx}"):
                             st.session_state['selected_script'] = pattern
                             st.session_state['selected_pattern_idx'] = idx
+                            # 選択したパターンを直接final_scriptにも設定
+                            st.session_state['final_script'] = pattern
                             st.success(f"「{pattern['title']}」を選択しました")
                         
                         # シーン表示
@@ -666,7 +668,7 @@ with tab2:
             edited_scenes = []
             for scene in st.session_state['selected_script']['scenes']:
                 with st.expander(f"シーン{scene['scene_number']}の編集"):
-                    edited_scene = scene.copy()
+                    edited_scene = scene.copy()  # すべてのフィールドをコピー
                     edited_scene['story'] = st.text_area(
                         "ストーリー",
                         value=scene.get('story', ''),
@@ -677,6 +679,9 @@ with tab2:
                         value=scene.get('visual_prompt', ''),
                         key=f"edit_prompt_{scene['scene_number']}"
                     )
+                    # 他の重要なフィールドも表示（編集不可）
+                    st.info(f"シーン時間: {edited_scene.get('time', 'N/A')}")
+                    st.info(f"シーン長さ: {edited_scene.get('duration', 'N/A')}秒")
                     edited_scenes.append(edited_scene)
             
             if st.button("💾 編集内容を保存", type="primary"):
@@ -691,6 +696,14 @@ with tab3:
     if 'final_script' not in st.session_state:
         st.warning("⚠️ まず台本生成タブで台本を作成してください")
     else:
+        # デバッグ情報表示
+        with st.expander("📋 確定した台本の確認"):
+            st.write(f"タイトル: {st.session_state['final_script'].get('title', 'N/A')}")
+            st.write(f"説明: {st.session_state['final_script'].get('description', 'N/A')}")
+            st.write(f"シーン数: {len(st.session_state['final_script'].get('scenes', []))}")
+            for scene in st.session_state['final_script'].get('scenes', []):
+                st.write(f"- シーン{scene.get('scene_number', 'N/A')}: {scene.get('time', 'N/A')} ({scene.get('duration', 'N/A')}秒)")
+        
         col_img1, col_img2 = st.columns([1, 2])
         
         with col_img1:
@@ -731,22 +744,37 @@ with tab3:
             
             # 生成開始ボタン
             if st.button("🚀 画像生成を開始", type="primary", use_container_width=True):
-                with st.spinner("PIAPIを通じて画像を生成中..."):
-                    # PIAPIで画像生成
-                    from piapi_integration import generate_images_with_piapi
-                    
-                    character_photos = None
-                    if 'character_settings' in st.session_state and st.session_state['character_settings']:
-                        character_photos = st.session_state['character_settings']['photos']
-                    
-                    # 台本に基づいて画像生成
-                    generated_images = generate_images_with_piapi(
-                        st.session_state['final_script'],
-                        character_photos
-                    )
-                    
-                    st.session_state['generated_images'] = generated_images
-                    st.success(f"✅ {len(generated_images)}枚の画像生成を開始しました")
+                # 台本データの確認
+                if 'final_script' not in st.session_state:
+                    st.error("台本が選択されていません")
+                elif 'scenes' not in st.session_state['final_script']:
+                    st.error("台本にシーンデータが含まれていません")
+                elif len(st.session_state['final_script']['scenes']) == 0:
+                    st.error("台本のシーンが空です")
+                else:
+                    with st.spinner("PIAPIを通じて画像を生成中..."):
+                        # PIAPIで画像生成
+                        from piapi_integration import generate_images_with_piapi
+                        
+                        character_photos = None
+                        if 'character_settings' in st.session_state and st.session_state['character_settings']:
+                            character_photos = st.session_state['character_settings']['photos']
+                        
+                        # デバッグ: 生成前のシーン数を表示
+                        st.info(f"🎬 {len(st.session_state['final_script']['scenes'])}シーンの画像を生成します")
+                        
+                        # 台本に基づいて画像生成
+                        generated_images = generate_images_with_piapi(
+                            st.session_state['final_script'],
+                            character_photos
+                        )
+                        
+                        st.session_state['generated_images'] = generated_images
+                        
+                        if generated_images:
+                            st.success(f"✅ {len(generated_images)}枚の画像生成を開始しました")
+                        else:
+                            st.error("画像生成に失敗しました。APIキーを確認してください。")
         
         with col_img2:
             st.subheader("🖼️ 生成された画像")
