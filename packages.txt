@@ -1,2 +1,4 @@
 # System packages for Streamlit Cloud
+# Required for audio/video processing
 ffmpeg
+libsndfile1
