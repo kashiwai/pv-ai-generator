@@ -229,9 +229,14 @@ def generate_music_sync_scene(scene_type: str, scene_lyrics: str, bpm: int, beat
         }
 
 
-def create_detailed_midjourney_prompt(scene_details: Dict[str, str], has_character: bool) -> str:
+def create_detailed_midjourney_prompt(scene_details: Dict[str, str], has_character: bool, character_url: str = None) -> str:
     """
     詳細なMidjourney用プロンプト生成
+    
+    Args:
+        scene_details: シーンの詳細情報
+        has_character: キャラクター写真の有無
+        character_url: キャラクター写真のURL（Midjourney参照用）
     """
     base_prompt = ""
     
@@ -274,7 +279,52 @@ def create_detailed_midjourney_prompt(scene_details: Dict[str, str], has_charact
     else:
         params += " --stylize 500"
     
-    if has_character:
+    if has_character and character_url:
+        # キャラクター参照を追加
+        params += f" --cref {character_url} --cw 100"  # キャラクター一貫性
+    elif has_character:
         params += " --cw 100"  # キャラクター重み
     
     return base_prompt + params
+
+
+def create_character_reference_prompt(base_prompt: str, character_photo_url: str, consistency_weight: int = 100) -> str:
+    """
+    キャラクター写真を使った一貫性のあるプロンプト生成
+    
+    Args:
+        base_prompt: 基本プロンプト
+        character_photo_url: キャラクター写真のURL
+        consistency_weight: 一貫性の重み (0-100)
+    
+    Returns:
+        キャラクター参照付きプロンプト
+    """
+    # Midjourneyの--crefパラメータを使用
+    # --cref: キャラクターリファレンス
+    # --cw: キャラクターウェイト（一貫性の強さ）
+    return f"{base_prompt} --cref {character_photo_url} --cw {consistency_weight}"
+
+
+def prepare_character_for_midjourney(character_photos: list) -> Dict[str, str]:
+    """
+    キャラクター写真をMidjourney用に準備
+    
+    Args:
+        character_photos: アップロードされた写真リスト
+    
+    Returns:
+        キャラクター情報
+    """
+    if not character_photos:
+        return None
+    
+    # 最初の写真をメインリファレンスとして使用
+    main_photo = character_photos[0]
+    
+    return {
+        'main_reference': main_photo,  # メインキャラクター参照
+        'additional_refs': character_photos[1:3] if len(character_photos) > 1 else [],  # 追加参照（最大2枚）
+        'consistency_weight': 100,  # デフォルトは最大一貫性
+        'description': '同一人物を維持'  # 説明
+    }

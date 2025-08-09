@@ -132,6 +132,36 @@ class PIAPIClient:
                 "message": str(e)
             }
     
+    def upload_character_photo(self, photo) -> str:
+        """
+        キャラクター写真をアップロードしてURLを取得
+        
+        Args:
+            photo: アップロードする写真
+        
+        Returns:
+            写真のURL
+        """
+        endpoint = f"{self.base_url}/upload/image"
+        
+        try:
+            photo_bytes = photo.read()
+            photo.seek(0)
+            base64_image = base64.b64encode(photo_bytes).decode('utf-8')
+            
+            payload = {
+                "image": f"data:image/jpeg;base64,{base64_image}",
+                "purpose": "character_reference"
+            }
+            
+            response = requests.post(endpoint, json=payload, headers=self.headers)
+            response.raise_for_status()
+            result = response.json()
+            
+            return result.get("url", "")
+        except Exception as e:
+            return None
+    
     def generate_character_consistent_images(self, character_photos: List, scenes: List[Dict]) -> List[Dict]:
         """
         キャラクター一貫性のある画像を生成
@@ -145,26 +175,56 @@ class PIAPIClient:
         """
         generated_images = []
         
-        # キャラクター写真をbase64エンコード
-        character_refs = []
-        for photo in character_photos[:3]:  # 最大3枚まで参照
-            photo_bytes = photo.read()
-            photo.seek(0)
-            base64_image = base64.b64encode(photo_bytes).decode('utf-8')
-            character_refs.append(f"data:image/jpeg;base64,{base64_image}")
+        # キャラクター写真をアップロードしてURLを取得
+        character_urls = []
+        for photo in character_photos[:1]:  # メイン写真1枚を使用
+            url = self.upload_character_photo(photo)
+            if url:
+                character_urls.append(url)
+        
+        if not character_urls:
+            # URL取得失敗の場合は通常の生成にフォールバック
+            return self.generate_images_without_character(scenes)
+        
+        # メインキャラクターURL
+        main_character_url = character_urls[0]
         
         for scene in scenes:
             # キャラクター参照を含むプロンプト生成
-            enhanced_prompt = f"{scene['visual_prompt']} --cref {' '.join(character_refs[:1])} --cw 100"
+            # --crefがすでに含まれているか確認
+            if '--cref' in scene.get('visual_prompt', ''):
+                # すでにキャラクター参照がある場合はそのまま使用
+                enhanced_prompt = scene['visual_prompt']
+            else:
+                # キャラクター参照を追加
+                enhanced_prompt = f"{scene['visual_prompt']} --cref {main_character_url} --cw 100"
             
             result = self.generate_image_midjourney(enhanced_prompt)
             generated_images.append({
                 "scene_id": scene['id'],
                 "job_id": result.get("job_id"),
                 "status": "generating",
-                "prompt": enhanced_prompt
+                "prompt": enhanced_prompt,
+                "character_url": main_character_url,  # キャラクターURLを保存
+                "has_character": True
             })
         
+        return generated_images
+    
+    def generate_images_without_character(self, scenes: List[Dict]) -> List[Dict]:
+        """
+        キャラクターなしで画像を生成
+        """
+        generated_images = []
+        for scene in scenes:
+            result = self.generate_image_midjourney(scene.get('visual_prompt', ''))
+            generated_images.append({
+                "scene_id": scene['id'],
+                "job_id": result.get("job_id"),
+                "status": "generating",
+                "prompt": scene.get('visual_prompt', ''),
+                "has_character": False
+            })
         return generated_images
     
     def create_pv_from_images(self, images: List[Dict], music_info: Dict) -> Dict[str, Any]:

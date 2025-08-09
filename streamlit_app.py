@@ -13,7 +13,9 @@ from script_templates import (
     generate_narrative_scene,
     generate_visual_scene,
     generate_music_sync_scene,
-    create_detailed_midjourney_prompt
+    create_detailed_midjourney_prompt,
+    create_character_reference_prompt,
+    prepare_character_for_midjourney
 )
 
 # Import with proper error handling
@@ -686,6 +688,15 @@ with tab3:
                         
                         # キャラクター設定を反映
                         has_character = st.session_state.get('character_settings') is not None
+                        character_info = None
+                        character_url = None
+                        
+                        # キャラクター写真がある場合、Midjourney用に準備
+                        if has_character and st.session_state.get('character_settings', {}).get('photos'):
+                            character_photos = st.session_state['character_settings']['photos']
+                            character_info = prepare_character_for_midjourney(character_photos)
+                            # 注：実際の実装では、写真をアップロードしてURLを取得する必要があります
+                            character_url = "https://your-uploaded-character-photo.jpg"  # デモURL
                         
                         # 歌詞をシーンに分割
                         lyrics_parts = parse_lyrics_to_scenes(lyrics_text, len(scene_division['scenes']))
@@ -765,7 +776,25 @@ with tab3:
 """
                             
                             # Midjourney用の詳細プロンプトを生成
-                            visual_prompt = create_detailed_midjourney_prompt(scene_details, has_character)
+                            base_visual_prompt = create_detailed_midjourney_prompt(scene_details, has_character, character_url)
+                            
+                            # キャラクター写真がある場合、すべてのシーンで同じキャラクターを使用
+                            if character_info and character_url:
+                                # シーンタイプに応じて一貫性の強さを調整
+                                if scene_type == "オープニング" or scene_type == "エンディング":
+                                    consistency_weight = 100  # 最大一貫性
+                                elif scene_type == "クライマックス":
+                                    consistency_weight = 80  # 少し柔軟性を持たせる
+                                else:
+                                    consistency_weight = 90  # 通常シーン
+                                
+                                # プロンプトを上書き（キャラクター参照がすでに含まれていない場合）
+                                if '--cref' not in base_visual_prompt:
+                                    visual_prompt = f"{base_visual_prompt} --cref {character_url} --cw {consistency_weight}"
+                                else:
+                                    visual_prompt = base_visual_prompt
+                            else:
+                                visual_prompt = base_visual_prompt
                             
                             generated_scenes.append({
                                 "id": scene_info['scene_number'],
