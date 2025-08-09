@@ -44,4 +44,8 @@ config.json
 
 # Logs
 *.log
-EOF < /dev/null
+
+# IMPORTANT FILES - DO NOT DELETE
+# These files contain important documentation and should be kept:
+# - IMPORTANT_API_KEYS.md (API key management documentation)
+# - CLAUDE.md (Project documentation and reminders)
