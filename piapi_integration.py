@@ -19,9 +19,10 @@ class PIAPIClient:
         self.x_key = x_key if x_key else api_key  # XKEYがなければメインキーを使用
         self.base_url = base_url
         
-        # デバッグ: APIキーの長さを確認（セキュリティのため一部のみ表示）
-        if self.x_key:
-            st.info(f"🔑 APIキー設定: {self.x_key[:8]}...（{len(self.x_key)}文字）")
+        # デバッグ: APIキーの長さを確認（デモモード以外の場合のみ）
+        if self.x_key and self.x_key != 'demo':
+            # デバッグモードの場合のみ表示（通常は非表示）
+            pass  # st.info(f"🔑 APIキー設定: {self.x_key[:8]}...（{len(self.x_key)}文字）")
         
         self.headers = {
             "x-api-key": self.x_key,  # PIAPIはx-api-keyヘッダーを使用
@@ -64,28 +65,32 @@ class PIAPIClient:
             }
         }
         
-        # デバッグ: リクエスト情報を表示
-        with st.expander("🔍 APIリクエストデバッグ情報"):
-            st.write(f"**エンドポイント:** {endpoint}")
-            st.write(f"**ヘッダー:** x-api-key = {self.headers.get('x-api-key', '')[:8]}...")
-            st.json(payload)
+        # デバッグ: リクエスト情報を表示（デバッグモードの場合のみ）
+        DEBUG_MODE = False  # デバッグを無効化
+        if DEBUG_MODE:
+            with st.expander("🔍 APIリクエストデバッグ情報"):
+                st.write(f"**エンドポイント:** {endpoint}")
+                st.write(f"**ヘッダー:** x-api-key = {self.headers.get('x-api-key', '')[:8]}...")
+                st.json(payload)
         
         try:
             response = requests.post(endpoint, json=payload, headers=self.headers)
             
-            # デバッグ: レスポンス情報
-            st.write(f"**レスポンスステータス:** {response.status_code}")
-            
-            if response.status_code != 200:
-                st.error(f"❌ APIエラー: ステータスコード {response.status_code}")
-                st.code(response.text)
+            # デバッグ: レスポンス情報（デバッグモードの場合のみ）
+            if DEBUG_MODE:
+                st.write(f"**レスポンスステータス:** {response.status_code}")
+                
+                if response.status_code != 200:
+                    st.error(f"❌ APIエラー: ステータスコード {response.status_code}")
+                    st.code(response.text)
             
             response.raise_for_status()
             result = response.json()
             
-            # デバッグ: レスポンス内容
-            with st.expander("📥 APIレスポンス"):
-                st.json(result)
+            # デバッグ: レスポンス内容（デバッグモードの場合のみ）
+            if DEBUG_MODE:
+                with st.expander("📥 APIレスポンス"):
+                    st.json(result)
             
             # タスクIDを返して、後でステータスを確認
             task_id = None

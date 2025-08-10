@@ -306,25 +306,49 @@ with st.sidebar:
             st.markdown(f'<div class="api-status api-disconnected">❌ {key_name.upper()}: 未接続</div>', unsafe_allow_html=True)
     
     # APIテストボタン
-    if st.button("🧪 PIAPI接続テスト"):
-        with st.spinner("APIをテスト中..."):
-            from piapi_integration import PIAPIClient
-            piapi_key = st.session_state.api_keys.get('piapi', '')
-            piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
-            
-            if piapi_key:
-                client = PIAPIClient(piapi_key, piapi_xkey)
-                # シンプルなテストプロンプト
-                test_result = client.generate_image_midjourney("test image of a sunset", process_mode="relax")
+    col_test1, col_test2 = st.columns(2)
+    
+    with col_test1:
+        if st.button("🧪 PIAPI接続テスト", use_container_width=True):
+            with st.spinner("APIをテスト中..."):
+                from piapi_integration import PIAPIClient
+                piapi_key = st.session_state.api_keys.get('piapi', '')
+                piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
                 
-                if test_result.get("status") == "success":
-                    st.success("✅ PIAPI接続成功！")
-                    st.json(test_result)
+                if piapi_key:
+                    client = PIAPIClient(piapi_key, piapi_xkey)
+                    # シンプルなテストプロンプト
+                    test_result = client.generate_image_midjourney("test image of a sunset", process_mode="relax")
+                    
+                    if test_result.get("status") == "success":
+                        st.success("✅ PIAPI接続成功！")
+                        st.json(test_result)
+                    else:
+                        st.error("❌ PIAPI接続失敗")
+                        
+                        # エラー解析
+                        if "insufficient quota" in str(test_result.get("details", "")):
+                            st.error("💰 **クレジット不足エラー**")
+                            st.info("""
+                            PIAPIアカウントのクレジットが不足しています。
+                            1. [PIAPI Dashboard](https://piapi.ai/)でクレジットを確認
+                            2. 必要に応じてチャージ
+                            3. または下のデモモードを使用
+                            """)
+                        else:
+                            st.json(test_result)
                 else:
-                    st.error("❌ PIAPI接続失敗")
-                    st.json(test_result)
+                    st.warning("PIAPIキーが設定されていません")
+    
+    with col_test2:
+        if st.button("🎭 デモモード切替", use_container_width=True):
+            if st.session_state.api_keys.get('piapi') == 'demo':
+                st.session_state.api_keys['piapi'] = ''
+                st.success("デモモードを解除しました")
             else:
-                st.warning("PIAPIキーが設定されていません")
+                st.session_state.api_keys['piapi'] = 'demo'
+                st.success("デモモードに切り替えました")
+                st.info("デモモードではプレースホルダー画像で動作確認ができます")
 
 # メインコンテンツ - タブ構成
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
