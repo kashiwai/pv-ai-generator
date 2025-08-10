@@ -279,16 +279,18 @@ def create_detailed_midjourney_prompt(scene_details: Dict[str, str], has_charact
     else:
         params += " --stylize 500"
     
-    if has_character and character_url:
-        # キャラクター参照を追加
-        params += f" --cref {character_url} --cw 100"  # キャラクター一貫性
-    elif has_character:
-        params += " --cw 100"  # キャラクター重み
+    if has_character:
+        if character_url:
+            # キャラクター参照を追加
+            params += f" --cref {character_url} --cw 100"  # キャラクター一貫性
+        else:
+            # URLがない場合はプレースホルダー
+            params += " --cref [character_url] --cw 100"
     
     return base_prompt + params
 
 
-def create_character_reference_prompt(base_prompt: str, character_photo_url: str, consistency_weight: int = 100) -> str:
+def create_character_reference_prompt(base_prompt: str, character_photo_url: str = "[character_url]", consistency_weight: int = 100) -> str:
     """
     キャラクター写真を使った一貫性のあるプロンプト生成
     
@@ -300,6 +302,16 @@ def create_character_reference_prompt(base_prompt: str, character_photo_url: str
     Returns:
         キャラクター参照付きプロンプト
     """
+    # すでに--crefが含まれている場合は置換
+    if "--cref" in base_prompt:
+        # 既存の--crefと--cwパラメータを置換
+        import re
+        # --cref [character_url] --cw 100 のパターンを削除
+        base_prompt = re.sub(r'--cref\s+\S+\s*(--cw\s+\d+)?', '', base_prompt)
+        # 複数の--cwがある場合も削除
+        base_prompt = re.sub(r'--cw\s+\d+', '', base_prompt)
+        base_prompt = base_prompt.strip()
+    
     # Midjourneyの--crefパラメータを使用
     # --cref: キャラクターリファレンス
     # --cw: キャラクターウェイト（一貫性の強さ）

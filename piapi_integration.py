@@ -42,17 +42,30 @@ class PIAPIClient:
         """
         endpoint = f"{self.base_url}/api/v1/task"
         
+        # プロンプトが空でないか確認
+        if not prompt or prompt.strip() == "":
+            return {
+                "status": "error",
+                "message": "プロンプトが空です",
+                "details": "visual_promptが設定されていません"
+            }
+        
         # アスペクト比の処理
         aspect_ratio = kwargs.get("aspect_ratio", "16:9")
         if aspect_ratio == "16:9 (推奨)":
             aspect_ratio = "16:9"
         
-        # Midjourneyパラメータをプロンプトに追加
-        full_prompt = f"{prompt} --ar {aspect_ratio} --v 6"
-        if kwargs.get("style"):
-            full_prompt += f" --style {kwargs.get('style')}"
-        if kwargs.get("quality"):
-            full_prompt += f" --q {kwargs.get('quality')}"
+        # プロンプトがすでにMidjourneyパラメータを含んでいるか確認
+        if "--ar" in prompt and "--v" in prompt:
+            # すでにパラメータがある場合はそのまま使用
+            full_prompt = prompt
+        else:
+            # パラメータがない場合は追加
+            full_prompt = f"{prompt} --ar {aspect_ratio} --v 6"
+            if kwargs.get("style"):
+                full_prompt += f" --style {kwargs.get('style')}"
+            if kwargs.get("quality"):
+                full_prompt += f" --q {kwargs.get('quality')}"
         
         payload = {
             "model": "midjourney",
@@ -468,7 +481,20 @@ def generate_images_with_piapi(script: Dict, character_photos: Optional[List] = 
                     
                     # デバッグ情報
                     if result.get("status") == "error":
-                        st.error(f"シーン{actual_index+1}のAPI呼び出しエラー: {result.get('message')}")
+                        error_msg = result.get('message', '')
+                        
+                        # エラーの種類を判定
+                        if "daily midjourney error limit" in error_msg.lower():
+                            st.error(f"⚠️ デイリーリミットエラー")
+                            st.info("本日のMidjourney APIの使用上限に達しました。明日まで待つか、プランをアップグレードしてください。")
+                            return generated_images  # これ以上処理しない
+                        elif "insufficient quota" in error_msg.lower():
+                            st.error(f"💰 クレジット不足エラー")
+                            st.info("PIAPIのクレジットが不足しています。")
+                            return generated_images  # これ以上処理しない
+                        else:
+                            st.error(f"シーン{actual_index+1}のAPI呼び出しエラー: {error_msg}")
+                        
                         if result.get('details'):
                             with st.expander("エラー詳細"):
                                 st.code(result.get('details'))
