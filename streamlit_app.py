@@ -762,35 +762,64 @@ with tab3:
         with col_img1:
             st.subheader("🎨 生成設定")
             
-            # Midjourney設定
-            st.markdown("**Midjourney パラメータ**")
-            
-            aspect_ratio = st.selectbox(
-                "アスペクト比",
-                ["16:9 (推奨)", "9:16", "1:1", "4:3"],
-                help="動画のアスペクト比"
+            # 画像生成エンジン選択
+            generation_engine = st.radio(
+                "画像生成エンジン",
+                ["Midjourney (PIAPI)", "DALL-E 3 (OpenAI)"],
+                help="使用する画像生成AIを選択"
             )
             
-            quality_level = st.slider(
-                "品質",
-                min_value=1,
-                max_value=5,
-                value=2,
-                help="生成品質（高いほど時間がかかります）"
-            )
-            
-            style_level = st.slider(
-                "スタイライズ",
-                min_value=0,
-                max_value=1000,
-                value=100,
-                help="アート性の強さ"
-            )
+            if generation_engine == "Midjourney (PIAPI)":
+                # Midjourney設定
+                st.markdown("**Midjourney パラメータ**")
+                
+                aspect_ratio = st.selectbox(
+                    "アスペクト比",
+                    ["16:9 (推奨)", "9:16", "1:1", "4:3"],
+                    help="動画のアスペクト比"
+                )
+                
+                quality_level = st.slider(
+                    "品質",
+                    min_value=1,
+                    max_value=5,
+                    value=2,
+                    help="生成品質（高いほど時間がかかります）"
+                )
+                
+                style_level = st.slider(
+                    "スタイライズ",
+                    min_value=0,
+                    max_value=1000,
+                    value=100,
+                    help="アート性の強さ"
+                )
+            else:
+                # DALL-E 3設定
+                st.markdown("**DALL-E 3 パラメータ**")
+                
+                dalle_quality = st.radio(
+                    "品質",
+                    ["standard", "hd"],
+                    help="standardは通常品質、hdは高品質（2倍のコスト）"
+                )
+                
+                dalle_style = st.radio(
+                    "スタイル",
+                    ["natural", "vivid"],
+                    help="naturalは自然な見た目、vividは鮮やかで芸術的"
+                )
+                
+                st.info("💡 DALL-E 3は1792x1024（16:9相当）で生成されます")
             
             # キャラクター設定確認
             if 'character_settings' in st.session_state and st.session_state['character_settings']:
-                st.success("✅ キャラクター参照画像を使用")
-                st.caption("同一人物で一貫性のある画像を生成します")
+                if generation_engine == "Midjourney (PIAPI)":
+                    st.success("✅ キャラクター参照画像を使用")
+                    st.caption("同一人物で一貫性のある画像を生成します")
+                else:
+                    st.warning("⚠️ DALL-E 3では参照画像は使用できません")
+                    st.caption("キャラクターの一貫性は保持されません")
             else:
                 st.info("ℹ️ キャラクター参照なし")
                 st.caption("各シーンごとに最適な画像を生成します")
@@ -805,29 +834,54 @@ with tab3:
                 elif len(st.session_state['final_script']['scenes']) == 0:
                     st.error("台本のシーンが空です")
                 else:
-                    with st.spinner("PIAPIを通じて画像を生成中..."):
-                        # PIAPIで画像生成
-                        from piapi_integration import generate_images_with_piapi
-                        
-                        character_photos = None
-                        if 'character_settings' in st.session_state and st.session_state['character_settings']:
-                            character_photos = st.session_state['character_settings']['photos']
-                        
-                        # デバッグ: 生成前のシーン数を表示
-                        st.info(f"🎬 {len(st.session_state['final_script']['scenes'])}シーンの画像を生成します")
-                        
-                        # 台本に基づいて画像生成
-                        generated_images = generate_images_with_piapi(
-                            st.session_state['final_script'],
-                            character_photos
-                        )
-                        
-                        st.session_state['generated_images'] = generated_images
-                        
-                        if generated_images:
-                            st.success(f"✅ {len(generated_images)}枚の画像生成を開始しました")
-                        else:
-                            st.error("画像生成に失敗しました。APIキーを確認してください。")
+                    # 選択されたエンジンで画像生成
+                    if generation_engine == "Midjourney (PIAPI)":
+                        with st.spinner("Midjourneyで画像を生成中..."):
+                            from piapi_integration import generate_images_with_piapi
+                            
+                            character_photos = None
+                            if 'character_settings' in st.session_state and st.session_state['character_settings']:
+                                character_photos = st.session_state['character_settings']['photos']
+                            
+                            # デバッグ: 生成前のシーン数を表示
+                            st.info(f"🎬 {len(st.session_state['final_script']['scenes'])}シーンの画像を生成します")
+                            
+                            # 台本に基づいて画像生成
+                            generated_images = generate_images_with_piapi(
+                                st.session_state['final_script'],
+                                character_photos
+                            )
+                            
+                            st.session_state['generated_images'] = generated_images
+                            
+                            if generated_images:
+                                st.success(f"✅ {len(generated_images)}枚の画像生成を開始しました")
+                            else:
+                                st.error("画像生成に失敗しました。PIAPIキーを確認するか、DALL-E 3を試してください。")
+                    else:
+                        # DALL-E 3で画像生成
+                        with st.spinner("DALL-E 3で画像を生成中..."):
+                            from dalle_integration import generate_images_with_dalle
+                            
+                            character_photos = None
+                            if 'character_settings' in st.session_state and st.session_state['character_settings']:
+                                character_photos = st.session_state['character_settings']['photos']
+                            
+                            # デバッグ: 生成前のシーン数を表示
+                            st.info(f"🎬 {len(st.session_state['final_script']['scenes'])}シーンの画像を生成します")
+                            
+                            # 台本に基づいて画像生成
+                            generated_images = generate_images_with_dalle(
+                                st.session_state['final_script'],
+                                character_photos
+                            )
+                            
+                            st.session_state['generated_images'] = generated_images
+                            
+                            if generated_images:
+                                st.success(f"✅ DALL-E 3で{len(generated_images)}枚の画像生成が完了しました")
+                            else:
+                                st.error("画像生成に失敗しました。OpenAI APIキーを確認してください。")
         
         with col_img2:
             st.subheader("🖼️ 生成された画像")
