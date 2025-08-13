@@ -1,8 +1,8 @@
 {
-  "version": "2.1.0",
+  "version": "2.2.0",
   "major": 2,
-  "minor": 1,
+  "minor": 2,
   "patch": 0,
-  "build_date": "2025-08-10",
-  "description": "PV自動生成AIエージェント"
+  "build_date": "2025-08-13",
+  "description": "PV自動生成AIエージェント - Streamlit版"
 }
