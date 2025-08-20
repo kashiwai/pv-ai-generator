@@ -161,3 +161,14 @@ class ImagePicker:
                 "height": char_info["height"]
             }
         }
+    
+    def prepare_for_midjourney(self, character_id: str) -> Optional[str]:
+        """
+        Midjourney用にキャラクター参照を準備
+        """
+        char_info = self.get_character_by_id(character_id)
+        if not char_info:
+            return None
+        
+        # キャラクター参照用のパスを返す
+        return char_info["original_path"]
