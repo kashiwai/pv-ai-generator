@@ -1,0 +1,363 @@
+{
+  "name": "pv-ai-generator-mcp-server",
+  "version": "2.3.0",
+  "description": "PV自動生成AIエージェント - MCPサーバー設定",
+  "author": "Kotaro Kashiwai",
+  "license": "MIT",
+  
+  "deployment": {
+    "streamlit_cloud": {
+      "url": "https://pv-ai-generator-8tfxczsibmrquxq9ybjxgi.streamlit.app",
+      "status": "active",
+      "auto_deploy": true,
+      "python_version": "3.13"
+    },
+    "github": {
+      "repository": "https://github.com/kashiwai/pv-ai-generator",
+      "branch": "main",
+      "latest_commit": "7256cd2"
+    },
+    "huggingface_spaces": {
+      "url": "https://huggingface.co/spaces/mmz2501/pv-ai-generator",
+      "status": "ready_to_deploy"
+    }
+  },
+  
+  "api_integrations": {
+    "piapi": {
+      "description": "PIAPI統合（Midjourney、Hailuo等）",
+      "version": "v1",
+      "endpoints": {
+        "task_create": {
+          "url": "https://api.piapi.ai/api/v1/task",
+          "method": "POST",
+          "headers": {
+            "x-api-key": "PIAPI_XKEY",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "model": "midjourney",
+            "task_type": "imagine",
+            "input": {
+              "prompt": "string",
+              "process_mode": "relax|fast|turbo",
+              "skip_prompt_check": "boolean"
+            }
+          }
+        },
+        "task_status": {
+          "url": "https://api.piapi.ai/api/v1/task/{task_id}",
+          "method": "GET",
+          "headers": {
+            "x-api-key": "PIAPI_XKEY"
+          }
+        },
+        "image_upload": {
+          "url": "https://api.piapi.ai/upload/image",
+          "method": "POST",
+          "headers": {
+            "x-api-key": "PIAPI_XKEY",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "image": "data:image/png;base64,{base64_string}",
+            "purpose": "character_reference"
+          }
+        }
+      },
+      "authentication": {
+        "main_key": "PIAPI_KEY",
+        "x_key": "PIAPI_XKEY",
+        "required": true
+      }
+    },
+    
+    "midjourney": {
+      "description": "Midjourney画像生成",
+      "version": "6.1",
+      "provider": "piapi",
+      "parameters": {
+        "--ar": "アスペクト比（16:9, 1:1等）",
+        "--v": "バージョン（6.1推奨）",
+        "--cref": "キャラクター参照URL",
+        "--cw": "一貫性の重み（0-100、100推奨）",
+        "--style": "スタイル指定",
+        "--q": "品質（0.25, 0.5, 1, 2）"
+      },
+      "character_consistency": {
+        "enabled": true,
+        "method": "character_reference",
+        "implementation": "upload_image -> get_url -> add_to_prompt"
+      }
+    },
+    
+    "hailuo": {
+      "description": "Hailuo AI動画生成",
+      "version": "02",
+      "provider": "piapi",
+      "settings": {
+        "model": "hailuo-02",
+        "quality": "high",
+        "enable_motion_control": true,
+        "enable_character_consistency": true,
+        "duration": "5-8秒",
+        "motion_intensity": "1-10"
+      }
+    },
+    
+    "openai": {
+      "description": "OpenAI GPT-4 / DALL-E 3",
+      "models": {
+        "gpt-4": {
+          "purpose": "台本生成、構成案作成",
+          "max_tokens": 4096
+        },
+        "dall-e-3": {
+          "purpose": "フォールバック画像生成",
+          "size": "1024x1024",
+          "quality": "hd"
+        }
+      },
+      "api_key": "OPENAI_API_KEY"
+    },
+    
+    "google": {
+      "description": "Google Gemini / TTS",
+      "services": {
+        "gemini": {
+          "model": "gemini-pro",
+          "purpose": "台本生成の代替"
+        },
+        "text_to_speech": {
+          "language": "ja-JP",
+          "voice": "ja-JP-Standard-A",
+          "audio_encoding": "MP3"
+        }
+      },
+      "api_key": "GOOGLE_API_KEY"
+    },
+    
+    "anthropic": {
+      "description": "Claude 3",
+      "model": "claude-3-opus",
+      "purpose": "創造的な台本生成",
+      "api_key": "ANTHROPIC_API_KEY"
+    },
+    
+    "fish_audio": {
+      "description": "Fish Audio TTS",
+      "purpose": "高品質音声合成",
+      "languages": ["ja", "en", "zh"],
+      "api_key": "FISH_AUDIO_API_KEY"
+    }
+  },
+  
+  "core_modules": {
+    "character": {
+      "generator": {
+        "path": "agent_core/character/generator.py",
+        "class": "CharacterGenerator",
+        "methods": {
+          "generate_characters": "AIでキャラクター画像生成",
+          "generate_with_midjourney": "Midjourney経由で生成",
+          "generate_with_dalle": "DALL-E 3で生成",
+          "wait_for_midjourney_completion": "非同期タスク完了待機",
+          "upload_image_for_reference": "参照画像アップロード",
+          "generate_character_with_consistency": "一貫性のある生成"
+        }
+      },
+      "image_picker": {
+        "path": "agent_core/character/image_picker.py",
+        "class": "ImagePicker",
+        "methods": {
+          "process_images": "画像処理と登録",
+          "register_character": "キャラクター登録",
+          "prepare_for_midjourney": "Midjourney用準備",
+          "export_character_prompt": "プロンプトエクスポート"
+        }
+      }
+    },
+    
+    "plot": {
+      "script_planner": {
+        "path": "agent_core/plot/script_planner.py",
+        "class": "ScriptPlanner",
+        "methods": {
+          "generate_plot_options": "複数の構成案生成",
+          "select_best_plot": "最適な構成選択"
+        }
+      },
+      "script_writer": {
+        "path": "agent_core/plot/script_writer.py",
+        "class": "ScriptWriter",
+        "methods": {
+          "write_script": "台本作成",
+          "generate_scene_descriptions": "シーン説明生成"
+        }
+      }
+    },
+    
+    "tts": {
+      "tts_generator": {
+        "path": "agent_core/tts/tts_generator.py",
+        "class": "TTSGenerator",
+        "methods": {
+          "generate_narration": "ナレーション生成",
+          "generate_with_google": "Google TTS",
+          "generate_with_fish": "Fish Audio TTS"
+        }
+      }
+    },
+    
+    "video": {
+      "scene_generator": {
+        "path": "agent_core/video/scene_generator.py",
+        "class": "SceneGenerator",
+        "methods": {
+          "generate_scene_prompts": "シーンプロンプト作成",
+          "generate_videos": "動画生成",
+          "generate_with_hailuo": "Hailuo AI生成"
+        }
+      }
+    },
+    
+    "composer": {
+      "merge_video": {
+        "path": "agent_core/composer/merge_video.py",
+        "class": "VideoComposer",
+        "methods": {
+          "compose_final_video": "最終動画合成",
+          "add_transitions": "トランジション追加",
+          "sync_with_music": "音楽同期"
+        }
+      }
+    }
+  },
+  
+  "workflow": {
+    "steps": [
+      {
+        "step": 1,
+        "name": "キャラクター処理",
+        "description": "画像アップロードまたはAI生成",
+        "modules": ["character.image_picker", "character.generator"]
+      },
+      {
+        "step": 2,
+        "name": "構成案生成",
+        "description": "複数の構成案を生成し最適なものを選択",
+        "modules": ["plot.script_planner"],
+        "ai_models": ["gpt-4", "claude-3", "gemini"]
+      },
+      {
+        "step": 3,
+        "name": "台本作成",
+        "description": "選択された構成から詳細な台本を作成",
+        "modules": ["plot.script_writer"]
+      },
+      {
+        "step": 4,
+        "name": "画像生成",
+        "description": "Midjourneyで各シーンの画像を生成",
+        "modules": ["character.generator"],
+        "api": "piapi/midjourney",
+        "features": ["character_consistency", "cref_parameter"]
+      },
+      {
+        "step": 5,
+        "name": "音声合成",
+        "description": "ナレーション音声の生成",
+        "modules": ["tts.tts_generator"],
+        "providers": ["google_tts", "fish_audio"]
+      },
+      {
+        "step": 6,
+        "name": "動画生成",
+        "description": "各画像から動画セグメントを生成",
+        "modules": ["video.scene_generator"],
+        "api": "piapi/hailuo"
+      },
+      {
+        "step": 7,
+        "name": "最終合成",
+        "description": "動画、音声、音楽を合成",
+        "modules": ["composer.merge_video"],
+        "tools": ["ffmpeg", "moviepy"]
+      }
+    ]
+  },
+  
+  "configuration": {
+    "max_video_duration": 420,
+    "scene_duration": 8,
+    "output_resolution": [1920, 1080],
+    "output_fps": 30,
+    "audio_bitrate": "192k",
+    "video_bitrate": "5000k",
+    "supported_formats": {
+      "audio": ["mp3", "wav", "m4a", "aac"],
+      "video": ["mp4", "mov", "avi"],
+      "image": ["png", "jpg", "jpeg", "webp"]
+    }
+  },
+  
+  "environment_variables": {
+    "required": [
+      "PIAPI_KEY",
+      "PIAPI_XKEY"
+    ],
+    "optional": [
+      "OPENAI_API_KEY",
+      "GOOGLE_API_KEY",
+      "ANTHROPIC_API_KEY",
+      "FISH_AUDIO_API_KEY",
+      "DEEPSEEK_API_KEY"
+    ]
+  },
+  
+  "file_structure": {
+    "root": "/Users/kotarokashiwai/PVmovieegent/pv_ai_video_agent",
+    "main_app": "app.py",
+    "hf_app": "app_hf.py",
+    "streamlit_deployment": "pv-ai-generator/streamlit_app.py",
+    "directories": {
+      "agent_core": "コアモジュール",
+      "assets": {
+        "characters": "キャラクター画像",
+        "input": "入力ファイル",
+        "output": "出力動画",
+        "temp": "一時ファイル"
+      }
+    }
+  },
+  
+  "testing": {
+    "test_scripts": [
+      "test_midjourney.py",
+      "test_app.py"
+    ],
+    "validation": {
+      "midjourney_connection": "PIAPIエンドポイント接続確認",
+      "character_consistency": "キャラクター一貫性テスト",
+      "api_authentication": "APIキー認証テスト"
+    }
+  },
+  
+  "version_history": {
+    "2.3.0": {
+      "date": "2025-08-20",
+      "changes": [
+        "Midjourney統合修正",
+        "キャラクター一貫性機能実装",
+        "PIAPI v1エンドポイント対応"
+      ]
+    },
+    "2.2.0": {
+      "date": "2025-08-13",
+      "changes": [
+        "DALL-E 3統合",
+        "基本的なMidjourney連携"
+      ]
+    }
+  }
+}
