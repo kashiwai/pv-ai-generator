@@ -1,0 +1,27 @@
+# Hugging Face Spaces用の軽量requirements.txt
+# 最小限の依存関係のみ
+
+# Core
+gradio==4.44.0
+numpy==1.24.3
+Pillow==10.3.0
+
+# AI APIs
+openai==1.35.0
+anthropic==0.25.0
+google-generativeai==0.5.0
+
+# Audio
+gtts==2.5.0
+pydub==0.25.1
+
+# Video (MoviePy 1.0.3 for stability)
+moviepy==1.0.3
+imageio==2.31.1
+imageio-ffmpeg==0.4.9
+
+# Utils
+requests==2.31.0
+aiohttp==3.9.5
+python-dotenv==1.0.0
+pyyaml==6.0.1

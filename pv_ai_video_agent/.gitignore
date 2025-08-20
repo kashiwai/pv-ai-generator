@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific
+assets/temp/*
+assets/output/*
+assets/characters/*
+!assets/temp/.gitkeep
+!assets/output/.gitkeep
+!assets/characters/.gitkeep
+
+# Sensitive
+.env
+*.key
+secrets.json
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+*.cache
+
+# Test
+test_*.mp4
+test_*.mp3
+test_*.png
+
+# Gradio
+gradio_cached_examples/
+flagged/

@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"y\""
+          },
+          {
+            "type": "command",
+            "command": "echo \"y\""
+          },
+          {
+            "type": "command",
+            "command": "yes | head -1"
+          },
+          {
+            "type": "command",
+            "command": "printf \"y\\n\" | tee /dev/stdout"
+          }
+        ]
+      }
+    ]
+  }
+}
