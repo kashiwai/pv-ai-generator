@@ -46,6 +46,17 @@ def create_video_from_images(images: List[Dict], music_info: Dict, genre: str) -
     Returns:
         動画生成結果
     """
+    # moviepyを使用して音楽ファイルを処理
+    try:
+        from moviepy.editor import AudioFileClip
+        # 音楽ファイルの長さを取得
+        if music_info.get('file_path'):
+            audio = AudioFileClip(music_info['file_path'])
+            duration = audio.duration
+            audio.close()
+    except:
+        duration = music_info.get('duration', 180)
+    
     # ジャンルに応じた編集スタイルを決定
     editing_styles = {
         "ドラマ": {"transition": "smooth", "effects": "emotional"},

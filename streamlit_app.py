@@ -64,18 +64,20 @@ def load_api_keys():
 # v2.4.0モジュールのインポート
 try:
     from agent_core.workflow.advanced_pv_generator import AdvancedPVGenerator
-    from agent_core.plot.advanced_script_analyzer import AdvancedScriptAnalyzer
     from agent_core.plot.detailed_script_writer import DetailedScriptWriter
     from agent_core.video.text_to_video_generator import TextToVideoGenerator
     v240_available = True
-except ImportError:
+except ImportError as e:
     v240_available = False
-    st.warning("⚠️ v2.4.0モジュールが見つかりません。クラシックモードで動作します。")
+    print(f"v2.4.0 modules not available: {e}")
 
 # 既存モジュールのインポート
-from agent_core.character.generator import CharacterGenerator
-from agent_core.character.image_picker import ImagePicker
-from piapi_integration import PIAPIClient, generate_images_with_piapi
+try:
+    from piapi_integration import PIAPIClient, generate_images_with_piapi
+    piapi_available = True
+except ImportError:
+    piapi_available = False
+    print("PIAPI integration not available")
 
 def main():
     # ヘッダー
