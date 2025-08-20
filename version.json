@@ -1,8 +1,8 @@
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "major": 2,
-  "minor": 2,
+  "minor": 3,
   "patch": 0,
-  "build_date": "2025-08-13",
-  "description": "PV自動生成AIエージェント - Streamlit版"
+  "build_date": "2025-08-20",
+  "description": "PV自動生成AIエージェント - Midjourney統合強化版"
 }
