@@ -32,7 +32,7 @@ class DetailedScriptWriter:
                                       duration: float,
                                       scene_duration: int = 8) -> Dict[str, Any]:
         """
-        基本台本から詳細スクリプトを生成
+        基本台本から詳細スクリプトを生成（500-1000文字/シーン）
         
         Args:
             basic_script: 基本的な台本情報
@@ -40,7 +40,7 @@ class DetailedScriptWriter:
             scene_duration: 1シーンあたりの秒数
         
         Returns:
-            詳細スクリプト情報
+            詳細スクリプト情報（500-1000文字/シーン）
         """
         # シーン数を計算
         num_scenes = int(duration / scene_duration)
