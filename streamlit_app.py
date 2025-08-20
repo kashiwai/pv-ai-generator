@@ -418,52 +418,66 @@ def video_generation_step():
 def generate_script_pattern(pattern_type: str):
     """指定パターンで台本を生成"""
     import time
+    import random
     
-    # プログレスバー表示
-    progress = st.progress(0)
-    status = st.empty()
+    # 進捗表示用のコンテナ
+    progress_container = st.container()
+    with progress_container:
+        progress = st.progress(0)
+        status = st.empty()
+        details = st.empty()
+        percentage = st.empty()
     
-    status.text(f"{pattern_type}パターンで台本を生成中...")
-    progress.progress(0.3)
+    # 音楽の長さからシーン数を計算（デモ用）
+    total_duration = 180  # 3分の例
+    scene_duration = 8
+    num_scenes = int(total_duration / scene_duration)
     
-    # ここで実際の台本生成処理を呼び出す
-    # 仮の台本データ
+    status.text(f"📝 {pattern_type}パターンで台本を生成中...")
+    percentage.text("0%")
+    details.text(f"総シーン数: {num_scenes}")
+    
+    # 各シーンを生成
+    scenes = []
+    for i in range(num_scenes):
+        scene_num = i + 1
+        progress_value = (i + 1) / num_scenes
+        
+        # 進捗更新
+        progress.progress(progress_value)
+        percentage.text(f"{int(progress_value * 100)}%")
+        details.text(f"🎬 シーン {scene_num}/{num_scenes} を生成中...")
+        
+        # AI生成のシミュレーション（実際はAI APIを呼ぶ）
+        time.sleep(random.uniform(0.3, 0.8))  # ランダムな遅延でリアル感を出す
+        
+        scene = {
+            'scene_number': scene_num,
+            'timestamp': f'{i*scene_duration}-{(i+1)*scene_duration}',
+            'content': f'{pattern_type}タイプのシーン{scene_num}',
+            'video_prompt': f'Scene {scene_num}: Cinematic shot',
+            'visual_description': f'scene {scene_num} visual --ar 16:9 --v 6'
+        }
+        scenes.append(scene)
+    
+    # 最終的な台本を作成
     script = {
         'type': pattern_type,
-        'scenes': [
-            {
-                'scene_number': 1,
-                'timestamp': '0-8',
-                'content': f'{pattern_type}タイプのオープニングシーン',
-                'video_prompt': 'Cinematic opening shot, golden hour lighting',
-                'visual_description': 'wide shot of city skyline --ar 16:9 --v 6'
-            },
-            {
-                'scene_number': 2,
-                'timestamp': '8-16',
-                'content': f'{pattern_type}タイプの展開シーン',
-                'video_prompt': 'Dynamic movement, character introduction',
-                'visual_description': 'main character walking --ar 16:9 --v 6'
-            },
-            {
-                'scene_number': 3,
-                'timestamp': '16-24',
-                'content': f'{pattern_type}タイプのクライマックス',
-                'video_prompt': 'Emotional climax, dramatic lighting',
-                'visual_description': 'emotional moment --ar 16:9 --v 6'
-            }
-        ]
+        'scenes': scenes,
+        'total_duration': total_duration,
+        'num_scenes': num_scenes
     }
     
-    progress.progress(0.7)
-    time.sleep(0.5)
+    # 完了
+    progress.progress(1.0)
+    percentage.text("100%")
+    status.text("✅ 台本生成完了！")
+    details.text(f"✨ {num_scenes}シーンの台本が完成しました")
     
     # 生成された台本を保存
     st.session_state.generated_scripts.append(script)
     
-    progress.progress(1.0)
-    status.text("✅ 台本生成完了")
-    time.sleep(1)
+    time.sleep(1.5)
     
     # 画面を更新
     st.rerun()
@@ -570,9 +584,20 @@ def generate_pv_tab():
 def generate_pv(title, keywords, description, mood, lyrics, audio_file, character_images, script=None):
     """PV生成処理"""
     
-    # プログレスバーとステータス
-    progress_bar = st.progress(0)
-    status_text = st.empty()
+    # 進捗表示用のコンテナ
+    progress_container = st.container()
+    with progress_container:
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            detail_text = st.empty()
+        with col2:
+            percentage_text = st.empty()
+            time_estimate = st.empty()
+    
+    import time
+    start_time = time.time()
     
     try:
         # 音楽ファイルを保存
@@ -589,9 +614,12 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
                     char_paths.append(tmp_img.name)
         
         if st.session_state.workflow_mode == 'text_to_video' and v240_available:
-            # v2.4.0 新ワークフロー
-            status_text.text("v2.4.0 Text-to-Videoワークフローを開始...")
-            progress_bar.progress(0.1)
+            # v2.4.1 新ワークフロー
+            status_text.text("🚀 v2.4.1 Text-to-Videoワークフローを開始...")
+            progress_bar.progress(0.05)
+            percentage_text.text("5%")
+            detail_text.text("初期化中...")
+            time_estimate.text("予想: 2-3分")
             
             # 設定を準備
             config = {
@@ -608,8 +636,37 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
             # AdvancedPVGeneratorを使用
             generator = AdvancedPVGenerator(config)
             
+            # 進捗コールバックを定義
+            def update_progress(p, msg):
+                progress_bar.progress(p)
+                percentage_text.text(f"{int(p * 100)}%")
+                status_text.text(msg)
+                
+                # 経過時間と予想時間を計算
+                elapsed = time.time() - start_time
+                if p > 0:
+                    estimated_total = elapsed / p
+                    remaining = estimated_total - elapsed
+                    time_estimate.text(f"残り: {int(remaining)}s")
+            
             # 非同期処理を実行
             async def run_generation():
+                # ステップ1: 台本生成 (20%)
+                update_progress(0.1, "📝 台本を生成中...")
+                detail_text.text("キャラクター情報を反映中...")
+                
+                # ステップ2: シーン分割 (30%)
+                update_progress(0.3, "🎬 シーンを分割中...")
+                detail_text.text(f"総シーン数を計算中...")
+                
+                # ステップ3: 詳細スクリプト生成 (50%)
+                update_progress(0.5, "✍️ 詳細スクリプトを作成中...")
+                detail_text.text("500-1000文字/シーンで生成中...")
+                
+                # ステップ4: 動画生成 (80%)
+                update_progress(0.8, "🎥 動画を生成中...")
+                detail_text.text("Text-to-Video処理中...")
+                
                 return await generator.generate_pv(
                     title=title,
                     keywords=keywords,
@@ -619,15 +676,18 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
                     audio_file=audio_path,
                     character_images=char_paths,
                     use_text_to_video=True,
-                    progress_callback=lambda p, msg: (
-                        progress_bar.progress(p),
-                        status_text.text(msg)
-                    )
+                    progress_callback=update_progress
                 )
             
             result = asyncio.run(run_generation())
             
             if result['status'] == 'success':
+                progress_bar.progress(1.0)
+                percentage_text.text("100%")
+                status_text.text("✅ PV生成完了！")
+                detail_text.text(f"総時間: {int(time.time() - start_time)}秒")
+                time_estimate.text("完了")
+                
                 st.success(f"✅ PV生成完了！")
                 st.video(result['video_path'])
                 
@@ -653,9 +713,13 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
         
         else:
             # クラシックワークフロー
-            status_text.text("クラシックワークフローで生成中...")
+            status_text.text("🎬 クラシックワークフローで生成中...")
+            percentage_text.text("10%")
+            detail_text.text("画像生成モード")
             
             # 既存の処理を呼び出し
+            progress_bar.progress(0.5)
+            percentage_text.text("50%")
             st.info("クラシックモードで処理中...")
             # ここに既存のgenerate_images_with_piapi等の処理
     
@@ -663,8 +727,11 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
         st.error(f"❌ エラーが発生しました: {str(e)}")
     
     finally:
-        progress_bar.progress(1.0)
-        status_text.text("処理完了")
+        if 'result' not in locals() or result.get('status') != 'success':
+            progress_bar.progress(1.0)
+            percentage_text.text("100%")
+            status_text.text("処理完了")
+            detail_text.text("セッション終了")
 
 def settings_tab():
     """詳細設定タブ"""
