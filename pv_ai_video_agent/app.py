@@ -68,9 +68,18 @@ from agent_core.video.scene_generator import SceneGenerator
 from agent_core.composer.merge_video import VideoComposer
 from agent_core.utils.helpers import load_config, save_temp_file, get_audio_duration
 
+# v2.4.0の新ワークフローをインポート
+from agent_core.workflow.advanced_pv_generator import AdvancedPVGenerator
+
 class PVGeneratorAgent:
     def __init__(self):
         self.config = load_config()
+        self.version = "2.4.0"
+        
+        # v2.4.0: 新しい統合ワークフローを使用
+        self.advanced_generator = AdvancedPVGenerator(self.config)
+        
+        # 旧モジュール（互換性のため保持）
         self.image_picker = ImagePicker()
         self.character_generator = CharacterGenerator(self.config)
         self.script_planner = ScriptPlanner(self.config)
@@ -80,7 +89,28 @@ class PVGeneratorAgent:
         self.video_composer = VideoComposer(self.config)
         
     async def generate_pv(self, title, keywords, description, mood, lyrics, 
-                          audio_file, character_images, progress=gr.Progress()):
+                          audio_file, character_images, use_text_to_video=True, progress=gr.Progress()):
+        # v2.4.0: 新ワークフローを使用可能
+        if self.config.get("use_advanced_workflow", True) and use_text_to_video:
+            # 新ワークフロー：詳細台本→Text-to-Video
+            result = await self.advanced_generator.generate_pv(
+                title=title,
+                keywords=keywords,
+                description=description,
+                mood=mood,
+                lyrics=lyrics,
+                audio_file=audio_file,
+                character_images=character_images,
+                use_text_to_video=use_text_to_video,
+                progress_callback=lambda p, msg: progress(p, desc=msg)
+            )
+            
+            if result["status"] == "success":
+                return result["video_path"], f"✅ PV動画を生成しました（v2.4.0 Text-to-Video）: {Path(result['video_path']).name}"
+            else:
+                return None, f"❌ エラーが発生しました: {result.get('message', 'Unknown error')}"
+        
+        # クラシックワークフロー
         try:
             progress(0.1, desc="初期化中...")
             
@@ -220,6 +250,19 @@ def create_interface():
                     file_types=["image"],
                     type="filepath"
                 )
+                
+                gr.Markdown("## ⚙️ 生成設定")
+                with gr.Row():
+                    use_text_to_video = gr.Checkbox(
+                        label="Text-to-Video直接生成を使用 (v2.4.0新機能)",
+                        value=True,
+                        info="チェックを外すとクラシックワークフロー（画像→動画）"
+                    )
+                    workflow_info = gr.Textbox(
+                        label="ワークフロー",
+                        value="Text-to-Video: 詳細台本(2000-3000文字/シーン) → Veo3/Seedance直接生成",
+                        interactive=False
+                    )
                 
                 generate_btn = gr.Button("🚀 PV生成開始", variant="primary", size="lg")
                 
