@@ -27,6 +27,14 @@ if 'workflow_mode' not in st.session_state:
     st.session_state.workflow_mode = 'text_to_video'
 if 'generation_history' not in st.session_state:
     st.session_state.generation_history = []
+if 'current_step' not in st.session_state:
+    st.session_state.current_step = 'basic_info'
+if 'basic_info' not in st.session_state:
+    st.session_state.basic_info = {}
+if 'generated_scripts' not in st.session_state:
+    st.session_state.generated_scripts = []
+if 'selected_script' not in st.session_state:
+    st.session_state.selected_script = None
 
 # APIキー管理
 def load_api_keys():
@@ -165,17 +173,312 @@ def main():
             4. 音楽同期・合成
             """)
     
-    # メインコンテンツ
-    tabs = st.tabs(["🎬 PV生成", "📝 詳細設定", "📊 生成履歴"])
+    # メインコンテンツ - ステップに応じて表示を切り替え
+    if st.session_state.current_step == 'basic_info':
+        # 基本情報入力画面
+        basic_info_step()
+    elif st.session_state.current_step == 'script_generation':
+        # 台本生成・編集画面
+        script_generation_step()
+    elif st.session_state.current_step == 'video_generation':
+        # 動画生成画面
+        video_generation_step()
+    else:
+        # デフォルトでタブ表示
+        tabs = st.tabs(["🎬 PV生成", "📝 詳細設定", "📊 生成履歴"])
+        
+        with tabs[0]:
+            generate_pv_tab()
+        
+        with tabs[1]:
+            settings_tab()
+        
+        with tabs[2]:
+            history_tab()
+
+def basic_info_step():
+    """基本情報入力ステップ"""
+    st.markdown("## 📝 ステップ1: 基本情報入力")
     
-    with tabs[0]:
-        generate_pv_tab()
+    col1, col2 = st.columns(2)
     
-    with tabs[1]:
-        settings_tab()
+    with col1:
+        title = st.text_input("タイトル *", placeholder="PVのタイトルを入力", key="input_title")
+        keywords = st.text_input("キーワード", placeholder="青春, 友情, 冒険 (カンマ区切り)", key="input_keywords")
+        mood = st.selectbox(
+            "雰囲気",
+            ["明るい", "感動的", "ノスタルジック", "エネルギッシュ", 
+             "ミステリアス", "ダーク", "ファンタジー", "クール"],
+            key="input_mood"
+        )
     
-    with tabs[2]:
-        history_tab()
+    with col2:
+        description = st.text_area(
+            "説明",
+            placeholder="PVの概要を説明してください",
+            height=120,
+            key="input_description"
+        )
+    
+    st.markdown("## 🎵 コンテンツ")
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        lyrics = st.text_area(
+            "歌詞 / メッセージ",
+            placeholder="歌詞またはナレーション用のメッセージを入力",
+            height=200,
+            key="input_lyrics"
+        )
+    
+    with col2:
+        audio_file = st.file_uploader(
+            "音楽ファイル *",
+            type=['mp3', 'wav', 'm4a', 'aac'],
+            help="最大7分まで",
+            key="input_audio"
+        )
+        
+        st.markdown("### 🎨 キャラクター")
+        character_images = st.file_uploader(
+            "キャラクター画像",
+            type=['png', 'jpg', 'jpeg'],
+            accept_multiple_files=True,
+            help="同一人物を維持したい場合はアップロード",
+            key="input_character"
+        )
+    
+    # 次へボタン
+    st.markdown("---")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        if st.button("📝 台本生成へ進む →", type="primary", use_container_width=True):
+            if not title:
+                st.error("❌ タイトルを入力してください")
+            elif not audio_file:
+                st.error("❌ 音楽ファイルをアップロードしてください")
+            else:
+                # 基本情報を保存
+                st.session_state.basic_info = {
+                    'title': title,
+                    'keywords': keywords,
+                    'description': description,
+                    'mood': mood,
+                    'lyrics': lyrics,
+                    'audio_file': audio_file,
+                    'character_images': character_images
+                }
+                # 次のステップへ
+                st.session_state.current_step = 'script_generation'
+                st.rerun()
+
+def script_generation_step():
+    """台本生成・編集ステップ"""
+    st.markdown("## 📝 ステップ2: 台本生成・編集")
+    
+    # 戻るボタン
+    col1, col2, col3 = st.columns([1, 4, 1])
+    with col1:
+        if st.button("← 戻る"):
+            st.session_state.current_step = 'basic_info'
+            st.rerun()
+    
+    # 基本情報の表示
+    with st.expander("📋 入力した基本情報", expanded=False):
+        info = st.session_state.basic_info
+        st.write(f"**タイトル:** {info['title']}")
+        st.write(f"**キーワード:** {info.get('keywords', '')}")
+        st.write(f"**雰囲気:** {info.get('mood', '')}")
+        st.write(f"**説明:** {info.get('description', '')}")
+    
+    # 台本生成
+    if len(st.session_state.generated_scripts) == 0:
+        st.info("📝 台本を生成中...")
+        
+        # 台本生成ボタン
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if st.button("🎬 ストーリー重視", use_container_width=True):
+                generate_script_pattern('story')
+        
+        with col2:
+            if st.button("🎨 ビジュアル重視", use_container_width=True):
+                generate_script_pattern('visual')
+        
+        with col3:
+            if st.button("🎵 音楽同期重視", use_container_width=True):
+                generate_script_pattern('music')
+    
+    # 生成された台本の表示
+    if st.session_state.generated_scripts:
+        st.markdown("### 📜 生成された台本")
+        
+        # 台本選択タブ
+        script_tabs = st.tabs([f"パターン{i+1}" for i in range(len(st.session_state.generated_scripts))])
+        
+        for i, (tab, script) in enumerate(zip(script_tabs, st.session_state.generated_scripts)):
+            with tab:
+                st.markdown(f"**タイプ:** {script.get('type', 'standard')}")
+                
+                # シーンごとの編集
+                for j, scene in enumerate(script.get('scenes', [])):
+                    with st.expander(f"シーン {j+1}: {scene.get('timestamp', '')}秒"):
+                        # 編集可能なテキストエリア
+                        scene['content'] = st.text_area(
+                            "ストーリー内容",
+                            value=scene.get('content', ''),
+                            key=f"scene_content_{i}_{j}",
+                            height=100
+                        )
+                        
+                        if st.session_state.workflow_mode == 'text_to_video':
+                            scene['video_prompt'] = st.text_area(
+                                "Text-to-Videoプロンプト",
+                                value=scene.get('video_prompt', ''),
+                                key=f"video_prompt_{i}_{j}",
+                                height=150
+                            )
+                        else:
+                            scene['visual_description'] = st.text_area(
+                                "Midjourneyプロンプト",
+                                value=scene.get('visual_description', ''),
+                                key=f"visual_desc_{i}_{j}",
+                                height=100
+                            )
+                
+                # この台本を選択
+                if st.button(f"この台本を使用 ✓", key=f"select_script_{i}", type="primary"):
+                    st.session_state.selected_script = script
+                    st.success("✅ 台本を選択しました")
+    
+    # 次のステップへ
+    if st.session_state.selected_script:
+        st.markdown("---")
+        col1, col2, col3 = st.columns([1, 2, 1])
+        
+        with col2:
+            if st.button("🎬 動画生成へ進む →", type="primary", use_container_width=True):
+                st.session_state.current_step = 'video_generation'
+                st.rerun()
+
+def video_generation_step():
+    """動画生成ステップ"""
+    st.markdown("## 🎬 ステップ3: 動画生成")
+    
+    # 戻るボタン
+    col1, col2, col3 = st.columns([1, 4, 1])
+    with col1:
+        if st.button("← 台本編集に戻る"):
+            st.session_state.current_step = 'script_generation'
+            st.rerun()
+    
+    # 選択された台本の確認
+    with st.expander("📜 選択した台本", expanded=False):
+        if st.session_state.selected_script:
+            for i, scene in enumerate(st.session_state.selected_script.get('scenes', [])):
+                st.write(f"**シーン {i+1}:** {scene.get('content', '')[:100]}...")
+    
+    # 生成設定
+    st.markdown("### ⚙️ 生成設定")
+    
+    if st.session_state.workflow_mode == 'text_to_video':
+        col1, col2 = st.columns(2)
+        with col1:
+            provider = st.selectbox(
+                "プロバイダー",
+                ["Veo3 (高品質)", "Seedance (高速)", "自動選択"]
+            )
+        with col2:
+            quality = st.select_slider(
+                "品質",
+                options=["draft", "standard", "high", "ultra"],
+                value="high"
+            )
+    
+    # 生成開始
+    st.markdown("---")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        if st.button("🚀 動画生成を開始", type="primary", use_container_width=True):
+            # 基本情報と台本を使って生成
+            info = st.session_state.basic_info
+            script = st.session_state.selected_script
+            
+            generate_pv_with_script(
+                info=info,
+                script=script
+            )
+
+def generate_script_pattern(pattern_type: str):
+    """指定パターンで台本を生成"""
+    import time
+    
+    # プログレスバー表示
+    progress = st.progress(0)
+    status = st.empty()
+    
+    status.text(f"{pattern_type}パターンで台本を生成中...")
+    progress.progress(0.3)
+    
+    # ここで実際の台本生成処理を呼び出す
+    # 仮の台本データ
+    script = {
+        'type': pattern_type,
+        'scenes': [
+            {
+                'scene_number': 1,
+                'timestamp': '0-8',
+                'content': f'{pattern_type}タイプのオープニングシーン',
+                'video_prompt': 'Cinematic opening shot, golden hour lighting',
+                'visual_description': 'wide shot of city skyline --ar 16:9 --v 6'
+            },
+            {
+                'scene_number': 2,
+                'timestamp': '8-16',
+                'content': f'{pattern_type}タイプの展開シーン',
+                'video_prompt': 'Dynamic movement, character introduction',
+                'visual_description': 'main character walking --ar 16:9 --v 6'
+            },
+            {
+                'scene_number': 3,
+                'timestamp': '16-24',
+                'content': f'{pattern_type}タイプのクライマックス',
+                'video_prompt': 'Emotional climax, dramatic lighting',
+                'visual_description': 'emotional moment --ar 16:9 --v 6'
+            }
+        ]
+    }
+    
+    progress.progress(0.7)
+    time.sleep(0.5)
+    
+    # 生成された台本を保存
+    st.session_state.generated_scripts.append(script)
+    
+    progress.progress(1.0)
+    status.text("✅ 台本生成完了")
+    time.sleep(1)
+    
+    # 画面を更新
+    st.rerun()
+
+def generate_pv_with_script(info: dict, script: dict):
+    """台本を使ってPVを生成"""
+    # 既存のgenerate_pv関数を活用
+    generate_pv(
+        title=info['title'],
+        keywords=info.get('keywords', ''),
+        description=info.get('description', ''),
+        mood=info.get('mood', ''),
+        lyrics=info.get('lyrics', ''),
+        audio_file=info['audio_file'],
+        character_images=info.get('character_images'),
+        script=script
+    )
 
 def generate_pv_tab():
     """PV生成タブ"""
@@ -262,7 +565,7 @@ def generate_pv_tab():
                     character_images=character_images
                 )
 
-def generate_pv(title, keywords, description, mood, lyrics, audio_file, character_images):
+def generate_pv(title, keywords, description, mood, lyrics, audio_file, character_images, script=None):
     """PV生成処理"""
     
     # プログレスバーとステータス
