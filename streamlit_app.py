@@ -1,5 +1,5 @@
 """
-🎬 PV AI Generator v2.4.1 - Streamlit版
+🎬 PV AI Generator v2.4.2 - Streamlit版
 キャラクター一貫性強化・台本最適化版
 """
 
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v2.4.1",
+    page_title="🎬 PV AI Generator v2.4.2",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -82,14 +82,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v2.4.1
+    # 🎬 PV AI Generator v2.4.2
     ### キャラクター一貫性強化・台本最適化版
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v2.4.1 新機能**: キャラクター完全固定・台本最適化(500-1000文字/シーン)")
+        st.info("🆕 **v2.4.2 新機能**: 台本生成の進捗表示・パーセンテージ表示・残り時間表示")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -159,7 +159,7 @@ def main():
         st.markdown("### 📊 ワークフロー情報")
         if st.session_state.workflow_mode == 'text_to_video':
             st.markdown("""
-            **Text-to-Video モード v2.4.1**
+            **Text-to-Video モード v2.4.2**
             1. 歌詞・情景の深層分析
             2. 最適化台本生成 (500-1000文字/シーン)
             3. Veo3/Seedance直接生成
@@ -696,7 +696,7 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
                     st.download_button(
                         label="📥 動画をダウンロード",
                         data=f,
-                        file_name=f"{title}_v241.mp4",
+                        file_name=f"{title}_v242.mp4",
                         mime="video/mp4"
                     )
                 
@@ -793,7 +793,7 @@ def history_tab():
 def show_help():
     """ヘルプダイアログ"""
     st.markdown("""
-    ### 📚 v2.4.1 使い方ガイド
+    ### 📚 v2.4.2 使い方ガイド
     
     #### 🆕 新機能
     - **詳細台本生成**: 各シーン2000-3000文字の詳細な描写
