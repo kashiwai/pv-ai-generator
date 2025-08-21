@@ -35,6 +35,11 @@ if 'generated_scripts' not in st.session_state:
     st.session_state.generated_scripts = []
 if 'selected_script' not in st.session_state:
     st.session_state.selected_script = None
+if 'project_storage' not in st.session_state:
+    from agent_core.utils.data_storage import DataStorage
+    st.session_state.project_storage = DataStorage()
+if 'current_project_id' not in st.session_state:
+    st.session_state.current_project_id = None
 
 # APIキー管理
 def load_api_keys():
@@ -66,6 +71,7 @@ try:
     from agent_core.workflow.advanced_pv_generator import AdvancedPVGenerator
     from agent_core.plot.detailed_script_writer import DetailedScriptWriter
     from agent_core.video.text_to_video_generator import TextToVideoGenerator
+    from agent_core.plot.basic_script_generator import BasicScriptGenerator
     v240_available = True
 except ImportError as e:
     v240_available = False
@@ -98,8 +104,13 @@ def main():
         )
         st.session_state.workflow_mode = 'text_to_video' if "Text-to-Video" in workflow_mode else 'classic'
     with col3:
-        if st.button("📚 ヘルプ"):
-            show_help()
+        col3_1, col3_2 = st.columns(2)
+        with col3_1:
+            if st.button("💾 保存"):
+                save_current_project()
+        with col3_2:
+            if st.button("📚 ヘルプ"):
+                show_help()
     
     # サイドバー: API設定
     with st.sidebar:
@@ -272,6 +283,8 @@ def basic_info_step():
                     'audio_file': audio_file,
                     'character_images': character_images
                 }
+                # 自動保存
+                autosave_session()
                 # 次のステップへ
                 st.session_state.current_step = 'script_generation'
                 st.rerun()
@@ -355,6 +368,8 @@ def script_generation_step():
                 if st.button(f"この台本を使用 ✓", key=f"select_script_{i}", type="primary"):
                     st.session_state.selected_script = script
                     st.success("✅ 台本を選択しました")
+                    # 自動保存
+                    autosave_session()
     
     # 次のステップへ
     if st.session_state.selected_script:
@@ -416,9 +431,10 @@ def video_generation_step():
             )
 
 def generate_script_pattern(pattern_type: str):
-    """指定パターンで台本を生成"""
+    """指定パターンで台本を生成（実際のAI APIを使用）"""
     import time
-    import random
+    import asyncio
+    from agent_core.plot.basic_script_generator import BasicScriptGenerator
     
     # 進捗表示用のコンテナ
     progress_container = st.container()
@@ -427,9 +443,19 @@ def generate_script_pattern(pattern_type: str):
         status = st.empty()
         details = st.empty()
         percentage = st.empty()
+        time_estimate = st.empty()
     
-    # 音楽の長さからシーン数を計算（デモ用）
-    total_duration = 180  # 3分の例
+    start_time = time.time()
+    
+    # 基本情報を取得
+    info = st.session_state.basic_info
+    
+    # 音楽ファイルの長さを取得（実際は音楽から取得）
+    total_duration = 180  # デフォルト3分
+    if info.get('audio_file'):
+        # TODO: 実際の音楽ファイルから長さを取得
+        total_duration = 180
+    
     scene_duration = 8
     num_scenes = int(total_duration / scene_duration)
     
@@ -437,47 +463,74 @@ def generate_script_pattern(pattern_type: str):
     percentage.text("0%")
     details.text(f"総シーン数: {num_scenes}")
     
-    # 各シーンを生成
-    scenes = []
-    for i in range(num_scenes):
-        scene_num = i + 1
-        progress_value = (i + 1) / num_scenes
+    # 進捗コールバック関数
+    def update_progress(p, msg):
+        progress.progress(p)
+        percentage.text(f"{int(p * 100)}%")
+        status.text(msg)
         
-        # 進捗更新
-        progress.progress(progress_value)
-        percentage.text(f"{int(progress_value * 100)}%")
-        details.text(f"🎬 シーン {scene_num}/{num_scenes} を生成中...")
-        
-        # AI生成のシミュレーション（実際はAI APIを呼ぶ）
-        time.sleep(random.uniform(0.3, 0.8))  # ランダムな遅延でリアル感を出す
-        
-        scene = {
-            'scene_number': scene_num,
-            'timestamp': f'{i*scene_duration}-{(i+1)*scene_duration}',
-            'content': f'{pattern_type}タイプのシーン{scene_num}',
-            'video_prompt': f'Scene {scene_num}: Cinematic shot',
-            'visual_description': f'scene {scene_num} visual --ar 16:9 --v 6'
+        # 経過時間と予想時間
+        elapsed = time.time() - start_time
+        if p > 0 and p < 1:
+            estimated_total = elapsed / p
+            remaining = estimated_total - elapsed
+            time_estimate.text(f"残り: {int(remaining)}秒")
+        elif p >= 1:
+            time_estimate.text(f"完了: {int(elapsed)}秒")
+    
+    # キャラクター参照情報を準備
+    character_reference = None
+    if info.get('character_images'):
+        character_reference = {
+            'name': '主人公',
+            'description': 'アップロードされた画像の人物',
+            'gender': '未指定',
+            'age': '20代',
+            'appearance': 'アップロードされた画像参照',
+            'features': '一貫性のあるキャラクター'
         }
-        scenes.append(scene)
     
-    # 最終的な台本を作成
-    script = {
-        'type': pattern_type,
-        'scenes': scenes,
-        'total_duration': total_duration,
-        'num_scenes': num_scenes
-    }
-    
-    # 完了
-    progress.progress(1.0)
-    percentage.text("100%")
-    status.text("✅ 台本生成完了！")
-    details.text(f"✨ {num_scenes}シーンの台本が完成しました")
-    
-    # 生成された台本を保存
-    st.session_state.generated_scripts.append(script)
-    
-    time.sleep(1.5)
+    try:
+        # BasicScriptGeneratorを初期化
+        config = {
+            'openai_api_key': st.session_state.api_keys.get('openai', ''),
+            'google_api_key': st.session_state.api_keys.get('google', ''),
+            'anthropic_api_key': st.session_state.api_keys.get('anthropic', '')
+        }
+        
+        generator = BasicScriptGenerator(config)
+        
+        # 非同期処理を実行
+        async def generate():
+            return await generator.generate_script(
+                title=info.get('title', 'タイトル'),
+                keywords=info.get('keywords', ''),
+                description=info.get('description', ''),
+                mood=info.get('mood', 'normal'),
+                lyrics=info.get('lyrics', ''),
+                duration=total_duration,
+                pattern_type=pattern_type,
+                character_reference=character_reference,
+                progress_callback=update_progress
+            )
+        
+        # 台本を生成
+        script = asyncio.run(generate())
+        
+        # 生成された台本を保存
+        st.session_state.generated_scripts.append(script)
+        
+        # 完了
+        update_progress(1.0, "✅ 台本生成完了！")
+        details.text(f"✨ {num_scenes}シーンの台本が完成しました")
+        
+        time.sleep(1.5)
+        
+    except Exception as e:
+        st.error(f"❌ 台本生成エラー: {str(e)}")
+        status.text("❌ エラーが発生しました")
+        details.text(str(e))
+        return
     
     # 画面を更新
     st.rerun()
@@ -789,6 +842,53 @@ def history_tab():
                         st.button("再生", key=f"play_{item['timestamp']}")
     else:
         st.info("まだ生成履歴がありません")
+
+def save_current_project():
+    """現在のプロジェクトを保存"""
+    # プロジェクトデータをまとめる
+    project_data = {
+        'basic_info': st.session_state.basic_info,
+        'generated_scripts': st.session_state.generated_scripts,
+        'selected_script': st.session_state.selected_script,
+        'workflow_mode': st.session_state.workflow_mode,
+        'version': '2.4.2'
+    }
+    
+    # 保存
+    project_id = st.session_state.project_storage.save_project(project_data)
+    st.session_state.current_project_id = project_id
+    
+    st.success(f"✅ プロジェクトを保存しました: {project_id}")
+    return project_id
+
+def autosave_session():
+    """セッションデータを自動保存"""
+    session_data = {
+        'basic_info': st.session_state.basic_info,
+        'generated_scripts': st.session_state.generated_scripts,
+        'selected_script': st.session_state.selected_script,
+        'workflow_mode': st.session_state.workflow_mode,
+        'current_step': st.session_state.current_step
+    }
+    
+    st.session_state.project_storage.autosave(session_data)
+
+def load_project(project_id: str):
+    """プロジェクトを読み込み"""
+    project_data = st.session_state.project_storage.load_project(project_id)
+    
+    if project_data:
+        st.session_state.basic_info = project_data.get('basic_info', {})
+        st.session_state.generated_scripts = project_data.get('generated_scripts', [])
+        st.session_state.selected_script = project_data.get('selected_script')
+        st.session_state.workflow_mode = project_data.get('workflow_mode', 'text_to_video')
+        st.session_state.current_project_id = project_id
+        
+        st.success(f"✅ プロジェクトを読み込みました: {project_id}")
+        return True
+    else:
+        st.error(f"❌ プロジェクトが見つかりません: {project_id}")
+        return False
 
 def show_help():
     """ヘルプダイアログ"""
