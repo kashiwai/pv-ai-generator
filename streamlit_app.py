@@ -1,5 +1,5 @@
 """
-🎬 PV AI Generator v2.4.4 - Streamlit版
+🎬 PV AI Generator v2.4.5 - Streamlit版
 キャラクター一貫性強化・台本最適化版
 """
 
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v2.4.4",
+    page_title="🎬 PV AI Generator v2.4.5",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -88,14 +88,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v2.4.4
+    # 🎬 PV AI Generator v2.4.5
     ### キャラクター一貫性強化・台本最適化版
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v2.4.4 新機能**: 進捗表示改善・パーセンテージ表示強化・デモモード完全動作")
+        st.info("🆕 **v2.4.5 新機能**: プロジェクト管理画面追加・保存/読み込み機能強化・エクスポート/インポート対応")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -170,7 +170,7 @@ def main():
         st.markdown("### 📊 ワークフロー情報")
         if st.session_state.workflow_mode == 'text_to_video':
             st.markdown("""
-            **Text-to-Video モード v2.4.4**
+            **Text-to-Video モード v2.4.5**
             1. 歌詞・情景の深層分析
             2. 最適化台本生成 (500-1000文字/シーン)
             3. Veo3/Seedance直接生成
@@ -196,9 +196,12 @@ def main():
     elif st.session_state.current_step == 'video_generation':
         # 動画生成画面
         video_generation_step()
+    elif st.session_state.current_step == 'project_management':
+        # プロジェクト管理画面
+        project_management_step()
     else:
         # デフォルトでタブ表示
-        tabs = st.tabs(["🎬 PV生成", "📝 詳細設定", "📊 生成履歴"])
+        tabs = st.tabs(["🎬 PV生成", "📝 詳細設定", "📊 生成履歴", "📁 プロジェクト管理"])
         
         with tabs[0]:
             generate_pv_tab()
@@ -208,10 +211,28 @@ def main():
         
         with tabs[2]:
             history_tab()
+        
+        with tabs[3]:
+            project_management_tab()
 
 def basic_info_step():
     """基本情報入力ステップ"""
     st.markdown("## 📝 ステップ1: 基本情報入力")
+    
+    # 上部にプロジェクト管理ボタン
+    col_top1, col_top2, col_top3 = st.columns([2, 2, 1])
+    with col_top1:
+        if st.button("📂 保存したプロジェクトを開く", use_container_width=True):
+            st.session_state.current_step = 'project_management'
+            st.rerun()
+    with col_top2:
+        if st.button("💾 現在のプロジェクトを保存", use_container_width=True):
+            if st.session_state.basic_info:
+                save_current_project()
+            else:
+                st.warning("保存する内容がありません")
+    
+    st.markdown("---")
     
     col1, col2 = st.columns(2)
     
@@ -767,7 +788,7 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
                     st.download_button(
                         label="📥 動画をダウンロード",
                         data=f,
-                        file_name=f"{title}_v244.mp4",
+                        file_name=f"{title}_v245.mp4",
                         mime="video/mp4"
                     )
                 
@@ -869,7 +890,7 @@ def save_current_project():
         'generated_scripts': st.session_state.generated_scripts,
         'selected_script': st.session_state.selected_script,
         'workflow_mode': st.session_state.workflow_mode,
-        'version': '2.4.4'
+        'version': '2.4.5'
     }
     
     # 保存
@@ -911,7 +932,7 @@ def load_project(project_id: str):
 def show_help():
     """ヘルプダイアログ"""
     st.markdown("""
-    ### 📚 v2.4.4 使い方ガイド
+    ### 📚 v2.4.5 使い方ガイド
     
     #### 🆕 新機能
     - **詳細台本生成**: 各シーン2000-3000文字の詳細な描写
@@ -929,6 +950,185 @@ def show_help():
     - **画像生成**: PIAPI (Midjourney)
     - **台本生成**: OpenAI/Google/Anthropic
     """)
+
+def project_management_step():
+    """プロジェクト管理画面"""
+    st.markdown("## 📁 プロジェクト管理")
+    
+    # 戻るボタン
+    if st.button("← ホームに戻る"):
+        st.session_state.current_step = 'basic_info'
+        st.rerun()
+    
+    st.markdown("---")
+    
+    # タブでプロジェクト管理
+    tabs = st.tabs(["📂 プロジェクトを開く", "💾 保存済みプロジェクト一覧", "📤 エクスポート/インポート"])
+    
+    with tabs[0]:
+        st.markdown("### 📂 保存されたプロジェクトを開く")
+        
+        projects = st.session_state.project_storage.list_projects()
+        
+        if projects:
+            # プロジェクトをカード形式で表示
+            for project in projects:
+                with st.expander(f"📄 {project['title']} - {project['saved_at'][:19]}", expanded=False):
+                    col1, col2, col3 = st.columns([2, 1, 1])
+                    
+                    with col1:
+                        st.write(f"**プロジェクトID:** {project['project_id']}")
+                        st.write(f"**保存日時:** {project['saved_at']}")
+                        st.write(f"**バージョン:** {project['version']}")
+                    
+                    with col2:
+                        if st.button("📂 開く", key=f"open_{project['project_id']}", use_container_width=True):
+                            if load_project(project['project_id']):
+                                st.session_state.current_step = 'script_generation'
+                                st.rerun()
+                    
+                    with col3:
+                        if st.button("🗑️ 削除", key=f"delete_{project['project_id']}", use_container_width=True):
+                            if st.session_state.project_storage.delete_project(project['project_id']):
+                                st.success(f"プロジェクト {project['title']} を削除しました")
+                                st.rerun()
+        else:
+            st.info("💡 保存されたプロジェクトがありません")
+            st.markdown("""
+            プロジェクトを保存するには：
+            1. 基本情報を入力
+            2. 「💾 保存」ボタンをクリック
+            3. または各ステップで自動保存されます
+            """)
+    
+    with tabs[1]:
+        st.markdown("### 💾 保存済みプロジェクト一覧")
+        
+        projects = st.session_state.project_storage.list_projects()
+        
+        if projects:
+            # テーブル形式で表示
+            import pandas as pd
+            df = pd.DataFrame(projects)
+            df['saved_at'] = pd.to_datetime(df['saved_at']).dt.strftime('%Y-%m-%d %H:%M')
+            st.dataframe(df[['title', 'saved_at', 'version']], use_container_width=True)
+            
+            st.markdown(f"**合計プロジェクト数:** {len(projects)}")
+        else:
+            st.info("保存されたプロジェクトがありません")
+    
+    with tabs[2]:
+        st.markdown("### 📤 エクスポート / インポート")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 📤 エクスポート")
+            
+            projects = st.session_state.project_storage.list_projects()
+            if projects:
+                selected_project = st.selectbox(
+                    "エクスポートするプロジェクト",
+                    options=[p['project_id'] for p in projects],
+                    format_func=lambda x: next(p['title'] for p in projects if p['project_id'] == x)
+                )
+                
+                if st.button("📥 ZIPファイルとしてダウンロード", use_container_width=True):
+                    import tempfile
+                    import os
+                    
+                    with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as tmp:
+                        if st.session_state.project_storage.export_project(selected_project, tmp.name):
+                            with open(tmp.name, 'rb') as f:
+                                st.download_button(
+                                    label="📥 ダウンロード",
+                                    data=f.read(),
+                                    file_name=f"{selected_project}.zip",
+                                    mime="application/zip"
+                                )
+                            os.unlink(tmp.name)
+            else:
+                st.info("エクスポートできるプロジェクトがありません")
+        
+        with col2:
+            st.markdown("#### 📥 インポート")
+            
+            uploaded_file = st.file_uploader(
+                "ZIPファイルをアップロード",
+                type=['zip'],
+                help="エクスポートしたプロジェクトファイルを選択"
+            )
+            
+            if uploaded_file:
+                if st.button("📤 インポート実行", use_container_width=True):
+                    import tempfile
+                    
+                    with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as tmp:
+                        tmp.write(uploaded_file.read())
+                        tmp.flush()
+                        
+                        project_id = st.session_state.project_storage.import_project(tmp.name)
+                        
+                        if project_id:
+                            st.success(f"✅ プロジェクトをインポートしました: {project_id}")
+                            st.rerun()
+                        else:
+                            st.error("❌ インポートに失敗しました")
+                        
+                        os.unlink(tmp.name)
+
+def project_management_tab():
+    """プロジェクト管理タブ（メインタブ用）"""
+    st.markdown("### 📁 プロジェクト管理")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("💾 現在のプロジェクトを保存", use_container_width=True):
+            save_current_project()
+    
+    with col2:
+        if st.button("📂 プロジェクトを開く", use_container_width=True):
+            st.session_state.current_step = 'project_management'
+            st.rerun()
+    
+    with col3:
+        if st.button("🔄 最後の自動保存を復元", use_container_width=True):
+            autosave_data = st.session_state.project_storage.load_autosave()
+            if autosave_data:
+                st.session_state.basic_info = autosave_data.get('basic_info', {})
+                st.session_state.generated_scripts = autosave_data.get('generated_scripts', [])
+                st.session_state.selected_script = autosave_data.get('selected_script')
+                st.success("✅ 自動保存データを復元しました")
+                st.rerun()
+            else:
+                st.info("自動保存データがありません")
+    
+    st.markdown("---")
+    
+    # 最近のプロジェクト
+    st.markdown("#### 📋 最近のプロジェクト")
+    projects = st.session_state.project_storage.list_projects()
+    
+    if projects:
+        for project in projects[:5]:  # 最新5件
+            col1, col2, col3 = st.columns([3, 1, 1])
+            
+            with col1:
+                st.write(f"📄 **{project['title']}**")
+                st.caption(f"{project['saved_at'][:19]} | v{project['version']}")
+            
+            with col2:
+                if st.button("開く", key=f"quick_open_{project['project_id']}"):
+                    load_project(project['project_id'])
+                    st.rerun()
+            
+            with col3:
+                if st.button("削除", key=f"quick_delete_{project['project_id']}"):
+                    st.session_state.project_storage.delete_project(project['project_id'])
+                    st.rerun()
+    else:
+        st.info("まだプロジェクトが保存されていません")
 
 if __name__ == "__main__":
     main()
