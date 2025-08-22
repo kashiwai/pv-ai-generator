@@ -1,6 +1,6 @@
 """
-🎬 PV AI Generator v2.6.0 - Streamlit版
-キャラクター一貫性強化・台本最適化版
+🎬 PV AI Generator v2.6.1 - Streamlit版
+動画URL管理強化・台本連携表示版
 """
 
 import streamlit as st
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v2.6.0",
+    page_title="🎬 PV AI Generator v2.6.1",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -88,14 +88,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v2.6.0
-    ### キャラクター一貫性強化・台本最適化版
+    # 🎬 PV AI Generator v2.6.1
+    ### 動画URL管理強化・台本連携表示版
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v2.6.0 動画編集機能復活**: 完全な動画編集機能・エフェクト・テキスト・音楽調整・エクスポート")
+        st.info("🆕 **v2.6.1 URL管理強化**: 生成動画と台本を一緒に確認・URL一覧表示・ダウンロード機能")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -199,6 +199,9 @@ def main():
     elif st.session_state.current_step == 'video_editing':
         # 動画編集画面
         video_editing_step()
+    elif st.session_state.current_step == 'video_management':
+        # 動画管理画面（URL一覧）
+        video_management_step()
     elif st.session_state.current_step == 'project_management':
         # プロジェクト管理画面
         project_management_step()
@@ -468,18 +471,22 @@ def video_generation_step():
             # 生成結果を保存
             if result and result.get('status') == 'success':
                 st.session_state.generated_videos = result.get('videos', [])
-                st.session_state.current_step = 'video_editing'
+                st.session_state.current_step = 'video_management'  # 動画管理画面へ遷移
                 st.rerun()
 
 def video_editing_step():
     """動画編集ステップ"""
     st.markdown("## ✂️ ステップ4: 動画編集")
     
-    # 戻るボタン
-    col1, col2, col3 = st.columns([1, 4, 1])
+    # 戻るボタンと動画管理ボタン
+    col1, col2, col3, col4 = st.columns([1, 1, 2, 1])
     with col1:
         if st.button("← 動画生成に戻る"):
             st.session_state.current_step = 'video_generation'
+            st.rerun()
+    with col2:
+        if st.button("📹 動画URL一覧", type="primary"):
+            st.session_state.current_step = 'video_management'
             st.rerun()
     
     # 編集タブ
@@ -887,13 +894,61 @@ def generate_pv_with_script(info: dict, script: dict):
             
             st.success("🎉 Text-to-Videoで動画を生成しました！")
             
-            # 各シーンの結果を表示
+            # 生成結果をセッションに保存
+            st.session_state.last_generated_videos = video_results
+            
+            # 結果サマリーを表示
+            st.markdown("### 📹 生成された動画")
+            
+            # テーブル形式で表示
+            video_data = []
             for result in video_results:
                 if result.get('status') == 'success':
-                    with st.expander(f"シーン {result['scene_number']}: {result['timestamp']}秒"):
-                        st.write(f"動画URL: {result.get('video_url', 'N/A')}")
-                        if result.get('download_url'):
-                            st.write(f"ダウンロード: {result['download_url']}")
+                    video_data.append({
+                        'シーン': f"シーン {result['scene_number']}",
+                        '時間': result['timestamp'],
+                        '状態': '✅ 完了',
+                        'URL': result.get('video_url', 'N/A')
+                    })
+                else:
+                    video_data.append({
+                        'シーン': f"シーン {result['scene_number']}",
+                        '時間': result['timestamp'],
+                        '状態': '❌ 失敗',
+                        'URL': '-'
+                    })
+            
+            if video_data:
+                import pandas as pd
+                df = pd.DataFrame(video_data)
+                st.dataframe(df, use_container_width=True)
+            
+            # 各シーンの詳細を表示
+            st.markdown("### 📋 詳細情報")
+            for result in video_results:
+                if result.get('status') == 'success':
+                    with st.expander(f"シーン {result['scene_number']}: {result['timestamp']}秒", expanded=True):
+                        col1, col2 = st.columns(2)
+                        
+                        with col1:
+                            st.markdown("**🎬 動画URL:**")
+                            video_url = result.get('video_url', 'N/A')
+                            if video_url != 'N/A':
+                                st.code(video_url, language=None)
+                                if not video_url.startswith('demo://'):
+                                    st.markdown(f"[🔗 動画を開く]({video_url})")
+                        
+                        with col2:
+                            st.markdown("**📥 ダウンロードURL:**")
+                            download_url = result.get('download_url', 'N/A')
+                            if download_url and download_url != 'N/A':
+                                st.code(download_url, language=None)
+                                if not download_url.startswith('demo://'):
+                                    st.markdown(f"[⬇️ ダウンロード]({download_url})")
+                        
+                        # プレビュー（可能な場合）
+                        if video_url and not video_url.startswith('demo://'):
+                            st.video(video_url)
                 else:
                     st.warning(f"シーン {result['scene_number']}: 生成失敗")
             
@@ -1315,6 +1370,221 @@ def show_help():
     - **画像生成**: PIAPI (Midjourney)
     - **台本生成**: OpenAI/Google/Anthropic
     """)
+
+def video_management_step():
+    """動画管理ステップ - 生成された動画とスクリプトを一覧表示"""
+    st.markdown("## 📹 生成された動画一覧")
+    
+    # ナビゲーションボタン
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 2])
+    with col1:
+        if st.button("← 戻る"):
+            st.session_state.current_step = 'video_generation'
+            st.rerun()
+    with col2:
+        if st.button("✂️ 動画編集へ"):
+            st.session_state.current_step = 'video_editing'
+            st.rerun()
+    with col3:
+        if st.button("📁 プロジェクト管理"):
+            st.session_state.current_step = 'project_management'
+            st.rerun()
+    
+    st.markdown("---")
+    
+    # 生成された動画の確認
+    if 'last_generated_videos' not in st.session_state or not st.session_state.last_generated_videos:
+        st.warning("⚠️ まだ動画が生成されていません")
+        if st.button("動画生成へ戻る", type="primary"):
+            st.session_state.current_step = 'video_generation'
+            st.rerun()
+        return
+    
+    # 動画とスクリプトの統合表示
+    st.markdown("### 🎬 動画とスクリプトの確認")
+    
+    # タブ形式で表示
+    tabs = st.tabs(["📊 一覧表示", "🎬 詳細表示", "📥 ダウンロード"])
+    
+    with tabs[0]:
+        # 一覧表示タブ
+        st.markdown("#### 📊 全シーン一覧")
+        
+        # データフレームの作成
+        import pandas as pd
+        video_data = []
+        
+        for i, result in enumerate(st.session_state.last_generated_videos):
+            # 対応するスクリプトを取得
+            script_content = ""
+            if st.session_state.selected_script and 'scenes' in st.session_state.selected_script:
+                scenes = st.session_state.selected_script['scenes']
+                if i < len(scenes):
+                    script_content = scenes[i].get('content', '')[:100] + "..."
+            
+            video_data.append({
+                'シーン番号': f"シーン {result.get('scene_number', i+1)}",
+                '時間': result.get('timestamp', f"{i*8}-{(i+1)*8}"),
+                'スクリプト': script_content,
+                '状態': '✅ 完了' if result.get('status') == 'success' else '❌ 失敗',
+                'URL': result.get('video_url', 'N/A')
+            })
+        
+        df = pd.DataFrame(video_data)
+        st.dataframe(df, use_container_width=True, height=400)
+        
+        # URL一覧を別途表示
+        st.markdown("#### 🔗 動画URL一覧")
+        for i, result in enumerate(st.session_state.last_generated_videos):
+            if result.get('status') == 'success':
+                video_url = result.get('video_url', 'N/A')
+                if video_url and video_url != 'N/A':
+                    col1, col2 = st.columns([1, 4])
+                    with col1:
+                        st.write(f"**シーン {result.get('scene_number', i+1)}:**")
+                    with col2:
+                        st.code(video_url, language=None)
+                        if not video_url.startswith('demo://'):
+                            st.markdown(f"[🔗 開く]({video_url}) | [⬇️ ダウンロード]({result.get('download_url', video_url)})")
+    
+    with tabs[1]:
+        # 詳細表示タブ
+        st.markdown("#### 🎬 シーン詳細")
+        
+        for i, result in enumerate(st.session_state.last_generated_videos):
+            # スクリプト情報を取得
+            script_scene = None
+            if st.session_state.selected_script and 'scenes' in st.session_state.selected_script:
+                scenes = st.session_state.selected_script['scenes']
+                if i < len(scenes):
+                    script_scene = scenes[i]
+            
+            # エクスパンダーで各シーンを表示
+            expanded = i == 0  # 最初のシーンだけ展開
+            with st.expander(f"🎬 シーン {result.get('scene_number', i+1)}: {result.get('timestamp', '')}秒", expanded=expanded):
+                
+                # 2カラムレイアウト
+                col1, col2 = st.columns([1, 1])
+                
+                with col1:
+                    st.markdown("##### 📜 スクリプト")
+                    if script_scene:
+                        st.write(f"**タイムスタンプ:** {script_scene.get('timestamp', 'N/A')}")
+                        st.write(f"**内容:**")
+                        st.text_area("", value=script_scene.get('content', ''), height=150, disabled=True, key=f"script_{i}")
+                        
+                        if 'video_prompt' in script_scene:
+                            st.write("**動画プロンプト:**")
+                            st.text_area("", value=script_scene.get('video_prompt', ''), height=100, disabled=True, key=f"prompt_{i}")
+                
+                with col2:
+                    st.markdown("##### 🎥 生成された動画")
+                    if result.get('status') == 'success':
+                        video_url = result.get('video_url', 'N/A')
+                        
+                        # URL表示
+                        st.write("**動画URL:**")
+                        st.code(video_url, language=None)
+                        
+                        # リンクボタン
+                        if video_url and not video_url.startswith('demo://'):
+                            col_a, col_b = st.columns(2)
+                            with col_a:
+                                st.markdown(f"[🔗 動画を開く]({video_url})")
+                            with col_b:
+                                download_url = result.get('download_url', video_url)
+                                st.markdown(f"[⬇️ ダウンロード]({download_url})")
+                            
+                            # 動画プレビュー
+                            try:
+                                st.video(video_url)
+                            except:
+                                st.info("プレビューは利用できません")
+                        
+                        # メタデータ
+                        st.write("**メタデータ:**")
+                        st.json({
+                            "status": result.get('status'),
+                            "timestamp": result.get('timestamp'),
+                            "scene_number": result.get('scene_number'),
+                            "message": result.get('message', '')
+                        })
+                    else:
+                        st.error(f"❌ 生成失敗: {result.get('message', 'Unknown error')}")
+    
+    with tabs[2]:
+        # ダウンロードタブ
+        st.markdown("#### 📥 ダウンロード")
+        
+        # 全URLをテキストファイルとして出力
+        st.markdown("##### 📝 URL一覧をダウンロード")
+        
+        url_list = []
+        for i, result in enumerate(st.session_state.last_generated_videos):
+            if result.get('status') == 'success':
+                video_url = result.get('video_url', '')
+                download_url = result.get('download_url', '')
+                url_list.append(f"シーン {result.get('scene_number', i+1)}:")
+                url_list.append(f"  動画URL: {video_url}")
+                url_list.append(f"  ダウンロードURL: {download_url}")
+                url_list.append("")
+        
+        url_text = "\n".join(url_list)
+        
+        st.download_button(
+            label="📄 URL一覧をダウンロード (TXT)",
+            data=url_text,
+            file_name=f"video_urls_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+            mime="text/plain"
+        )
+        
+        # JSON形式でもダウンロード可能
+        st.markdown("##### 📋 プロジェクトデータをダウンロード")
+        
+        project_data = {
+            "title": st.session_state.basic_info.get('title', 'untitled'),
+            "generated_at": datetime.now().isoformat(),
+            "script": st.session_state.selected_script,
+            "videos": st.session_state.last_generated_videos
+        }
+        
+        st.download_button(
+            label="📋 プロジェクトデータをダウンロード (JSON)",
+            data=json.dumps(project_data, ensure_ascii=False, indent=2),
+            file_name=f"project_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+            mime="application/json"
+        )
+        
+        # 個別ダウンロードリンク
+        st.markdown("##### 🎬 個別動画ダウンロード")
+        
+        for i, result in enumerate(st.session_state.last_generated_videos):
+            if result.get('status') == 'success':
+                video_url = result.get('video_url', '')
+                download_url = result.get('download_url', video_url)
+                
+                if download_url and not download_url.startswith('demo://'):
+                    st.markdown(f"**シーン {result.get('scene_number', i+1)}:** [{download_url}]({download_url})")
+    
+    # ストレージ情報の表示
+    st.markdown("---")
+    st.markdown("### 💾 ストレージ情報")
+    
+    from agent_core.storage.video_storage import VideoStorage
+    storage = VideoStorage()
+    storage_info = storage.get_storage_info()
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("総容量", f"{storage_info['total_size_mb']} MB")
+    with col2:
+        st.metric("動画数", storage_info['file_count'])
+    with col3:
+        st.metric("プロジェクト数", storage_info['project_count'])
+    with col4:
+        if st.button("🗑️ 一時ファイルをクリア"):
+            storage.cleanup_temp_files()
+            st.success("一時ファイルをクリアしました")
 
 def project_management_step():
     """プロジェクト管理画面"""
