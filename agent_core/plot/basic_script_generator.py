@@ -168,37 +168,48 @@ class BasicScriptGenerator:
             "music": "音楽との同期を重視し、リズムや歌詞に合わせた演出を考えてください。"
         }
         
+        # 各シーンの時間を明確に指定
+        scene_list = "\n".join([f"シーン{i+1}: {i*8}-{(i+1)*8}秒" for i in range(num_scenes)])
+        
         return f"""
-PVの台本を作成してください。
+PVの台本を作成してください。必ず{num_scenes}個のシーンすべてを作成してください。
 
 【基本情報】
 - タイトル: {title}
 - キーワード: {keywords}
 - 説明: {description}
 - 雰囲気: {mood}
-- 総シーン数: {num_scenes}
+- 総シーン数: {num_scenes}個（必須）
+- 各シーン: 8秒
 - パターン: {pattern_type}
 {character_desc}
 
 【歌詞・メッセージ】
-{lyrics[:500] if lyrics else "（歌詞なし）"}
+{lyrics[:1000] if lyrics else "（歌詞なし）"}
 
 【作成指示】
 {pattern_instructions.get(pattern_type, "")}
 
-各シーンごとに以下の形式で作成してください（各シーン500-1000文字）：
+【必ず以下の{num_scenes}個のシーンをすべて作成してください】
+{scene_list}
 
-シーン1: [タイムスタンプ]
-内容: [そのシーンのストーリー内容を500-1000文字で詳細に記述]
-キャラクター: [登場キャラクターの動作や表情]
-カメラワーク: [カメラの動きや構図]
-雰囲気: [そのシーンの雰囲気や感情]
+各シーンは必ず以下の形式で記述してください：
 
-重要：
-1. 各シーンは500-1000文字で具体的に記述
-2. メインキャラクターは必ず同一人物として描写
-3. Text-to-Video AIが理解しやすい視覚的な描写
-4. 前後のシーンとの自然な繋がり
+シーン[番号]: [開始時間]-[終了時間]秒
+内容: [そのシーンのストーリー内容を500-1000文字で詳細に記述。視覚的で具体的な描写を含める]
+キャラクター: [登場キャラクターの具体的な動作、表情、衣装など]
+カメラワーク: [カメラの動き、アングル、構図を具体的に]
+雰囲気: [そのシーンの雰囲気、色調、感情]
+
+【重要な注意事項】
+1. 必ず{num_scenes}個のシーンをすべて生成すること（省略禁止）
+2. 各シーンは500-1000文字で具体的かつ詳細に記述
+3. メインキャラクターは全シーンで同一人物として一貫性を保つ
+4. Text-to-Video AIのために視覚的で具体的な描写を使用
+5. シーンは時系列順に、ストーリーとして繋がるように
+6. 各シーンで異なる展開や演出を入れて単調にならないように
+
+必ずシーン1からシーン{num_scenes}まですべて生成してください。
 """
     
     async def _generate_with_claude(self, prompt: str) -> str:
@@ -316,73 +327,99 @@ PVの台本を作成してください。
     def _parse_script_to_scenes(self, script_content: str, num_scenes: int,
                                scene_duration: int, pattern_type: str,
                                character_reference: Dict) -> List[Dict]:
-        """生成されたスクリプトをシーンごとにパース"""
+        """生成されたスクリプトをシーンごとにパース（改善版）"""
         scenes = []
+        
+        # まず全シーンのデフォルト構造を作成
+        for i in range(num_scenes):
+            scenes.append({
+                'scene_number': i + 1,
+                'timestamp': f"{i*scene_duration}-{(i+1)*scene_duration}",
+                'content': '',
+                'character_action': '',
+                'camera_work': '',
+                'mood': ''
+            })
         
         # スクリプトを行ごとに分割
         lines = script_content.split('\n')
-        current_scene = {}
-        scene_number = 0
+        current_scene_idx = -1
+        current_field = None
         
         for line in lines:
             line = line.strip()
             if not line:
                 continue
             
-            # シーンの開始を検出
-            if 'シーン' in line and ':' in line:
-                # 前のシーンを保存
-                if current_scene and 'content' in current_scene:
-                    scenes.append(current_scene)
-                
-                scene_number += 1
-                # タイムスタンプを抽出
-                timestamp_part = line.split(':')[-1].strip()
-                if '-' in timestamp_part:
-                    start, end = timestamp_part.replace('秒', '').split('-')
-                    timestamp = f"{start.strip()}-{end.strip()}"
-                else:
-                    timestamp = f"{(scene_number-1)*scene_duration}-{scene_number*scene_duration}"
-                
-                current_scene = {
-                    'scene_number': scene_number,
-                    'timestamp': timestamp,
-                    'content': '',
-                    'character_action': '',
-                    'camera_work': '',
-                    'mood': ''
-                }
+            # シーンの開始を検出（シーン1、シーン2など）
+            import re
+            scene_match = re.match(r'シーン(\d+)[:\s]', line)
+            if scene_match:
+                scene_num = int(scene_match.group(1))
+                if 1 <= scene_num <= num_scenes:
+                    current_scene_idx = scene_num - 1
+                    current_field = None
+                    # タイムスタンプも更新（もし含まれていれば）
+                    if '-' in line and '秒' in line:
+                        timestamp_match = re.search(r'(\d+)-(\d+)', line)
+                        if timestamp_match:
+                            scenes[current_scene_idx]['timestamp'] = f"{timestamp_match.group(1)}-{timestamp_match.group(2)}"
+                continue
             
-            # 各要素を抽出
-            elif '内容:' in line:
-                current_scene['content'] = line.split('内容:')[-1].strip()
-            elif 'キャラクター:' in line:
-                current_scene['character_action'] = line.split('キャラクター:')[-1].strip()
-            elif 'カメラワーク:' in line or 'カメラ:' in line:
-                current_scene['camera_work'] = line.split(':')[-1].strip()
-            elif '雰囲気:' in line:
-                current_scene['mood'] = line.split('雰囲気:')[-1].strip()
-            elif current_scene and 'content' in current_scene and line:
-                # 内容の続きを追加
-                current_scene['content'] += ' ' + line
+            # 現在処理中のシーンがある場合
+            if current_scene_idx >= 0:
+                # 各フィールドを検出
+                if line.startswith('内容:'):
+                    current_field = 'content'
+                    content = line[3:].strip()
+                    if content:
+                        scenes[current_scene_idx]['content'] = content
+                elif line.startswith('キャラクター:'):
+                    current_field = 'character_action'
+                    content = line[7:].strip()
+                    if content:
+                        scenes[current_scene_idx]['character_action'] = content
+                elif line.startswith('カメラワーク:') or line.startswith('カメラ:'):
+                    current_field = 'camera_work'
+                    content = line.split(':', 1)[-1].strip()
+                    if content:
+                        scenes[current_scene_idx]['camera_work'] = content
+                elif line.startswith('雰囲気:'):
+                    current_field = 'mood'
+                    content = line[4:].strip()
+                    if content:
+                        scenes[current_scene_idx]['mood'] = content
+                # 継続行の処理
+                elif current_field and not any(line.startswith(prefix) for prefix in ['内容:', 'キャラクター:', 'カメラ', '雰囲気:']):
+                    if current_field == 'content':
+                        scenes[current_scene_idx]['content'] += ' ' + line
+                    elif current_field == 'character_action':
+                        scenes[current_scene_idx]['character_action'] += ' ' + line
+                    elif current_field == 'camera_work':
+                        scenes[current_scene_idx]['camera_work'] += ' ' + line
+                    elif current_field == 'mood':
+                        scenes[current_scene_idx]['mood'] += ' ' + line
         
-        # 最後のシーンを追加
-        if current_scene and 'content' in current_scene:
-            scenes.append(current_scene)
+        # 空のシーンを補完
+        char_name = character_reference.get('name', '主人公') if character_reference else '主人公'
+        for i, scene in enumerate(scenes):
+            if not scene['content']:
+                # シーン位置に応じた内容を生成
+                if i == 0:
+                    scene['content'] = f"オープニング。{char_name}が登場し、物語が始まる。{pattern_type}パターンに従った印象的な導入。"
+                elif i == len(scenes) - 1:
+                    scene['content'] = f"エンディング。{char_name}の物語がクライマックスを迎え、感動的な締めくくり。"
+                else:
+                    scene['content'] = f"シーン{i+1}。{char_name}の物語が展開。{pattern_type}パターンに応じた演出。"
+            
+            if not scene['character_action']:
+                scene['character_action'] = f"{char_name}が中心となって動く"
+            if not scene['camera_work']:
+                scene['camera_work'] = "スタンダードショット"
+            if not scene['mood']:
+                scene['mood'] = "ノーマル"
         
-        # シーンが不足している場合は補完
-        while len(scenes) < num_scenes:
-            scene_number = len(scenes) + 1
-            scenes.append({
-                'scene_number': scene_number,
-                'timestamp': f"{(scene_number-1)*scene_duration}-{scene_number*scene_duration}",
-                'content': f"シーン{scene_number}の内容（{pattern_type}パターン）",
-                'character_action': 'キャラクターのアクション',
-                'camera_work': 'スタンダードショット',
-                'mood': 'ノーマル'
-            })
-        
-        return scenes[:num_scenes]
+        return scenes
     
     def _create_video_prompt(self, scene: Dict, character_reference: Dict) -> str:
         """Text-to-Video用のプロンプトを生成"""

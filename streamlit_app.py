@@ -1,5 +1,5 @@
 """
-🎬 PV AI Generator v2.4.5 - Streamlit版
+🎬 PV AI Generator v2.5.0 - Streamlit版
 キャラクター一貫性強化・台本最適化版
 """
 
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v2.4.5",
+    page_title="🎬 PV AI Generator v2.5.0",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -88,14 +88,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v2.4.6
+    # 🎬 PV AI Generator v2.5.0
     ### キャラクター一貫性強化・台本最適化版
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v2.4.5 新機能**: プロジェクト管理画面追加・保存/読み込み機能強化・エクスポート/インポート対応")
+        st.info("🆕 **v2.5.0 メジャーアップデート**: Text-to-Video完全対応・全シーン確実生成・Veo3/Seedance API統合")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -170,7 +170,7 @@ def main():
         st.markdown("### 📊 ワークフロー情報")
         if st.session_state.workflow_mode == 'text_to_video':
             st.markdown("""
-            **Text-to-Video モード v2.4.5**
+            **Text-to-Video モード v2.5.0**
             1. 歌詞・情景の深層分析
             2. 最適化台本生成 (500-1000文字/シーン)
             3. Veo3/Seedance直接生成
@@ -591,18 +591,123 @@ def generate_script_pattern(pattern_type: str):
     st.rerun()
 
 def generate_pv_with_script(info: dict, script: dict):
-    """台本を使ってPVを生成"""
-    # 既存のgenerate_pv関数を活用
-    generate_pv(
-        title=info['title'],
-        keywords=info.get('keywords', ''),
-        description=info.get('description', ''),
-        mood=info.get('mood', ''),
-        lyrics=info.get('lyrics', ''),
-        audio_file=info['audio_file'],
-        character_images=info.get('character_images'),
-        script=script
-    )
+    """台本を使ってPVを生成（Text-to-Videoモード対応）"""
+    import asyncio
+    from agent_core.video.text_to_video_api import TextToVideoAPI
+    
+    # 進捗表示
+    progress_container = st.container()
+    with progress_container:
+        st.markdown("### 🎬 動画生成中...")
+        
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            progress_bar = st.progress(0)
+        with col2:
+            percentage = st.empty()
+            percentage.markdown("**0%**")
+        
+        status = st.empty()
+        details = st.empty()
+        time_estimate = st.empty()
+    
+    import time
+    start_time = time.time()
+    
+    # 進捗コールバック
+    def update_progress(p, msg):
+        progress_bar.progress(p)
+        percentage.markdown(f"**{int(p * 100)}%**")
+        status.info(msg)
+        
+        elapsed = time.time() - start_time
+        if p > 0 and p < 1:
+            estimated_total = elapsed / p
+            remaining = estimated_total - elapsed
+            time_estimate.text(f"⏱️ 残り時間: 約{int(remaining)}秒")
+        elif p >= 1:
+            time_estimate.success(f"✅ 完了時間: {int(elapsed)}秒")
+    
+    try:
+        # Text-to-Videoモードの確認
+        if st.session_state.workflow_mode == 'text_to_video':
+            # APIキー設定
+            config = {
+                'veo3_api_key': st.session_state.api_keys.get('veo3', ''),
+                'seedance_api_key': st.session_state.api_keys.get('seedance', ''),
+                'piapi_key': st.session_state.api_keys.get('piapi', '')
+            }
+            
+            # Text-to-Video APIを初期化
+            video_api = TextToVideoAPI(config)
+            
+            # キャラクター参照を準備
+            character_ref = None
+            if info.get('character_images'):
+                # 最初の画像を参照として使用
+                character_ref = "character_reference"
+            
+            # 非同期処理を実行
+            async def generate_videos():
+                update_progress(0.05, "🎥 Text-to-Video生成を開始...")
+                
+                # 全シーンの動画を生成
+                results = await video_api.generate_all_scenes(
+                    scenes=script.get('scenes', []),
+                    character_reference=character_ref,
+                    provider="auto",
+                    progress_callback=update_progress
+                )
+                
+                return results
+            
+            # 動画生成を実行
+            video_results = asyncio.run(generate_videos())
+            
+            # 結果を表示
+            update_progress(1.0, "✅ 動画生成完了！")
+            
+            st.success("🎉 Text-to-Videoで動画を生成しました！")
+            
+            # 各シーンの結果を表示
+            for result in video_results:
+                if result.get('status') == 'success':
+                    with st.expander(f"シーン {result['scene_number']}: {result['timestamp']}秒"):
+                        st.write(f"動画URL: {result.get('video_url', 'N/A')}")
+                        if result.get('download_url'):
+                            st.write(f"ダウンロード: {result['download_url']}")
+                else:
+                    st.warning(f"シーン {result['scene_number']}: 生成失敗")
+            
+            # 履歴に追加
+            st.session_state.generation_history.append({
+                'title': info['title'],
+                'timestamp': datetime.now().isoformat(),
+                'mode': 'text_to_video',
+                'status': 'success',
+                'results': video_results
+            })
+            
+        else:
+            # クラシックモードの処理
+            update_progress(0.5, "🎨 クラシックモードで処理中...")
+            st.info("クラシックモード（画像→動画）で処理します")
+            
+            # 既存のgenerate_pv関数を呼び出し
+            generate_pv(
+                title=info['title'],
+                keywords=info.get('keywords', ''),
+                description=info.get('description', ''),
+                mood=info.get('mood', ''),
+                lyrics=info.get('lyrics', ''),
+                audio_file=info['audio_file'],
+                character_images=info.get('character_images'),
+                script=script
+            )
+    
+    except Exception as e:
+        st.error(f"❌ エラーが発生しました: {str(e)}")
+        status.error("処理中にエラーが発生しました")
 
 def generate_pv_tab():
     """PV生成タブ"""
@@ -804,7 +909,7 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
                     st.download_button(
                         label="📥 動画をダウンロード",
                         data=f,
-                        file_name=f"{title}_v245.mp4",
+                        file_name=f"{title}_v250.mp4",
                         mime="video/mp4"
                     )
                 
@@ -906,7 +1011,7 @@ def save_current_project():
         'generated_scripts': st.session_state.generated_scripts,
         'selected_script': st.session_state.selected_script,
         'workflow_mode': st.session_state.workflow_mode,
-        'version': '2.4.5'
+        'version': '2.5.0'
     }
     
     # 保存
@@ -968,7 +1073,7 @@ def load_project(project_id: str):
 def show_help():
     """ヘルプダイアログ"""
     st.markdown("""
-    ### 📚 v2.4.5 使い方ガイド
+    ### 📚 v2.5.0 使い方ガイド
     
     #### 🆕 新機能
     - **詳細台本生成**: 各シーン2000-3000文字の詳細な描写
