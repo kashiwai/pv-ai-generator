@@ -1,5 +1,5 @@
 """
-🎬 PV AI Generator v2.4.3 - Streamlit版
+🎬 PV AI Generator v2.4.4 - Streamlit版
 キャラクター一貫性強化・台本最適化版
 """
 
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v2.4.3",
+    page_title="🎬 PV AI Generator v2.4.4",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -88,14 +88,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v2.4.3
+    # 🎬 PV AI Generator v2.4.4
     ### キャラクター一貫性強化・台本最適化版
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v2.4.3 新機能**: 実AI台本生成・リアルタイム進捗表示・プロジェクト保存機能")
+        st.info("🆕 **v2.4.4 新機能**: 進捗表示改善・パーセンテージ表示強化・デモモード完全動作")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -170,7 +170,7 @@ def main():
         st.markdown("### 📊 ワークフロー情報")
         if st.session_state.workflow_mode == 'text_to_video':
             st.markdown("""
-            **Text-to-Video モード v2.4.3**
+            **Text-to-Video モード v2.4.4**
             1. 歌詞・情景の深層分析
             2. 最適化台本生成 (500-1000文字/シーン)
             3. Veo3/Seedance直接生成
@@ -310,22 +310,29 @@ def script_generation_step():
     
     # 台本生成
     if len(st.session_state.generated_scripts) == 0:
-        st.info("📝 台本を生成中...")
+        st.markdown("### 📝 台本パターンを選択")
         
         # 台本生成ボタン
         col1, col2, col3 = st.columns(3)
         
         with col1:
             if st.button("🎬 ストーリー重視", use_container_width=True):
-                generate_script_pattern('story')
+                with st.spinner(''):
+                    generate_script_pattern('story')
         
         with col2:
             if st.button("🎨 ビジュアル重視", use_container_width=True):
-                generate_script_pattern('visual')
+                with st.spinner(''):
+                    generate_script_pattern('visual')
         
         with col3:
             if st.button("🎵 音楽同期重視", use_container_width=True):
-                generate_script_pattern('music')
+                with st.spinner(''):
+                    generate_script_pattern('music')
+        
+        # 進捗表示エリア（ボタンの下に配置）
+        st.markdown("---")
+        progress_placeholder = st.empty()
     
     # 生成された台本の表示
     if st.session_state.generated_scripts:
@@ -436,13 +443,22 @@ def generate_script_pattern(pattern_type: str):
     import asyncio
     from agent_core.plot.basic_script_generator import BasicScriptGenerator
     
-    # 進捗表示用のコンテナ
+    # 進捗表示用のコンテナを作成
     progress_container = st.container()
     with progress_container:
-        progress = st.progress(0)
+        st.markdown(f"### 🎬 {pattern_type}パターンで台本生成中...")
+        
+        # 進捗バーとステータス表示
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            progress = st.progress(0)
+        with col2:
+            percentage = st.empty()
+            percentage.markdown("**0%**")
+        
+        # ステータスと詳細情報
         status = st.empty()
         details = st.empty()
-        percentage = st.empty()
         time_estimate = st.empty()
     
     start_time = time.time()
@@ -466,17 +482,19 @@ def generate_script_pattern(pattern_type: str):
     # 進捗コールバック関数
     def update_progress(p, msg):
         progress.progress(p)
-        percentage.text(f"{int(p * 100)}%")
-        status.text(msg)
+        percentage.markdown(f"**{int(p * 100)}%**")
+        status.info(msg)
         
         # 経過時間と予想時間
         elapsed = time.time() - start_time
         if p > 0 and p < 1:
             estimated_total = elapsed / p
             remaining = estimated_total - elapsed
-            time_estimate.text(f"残り: {int(remaining)}秒")
+            time_estimate.text(f"⏱️ 残り時間: 約{int(remaining)}秒")
+            details.text(f"📊 処理状況: {msg}")
         elif p >= 1:
-            time_estimate.text(f"完了: {int(elapsed)}秒")
+            time_estimate.success(f"✅ 完了時間: {int(elapsed)}秒")
+            details.success("🎉 台本生成が完了しました！")
     
     # キャラクター参照情報を準備
     character_reference = None
@@ -522,14 +540,14 @@ def generate_script_pattern(pattern_type: str):
         
         # 完了
         update_progress(1.0, "✅ 台本生成完了！")
-        details.text(f"✨ {num_scenes}シーンの台本が完成しました")
         
-        time.sleep(1.5)
+        # 成功メッセージを表示（少し待機）
+        time.sleep(2.0)
         
     except Exception as e:
         st.error(f"❌ 台本生成エラー: {str(e)}")
-        status.text("❌ エラーが発生しました")
-        details.text(str(e))
+        status.error("❌ エラーが発生しました")
+        details.error(str(e))
         return
     
     # 画面を更新
@@ -749,7 +767,7 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
                     st.download_button(
                         label="📥 動画をダウンロード",
                         data=f,
-                        file_name=f"{title}_v243.mp4",
+                        file_name=f"{title}_v244.mp4",
                         mime="video/mp4"
                     )
                 
@@ -851,7 +869,7 @@ def save_current_project():
         'generated_scripts': st.session_state.generated_scripts,
         'selected_script': st.session_state.selected_script,
         'workflow_mode': st.session_state.workflow_mode,
-        'version': '2.4.3'
+        'version': '2.4.4'
     }
     
     # 保存
@@ -893,7 +911,7 @@ def load_project(project_id: str):
 def show_help():
     """ヘルプダイアログ"""
     st.markdown("""
-    ### 📚 v2.4.3 使い方ガイド
+    ### 📚 v2.4.4 使い方ガイド
     
     #### 🆕 新機能
     - **詳細台本生成**: 各シーン2000-3000文字の詳細な描写
