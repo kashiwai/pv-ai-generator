@@ -400,24 +400,93 @@ PVの台本を作成してください。必ず{num_scenes}個のシーンすべ
                     elif current_field == 'mood':
                         scenes[current_scene_idx]['mood'] += ' ' + line
         
-        # 空のシーンを補完
+        # 空のシーンを補完（より詳細な内容で）
         char_name = character_reference.get('name', '主人公') if character_reference else '主人公'
+        
+        # シーン内容のテンプレート
+        scene_contents = {
+            'story': [
+                f"オープニング。{char_name}が初めて登場。物語の世界観が明らかになる。カメラは広角で舞台全体を映し出し、{char_name}の存在感を際立たせる。",
+                f"{char_name}の日常。普段の生活や環境が描かれる。親しみやすい表情や仕草で、観客との距離を縮める。",
+                f"変化の兆し。{char_name}の周りで何かが起き始める。表情に微かな変化が現れ、物語が動き出す予感。",
+                f"展開。{char_name}が新しい状況に直面。感情の揺れ動きが表情や動作に現れる。",
+                f"深まる物語。{char_name}の内面が掘り下げられる。クローズアップで細かな表情の変化を捉える。",
+                f"転換点。{char_name}にとって重要な瞬間。決意や覚悟が表情に表れる。",
+                f"加速。物語のペースが上がり、{char_name}の動きも活発に。ダイナミックなカメラワーク。",
+                f"葛藤。{char_name}が困難に直面。複雑な感情が交錯する表情を丁寧に描写。",
+                f"決断。{char_name}が重要な選択をする。強い意志が瞳に宿る。",
+                f"行動。{char_name}が決断に基づいて動く。力強い動作と確信に満ちた表情。",
+                f"クライマックスへ。最高潮に向けて緊張が高まる。{char_name}の感情も最高潮に。",
+                f"頂点。物語の最も重要な瞬間。{char_name}の全てが表現される。",
+                f"解決。問題が解決に向かう。{char_name}の表情に安堵や達成感。",
+                f"余韻。物語の締めくくり。{char_name}の新たな表情、成長した姿。",
+                f"エンディング。{char_name}の物語が美しく終わる。観客の心に残る最後の表情。"
+            ],
+            'visual': [
+                f"ビジュアルインパクト。{char_name}の美しさを最大限に引き出す構図と照明。",
+                f"色彩の魔法。{char_name}を彩る豊かな色調。衣装や背景との調和。",
+                f"光と影の演出。{char_name}の立体感を強調する照明効果。",
+                f"動きの美学。{char_name}の優雅な動作をスローモーションで捉える。",
+                f"表情のアート。{char_name}の微細な表情変化を芸術的に表現。",
+                f"構図の妙。{char_name}を中心とした印象的なフレーミング。",
+                f"テクスチャーの表現。{char_name}の衣装や髪の質感を詳細に描写。",
+                f"空間の演出。{char_name}と背景の関係性を美しく表現。",
+                f"時間の流れ。{char_name}の動きで時間の経過を表現。",
+                f"幻想的な世界。{char_name}を夢のような雰囲気で包む。",
+                f"コントラストの美。{char_name}を際立たせる明暗の対比。",
+                f"シンメトリー。{char_name}を中心とした対称的な構図。",
+                f"リズミカルな編集。{char_name}の動きが音楽と完全に同期。",
+                f"感情の可視化。{char_name}の内面を視覚的に表現。",
+                f"フィナーレ。{char_name}の美しさが最高潮に達する瞬間。"
+            ],
+            'music': [
+                f"イントロ。音楽の始まりと共に{char_name}が登場。リズムに合わせた登場シーン。",
+                f"ビート開始。{char_name}の動きが音楽のビートと同期。",
+                f"メロディー展開。{char_name}の感情が音楽の流れと共鳴。",
+                f"リズムの変化。{char_name}の動きも音楽に合わせて変化。",
+                f"静かなパート。{char_name}の繊細な表情を音楽が引き立てる。",
+                f"盛り上がり前。{char_name}の期待感が高まる表情。",
+                f"サビ突入。{char_name}の感情が爆発。音楽と完全に一体化。",
+                f"サビ継続。{char_name}の魅力が最大限に発揮される。",
+                f"ブリッジ。{char_name}の新たな一面が音楽と共に現れる。",
+                f"転調。音楽の変化と共に{char_name}の表情も変わる。",
+                f"ラストサビへ。{char_name}の感情が再び高まる。",
+                f"最高潮。音楽のクライマックスで{char_name}も最高の表情。",
+                f"音楽の収束。{char_name}の動きもゆっくりと落ち着く。",
+                f"アウトロ。{char_name}の余韻を残す表情。",
+                f"フェードアウト。音楽と共に{char_name}の姿も美しく消えていく。"
+            ]
+        }
+        
+        # パターンに応じたコンテンツを選択
+        pattern_contents = scene_contents.get(pattern_type, scene_contents['story'])
+        
         for i, scene in enumerate(scenes):
             if not scene['content']:
-                # シーン位置に応じた内容を生成
-                if i == 0:
-                    scene['content'] = f"オープニング。{char_name}が登場し、物語が始まる。{pattern_type}パターンに従った印象的な導入。"
-                elif i == len(scenes) - 1:
-                    scene['content'] = f"エンディング。{char_name}の物語がクライマックスを迎え、感動的な締めくくり。"
+                # 配列の範囲内で内容を取得
+                if i < len(pattern_contents):
+                    scene['content'] = pattern_contents[i]
                 else:
-                    scene['content'] = f"シーン{i+1}。{char_name}の物語が展開。{pattern_type}パターンに応じた演出。"
+                    # 配列を超えた場合は循環使用
+                    scene['content'] = pattern_contents[i % len(pattern_contents)]
             
             if not scene['character_action']:
-                scene['character_action'] = f"{char_name}が中心となって動く"
+                if i == 0:
+                    scene['character_action'] = f"{char_name}が優雅に登場"
+                elif i == len(scenes) - 1:
+                    scene['character_action'] = f"{char_name}が感動的なフィナーレ"
+                else:
+                    scene['character_action'] = f"{char_name}が魅力的に動く"
+            
             if not scene['camera_work']:
-                scene['camera_work'] = "スタンダードショット"
+                camera_options = ["ワイドショット", "ミディアムショット", "クローズアップ", 
+                                "パン", "ドリー", "トラッキング", "クレーン"]
+                scene['camera_work'] = camera_options[i % len(camera_options)]
+            
             if not scene['mood']:
-                scene['mood'] = "ノーマル"
+                mood_options = ["明るい", "優しい", "ドラマチック", "幻想的", 
+                              "情熱的", "穏やか", "神秘的"]
+                scene['mood'] = mood_options[i % len(mood_options)]
         
         return scenes
     
