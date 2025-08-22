@@ -88,7 +88,7 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v2.4.5
+    # 🎬 PV AI Generator v2.4.6
     ### キャラクター一貫性強化・台本最適化版
     """)
     
@@ -324,10 +324,13 @@ def script_generation_step():
     # 基本情報の表示
     with st.expander("📋 入力した基本情報", expanded=False):
         info = st.session_state.basic_info
-        st.write(f"**タイトル:** {info['title']}")
-        st.write(f"**キーワード:** {info.get('keywords', '')}")
-        st.write(f"**雰囲気:** {info.get('mood', '')}")
-        st.write(f"**説明:** {info.get('description', '')}")
+        if info:
+            st.write(f"**タイトル:** {info.get('title', 'タイトル未設定')}")
+            st.write(f"**キーワード:** {info.get('keywords', '')}")
+            st.write(f"**雰囲気:** {info.get('mood', '')}")
+            st.write(f"**説明:** {info.get('description', '')}")
+        else:
+            st.info("基本情報が入力されていません")
     
     # 台本生成
     if len(st.session_state.generated_scripts) == 0:
@@ -486,6 +489,19 @@ def generate_script_pattern(pattern_type: str):
     
     # 基本情報を取得
     info = st.session_state.basic_info
+    
+    # 基本情報が空の場合はデフォルト値を設定
+    if not info:
+        info = {
+            'title': 'タイトル未設定',
+            'keywords': '',
+            'description': '',
+            'mood': 'normal',
+            'lyrics': '',
+            'audio_file': None,
+            'character_images': None
+        }
+        st.session_state.basic_info = info
     
     # 音楽ファイルの長さを取得（実際は音楽から取得）
     total_duration = 180  # デフォルト3分
@@ -914,19 +930,39 @@ def autosave_session():
 
 def load_project(project_id: str):
     """プロジェクトを読み込み"""
-    project_data = st.session_state.project_storage.load_project(project_id)
-    
-    if project_data:
-        st.session_state.basic_info = project_data.get('basic_info', {})
-        st.session_state.generated_scripts = project_data.get('generated_scripts', [])
-        st.session_state.selected_script = project_data.get('selected_script')
-        st.session_state.workflow_mode = project_data.get('workflow_mode', 'text_to_video')
-        st.session_state.current_project_id = project_id
+    try:
+        project_data = st.session_state.project_storage.load_project(project_id)
         
-        st.success(f"✅ プロジェクトを読み込みました: {project_id}")
-        return True
-    else:
-        st.error(f"❌ プロジェクトが見つかりません: {project_id}")
+        if project_data:
+            # 基本情報を復元（ファイルオブジェクトは除外）
+            basic_info = project_data.get('basic_info', {})
+            
+            # ファイルパスが保存されている場合は、それを参照として保持
+            if 'audio_file_path' in basic_info:
+                # パスのみを保持（実際のファイルオブジェクトは復元できない）
+                basic_info['audio_file_note'] = f"保存済み音楽ファイル: {basic_info['audio_file_path']}"
+            
+            if 'character_image_paths' in basic_info:
+                basic_info['character_images_note'] = f"保存済みキャラクター画像: {len(basic_info['character_image_paths'])}枚"
+            
+            st.session_state.basic_info = basic_info
+            st.session_state.generated_scripts = project_data.get('generated_scripts', [])
+            st.session_state.selected_script = project_data.get('selected_script')
+            st.session_state.workflow_mode = project_data.get('workflow_mode', 'text_to_video')
+            st.session_state.current_project_id = project_id
+            
+            st.success(f"✅ プロジェクトを読み込みました: {project_id}")
+            
+            # 音楽ファイルと画像ファイルの注意事項を表示
+            if 'audio_file_path' in basic_info or 'character_image_paths' in basic_info:
+                st.info("📌 注意: 音楽ファイルと画像ファイルは再アップロードが必要な場合があります")
+            
+            return True
+        else:
+            st.error(f"❌ プロジェクトが見つかりません: {project_id}")
+            return False
+    except Exception as e:
+        st.error(f"❌ プロジェクト読み込みエラー: {str(e)}")
         return False
 
 def show_help():
