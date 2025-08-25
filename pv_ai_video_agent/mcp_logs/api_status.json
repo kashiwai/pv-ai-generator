@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-08-26T08:35:56.818935",
+  "piapi": {
+    "status": "error",
+    "message": "HTTP 404"
+  },
+  "openai": {
+    "status": "connected",
+    "message": "OK"
+  },
+  "google": {
+    "status": "not_tested",
+    "message": "Check not implemented"
+  },
+  "anthropic": {
+    "status": "connected",
+    "message": "HTTP 200"
+  }
+}

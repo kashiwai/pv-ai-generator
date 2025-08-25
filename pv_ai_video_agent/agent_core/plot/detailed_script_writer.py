@@ -18,6 +18,7 @@ class DetailedScriptWriter:
         self.openai_key = config.get("openai_api_key")
         self.anthropic_key = config.get("anthropic_api_key")
         self.google_key = config.get("google_api_key")
+        self.character_reference = None  # キャラクター参照情報
         
         # API初期化
         if self.openai_key:
@@ -30,18 +31,25 @@ class DetailedScriptWriter:
     async def generate_detailed_script(self, 
                                       basic_script: Dict,
                                       duration: float,
-                                      scene_duration: int = 8) -> Dict[str, Any]:
+                                      scene_duration: int = 8,
+                                      character_reference: Dict = None,
+                                      progress_callback = None) -> Dict[str, Any]:
         """
-        基本台本から詳細スクリプトを生成
+        基本台本から詳細スクリプトを生成（500-1000文字/シーン）
         
         Args:
             basic_script: 基本的な台本情報
             duration: 動画の総時間（秒）
             scene_duration: 1シーンあたりの秒数
+            character_reference: キャラクター参照情報
+            progress_callback: 進捗を通知するコールバック関数
         
         Returns:
-            詳細スクリプト情報
+            詳細スクリプト情報（500-1000文字/シーン）
         """
+        # キャラクター参照を保存
+        if character_reference:
+            self.character_reference = character_reference
         # シーン数を計算
         num_scenes = int(duration / scene_duration)
         
@@ -51,6 +59,11 @@ class DetailedScriptWriter:
         # 各シーンの詳細スクリプトを生成
         detailed_scenes = []
         for i, scene in enumerate(timeline_scenes):
+            # 進捗を通知
+            if progress_callback:
+                progress = (i + 1) / len(timeline_scenes)
+                progress_callback(progress, f"シーン {i+1}/{len(timeline_scenes)} を生成中...")
+            
             detailed_scene = await self.generate_scene_detail(
                 scene, i + 1, num_scenes
             )
@@ -117,7 +130,7 @@ class DetailedScriptWriter:
     async def generate_scene_detail(self, scene: Dict, scene_num: int, 
                                    total_scenes: int) -> Dict[str, Any]:
         """
-        単一シーンの詳細スクリプトを生成（2000-3000文字）
+        単一シーンの詳細スクリプトを生成（500-1000文字）
         """
         prompt = self.create_detail_prompt(scene, scene_num, total_scenes)
         
@@ -157,8 +170,24 @@ class DetailedScriptWriter:
         """
         position = "opening" if scene_num <= 2 else "ending" if scene_num >= total_scenes - 1 else "middle"
         
+        # キャラクター情報を作成
+        character_description = ""
+        if self.character_reference:
+            character_description = f"""
+        
+        【重要】メインキャラクター情報：
+        {self.character_reference.get('description', '')}
+        - 性別: {self.character_reference.get('gender', '未指定')}
+        - 年齢: {self.character_reference.get('age', '未指定')}
+        - 外見特徴: {self.character_reference.get('appearance', '未指定')}
+        - 服装: {self.character_reference.get('clothing', '未指定')}
+        
+        ※このキャラクターを必ず全シーンに登場させ、一貫性を保ってください。
+        ※同一人物として明確に描写し、外見の詳細を毎回含めてください。
+        """
+        
         return f"""
-        以下のシーンについて、2000-3000文字の詳細なスクリプトを日本語で作成してください。
+        以下のシーンについて、500-1000文字の詳細なスクリプトを日本語で作成してください。
         
         シーン番号: {scene_num}/{total_scenes}
         時間: {scene['start_time']}-{scene['end_time']}秒
@@ -166,40 +195,31 @@ class DetailedScriptWriter:
         基本内容: {scene.get('content', '')}
         視覚的説明: {scene.get('visual_description', '')}
         雰囲気: {scene.get('mood', 'normal')}
+        {character_description}
         
-        以下の要素を必ず含めてください：
+        以下の要素を簡潔に含めてください：
         
-        1. **環境描写** (500文字以上)
-           - 場所の詳細な描写
-           - 時間帯、天候、季節
-           - 光の状態、色彩
-           - 音響的要素
+        1. **環境と雰囲気** (150-200文字)
+           - 場所、時間帯、天候
+           - 全体的な色調と光の状態
         
-        2. **キャラクター描写** (500文字以上)
-           - 登場人物の外見、表情、動作
-           - 衣装、小道具
-           - 感情表現、心理状態
-           - 相互作用、関係性
+        2. **登場人物と動作** (150-200文字)
+           - メインキャラクターの外見を必ず詳細に描写
+           - 同一人物であることを明確にする
+           - 具体的な動作とポーズ
         
-        3. **アクション描写** (500文字以上)
-           - 具体的な動作の流れ
-           - カメラワーク、アングル
-           - タイミング、リズム
-           - 動きの質感、速度
+        3. **カメラワークと構図** (100-150文字)
+           - カメラの動き（パン、ズーム、固定など）
+           - アングルと構図
         
-        4. **演出意図** (500文字以上)
-           - このシーンの目的
-           - 観客に与えたい印象
-           - 前後のシーンとの繋がり
-           - 象徴的要素、メタファー
+        4. **視覚効果と演出** (100-150文字)
+           - 使用する効果（フィルター、トランジション）
+           - 演出のポイント
         
-        5. **技術的指示** (500文字以上)
-           - 映像効果、フィルター
-           - 音楽、効果音の指定
-           - トランジション
-           - 特殊効果の使用
-        
-        Text-to-Video AIが理解しやすいよう、具体的で視覚的な描写を心がけてください。
+        重要：
+        1. Text-to-Video AIのために、具体的で視覚的な描写を心がける
+        2. 文字数は必ず500-1000文字以内に収める
+        3. メインキャラクターは必ず同一人物として描写し、全シーンで一貫性を保つ
         """
     
     async def generate_with_claude(self, prompt: str) -> str:
@@ -209,7 +229,7 @@ class DetailedScriptWriter:
         try:
             message = self.claude_client.messages.create(
                 model="claude-3-opus-20240229",
-                max_tokens=4000,
+                max_tokens=1500,
                 temperature=0.8,
                 messages=[
                     {
@@ -235,7 +255,7 @@ class DetailedScriptWriter:
                     {"role": "system", "content": "あなたは映像制作の専門家です。"},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=4000,
+                max_tokens=1500,
                 temperature=0.8
             )
             return response.choices[0].message['content']
@@ -260,46 +280,38 @@ class DetailedScriptWriter:
     
     def generate_fallback_script(self, scene: Dict) -> str:
         """
-        フォールバック用の詳細スクリプト
+        フォールバック用の詳細スクリプト（500-1000文字）
         """
+        # キャラクター情報を取得
+        character_desc = ""
+        if self.character_reference:
+            character_desc = self.character_reference.get('description', '20代後半の若者')
+        else:
+            character_desc = "20代後半の若者"
+            
         return f"""
         【シーン {scene['scene_number']}】
         時間: {scene['start_time']}-{scene['end_time']}秒
         
-        ＜環境描写＞
-        このシーンは、現代的な都市空間を舞台としています。高層ビルが立ち並ぶ街並みの中、
-        朝の柔らかな光が建物のガラス面に反射し、都市全体を金色に染めています。
-        空は澄み渡り、薄い雲が流れていきます。街路には朝の通勤者たちが行き交い、
-        カフェからはコーヒーの香りが漂ってきます。遠くから聞こえる車の音、
-        電車の走る音が都市のリズムを刻んでいます。
+        ＜環境と雰囲気＞
+        現代的な都市空間。朝の柔らかな光がビルのガラス面に反射し、都市全体を金色に染める。
+        澄んだ空に薄い雲が流れ、カフェからコーヒーの香りが漂う。街の音が都市のリズムを刻む。
         
-        ＜キャラクター描写＞
-        主人公は20代後半の若者で、きちんとしたビジネススーツを着用しています。
-        表情には希望と少しの不安が混在し、新しい一日への期待が見て取れます。
-        髪は整えられ、姿勢は真っ直ぐで、自信に満ちた歩き方をしています。
-        手にはレザーのバッグを持ち、スマートフォンを確認しながら歩いています。
-        その瞳には決意が宿り、これから始まる挑戦への準備ができています。
+        ＜登場人物と動作＞
+        メインキャラクター（{character_desc}）がビジネススーツ姿で登場。
+        同一人物としての特徴を保ち、表情には希望と不安が混在。
+        自信に満ちた歩き方で前進し、時折立ち止まって深呼吸。建物の入口で一瞬躊躇い、決意を胸に扉を開ける。
         
-        ＜アクション描写＞
-        カメラは主人公の後ろ姿から始まり、ゆっくりと回り込んで正面からの
-        ショットに移行します。主人公は確固とした足取りで前進し、
-        時折立ち止まって深呼吸をします。建物の入り口に到着すると、
-        一瞬の躊躇の後、扉を押し開けて中へと入っていきます。
-        カメラは彼の姿を追いかけ、扉が閉まる瞬間にフェードアウトします。
+        ＜カメラワークと構図＞
+        後ろ姿から始まり、ゆっくり回り込んで正面ショットへ。主人公の動きを追うトラッキングショット。
+        扉が閉まる瞬間にフェードアウト。
         
-        ＜演出意図＞
-        このシーンは物語の始まりを象徴し、主人公の新たな挑戦の第一歩を
-        描いています。都市の朝の情景は可能性と機会に満ちた世界を表現し、
-        主人公の内面の葛藤と決意を視覚的に表現しています。
-        観客に主人公への共感と応援の気持ちを抱かせることが目的です。
+        ＜視覚効果と演出＞
+        暖色系のカラーグレーディングで朝の光を強調。レンズフレアを適度に使用。
+        クロスフェードで次のシーンへスムーズに移行。希望に満ちたBGMと環境音をミックス。
         
-        ＜技術的指示＞
-        映像は暖色系のカラーグレーディングを施し、朝の光の美しさを強調します。
-        BGMは希望に満ちたピアノとストリングスの楽曲を使用し、
-        主人公の足音と環境音をミックスします。シーンの終わりには
-        クロスフェードのトランジションを使用し、次のシーンへスムーズに
-        移行させます。レンズフレアやボケ効果を適度に使用し、
-        映像に深みと立体感を与えます。
+        このシーンは物語の始まりを象徴し、メインキャラクターの新たな挑戦を表現。
+        観客に共感と期待感を抱かせる演出を目指す。同一人物が全シーンを通して登場。
         """
     
     def create_video_prompt(self, detailed_script: str) -> str:
@@ -307,10 +319,15 @@ class DetailedScriptWriter:
         Text-to-Video AI用のプロンプトを生成
         """
         # 詳細スクリプトから重要な要素を抽出
-        # 実際の実装では、より高度な抽出ロジックを使用
+        # キャラクター描写を強調
         
-        # 最初の500文字を要約として使用（簡略版）
+        # 最初の500文字を要約として使用
         summary = detailed_script[:500] if len(detailed_script) > 500 else detailed_script
+        
+        # キャラクター参照を追加
+        if self.character_reference:
+            character_note = f"\n\n[IMPORTANT: Main character must be the same person throughout all scenes: {self.character_reference.get('description', '')}]"
+            summary += character_note
         
         return f"""
         High quality cinematic video generation:

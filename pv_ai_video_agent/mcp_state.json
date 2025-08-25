@@ -1,0 +1,37 @@
+{
+  "started_at": 1756144585.167233,
+  "last_record": "2025-08-26T08:36:25.571435",
+  "total_records": 35,
+  "active_tasks": [],
+  "completed_tasks": [
+    {
+      "id": "generate_script_1756144585.167402",
+      "type": "generate_script",
+      "params": {
+        "theme": "test"
+      },
+      "started_at": "2025-08-26T02:56:25.167406",
+      "status": "completed",
+      "completed_at": "2025-08-26T02:56:27.169146",
+      "result": {
+        "status": "success",
+        "script": "Generated script..."
+      }
+    },
+    {
+      "id": "generate_image_1756144585.167549",
+      "type": "generate_image",
+      "params": {
+        "prompt": "test image"
+      },
+      "started_at": "2025-08-26T02:56:25.167551",
+      "status": "completed",
+      "completed_at": "2025-08-26T02:56:28.168887",
+      "result": {
+        "status": "success",
+        "image_url": "https://example.com/image.png"
+      }
+    }
+  ],
+  "errors": []
+}

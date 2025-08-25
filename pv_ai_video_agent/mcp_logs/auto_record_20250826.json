@@ -1,0 +1,160 @@
+[
+  {
+    "timestamp": "2025-08-26T02:56:11.824139",
+    "git": {
+      "branch": "main",
+      "status": [
+        "M pv_ai_video_agent/agent_core/plot/detailed_script_writer.py",
+        " M pv_ai_video_agent/pv-ai-generator",
+        "?? pv_ai_video_agent/.claude-code-hooks",
+        "?? pv_ai_video_agent/mcp_auto_record.py",
+        "?? pv_ai_video_agent/mcp_check_apis.py",
+        "?? pv_ai_video_agent/mcp_hooks.py",
+        "?? pv_ai_video_agent/mcp_server.py"
+      ]
+    },
+    "project": {
+      "python_files": 80,
+      "total_lines": 25780,
+      "modified_files": [
+        "pv_ai_video_agent/agent_core/plot/detailed_script_writer.py",
+        "pv_ai_video_agent/pv-ai-generator",
+        "pv_ai_video_agent/.claude-code-hooks",
+        "pv_ai_video_agent/mcp_auto_record.py",
+        "pv_ai_video_agent/mcp_check_apis.py",
+        "pv_ai_video_agent/mcp_hooks.py",
+        "pv_ai_video_agent/mcp_server.py"
+      ]
+    },
+    "apis": {
+      "PIAPI_KEY": false,
+      "PIAPI_XKEY": false,
+      "OPENAI_API_KEY": false,
+      "GOOGLE_API_KEY": false,
+      "ANTHROPIC_API_KEY": false
+    },
+    "environment": {
+      "python_version": "3.13.6",
+      "platform": "darwin",
+      "cwd": "/Users/kotarokashiwai/PVmovieegent/pv_ai_video_agent"
+    }
+  },
+  {
+    "timestamp": "2025-08-26T08:35:02.868534",
+    "git": {
+      "branch": "main",
+      "status": [
+        "M pv_ai_video_agent/agent_core/plot/detailed_script_writer.py",
+        " M pv_ai_video_agent/pv-ai-generator",
+        "?? pv_ai_video_agent/.claude-code-hooks",
+        "?? pv_ai_video_agent/.env.example",
+        "?? pv_ai_video_agent/add_to_crontab.sh",
+        "?? pv_ai_video_agent/check_piapi_setup.py",
+        "?? pv_ai_video_agent/mcp_auto_record.py",
+        "?? pv_ai_video_agent/mcp_check_apis.py",
+        "?? pv_ai_video_agent/mcp_hooks.py",
+        "?? pv_ai_video_agent/mcp_logs/",
+        "?? pv_ai_video_agent/mcp_server.py",
+        "?? pv_ai_video_agent/mcp_service_setup.sh",
+        "?? pv_ai_video_agent/mcp_state.json",
+        "?? pv_ai_video_agent/setup_api_keys.py",
+        "?? pv_ai_video_agent/test_midjourney_simple.py",
+        "?? pv_ai_video_agent/test_piapi_midjourney.py"
+      ]
+    },
+    "project": {
+      "python_files": 84,
+      "total_lines": 26646,
+      "modified_files": [
+        "pv_ai_video_agent/agent_core/plot/detailed_script_writer.py",
+        "pv_ai_video_agent/pv-ai-generator",
+        "pv_ai_video_agent/.claude-code-hooks",
+        "pv_ai_video_agent/.env.example",
+        "pv_ai_video_agent/add_to_crontab.sh",
+        "pv_ai_video_agent/check_piapi_setup.py",
+        "pv_ai_video_agent/mcp_auto_record.py",
+        "pv_ai_video_agent/mcp_check_apis.py",
+        "pv_ai_video_agent/mcp_hooks.py",
+        "pv_ai_video_agent/mcp_logs/",
+        "pv_ai_video_agent/mcp_server.py",
+        "pv_ai_video_agent/mcp_service_setup.sh",
+        "pv_ai_video_agent/mcp_state.json",
+        "pv_ai_video_agent/setup_api_keys.py",
+        "pv_ai_video_agent/test_midjourney_simple.py",
+        "pv_ai_video_agent/test_piapi_midjourney.py"
+      ]
+    },
+    "apis": {
+      "PIAPI_KEY": false,
+      "PIAPI_XKEY": false,
+      "OPENAI_API_KEY": false,
+      "GOOGLE_API_KEY": false,
+      "ANTHROPIC_API_KEY": false
+    },
+    "environment": {
+      "python_version": "3.13.6",
+      "platform": "darwin",
+      "cwd": "/Users/kotarokashiwai/PVmovieegent/pv_ai_video_agent"
+    }
+  },
+  {
+    "timestamp": "2025-08-26T08:35:55.724719",
+    "git": {
+      "branch": "main",
+      "status": [
+        "M pv_ai_video_agent/agent_core/plot/detailed_script_writer.py",
+        " M pv_ai_video_agent/pv-ai-generator",
+        "?? pv_ai_video_agent/.claude-code-hooks",
+        "?? pv_ai_video_agent/.env.example",
+        "?? pv_ai_video_agent/add_to_crontab.sh",
+        "?? pv_ai_video_agent/check_piapi_setup.py",
+        "?? pv_ai_video_agent/mcp_auto_record.py",
+        "?? pv_ai_video_agent/mcp_check_apis.py",
+        "?? pv_ai_video_agent/mcp_hooks.py",
+        "?? pv_ai_video_agent/mcp_logs/",
+        "?? pv_ai_video_agent/mcp_server.py",
+        "?? pv_ai_video_agent/mcp_service_setup.sh",
+        "?? pv_ai_video_agent/mcp_state.json",
+        "?? pv_ai_video_agent/setup_api_keys.py",
+        "?? pv_ai_video_agent/start_mcp_with_keys.sh",
+        "?? pv_ai_video_agent/test_midjourney_simple.py",
+        "?? pv_ai_video_agent/test_piapi_midjourney.py"
+      ]
+    },
+    "project": {
+      "python_files": 84,
+      "total_lines": 26646,
+      "modified_files": [
+        "pv_ai_video_agent/agent_core/plot/detailed_script_writer.py",
+        "pv_ai_video_agent/pv-ai-generator",
+        "pv_ai_video_agent/.claude-code-hooks",
+        "pv_ai_video_agent/.env.example",
+        "pv_ai_video_agent/add_to_crontab.sh",
+        "pv_ai_video_agent/check_piapi_setup.py",
+        "pv_ai_video_agent/mcp_auto_record.py",
+        "pv_ai_video_agent/mcp_check_apis.py",
+        "pv_ai_video_agent/mcp_hooks.py",
+        "pv_ai_video_agent/mcp_logs/",
+        "pv_ai_video_agent/mcp_server.py",
+        "pv_ai_video_agent/mcp_service_setup.sh",
+        "pv_ai_video_agent/mcp_state.json",
+        "pv_ai_video_agent/setup_api_keys.py",
+        "pv_ai_video_agent/start_mcp_with_keys.sh",
+        "pv_ai_video_agent/test_midjourney_simple.py",
+        "pv_ai_video_agent/test_piapi_midjourney.py"
+      ]
+    },
+    "apis": {
+      "PIAPI_KEY": true,
+      "PIAPI_XKEY": true,
+      "OPENAI_API_KEY": true,
+      "GOOGLE_API_KEY": true,
+      "ANTHROPIC_API_KEY": true
+    },
+    "environment": {
+      "python_version": "3.13.6",
+      "platform": "darwin",
+      "cwd": "/Users/kotarokashiwai/PVmovieegent/pv_ai_video_agent"
+    }
+  }
+]

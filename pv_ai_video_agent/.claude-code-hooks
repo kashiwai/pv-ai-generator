@@ -1,0 +1,53 @@
+{
+  "hooks": {
+    "onStart": {
+      "command": "python3 mcp_server.py &",
+      "description": "MCPサーバーをバックグラウンドで起動"
+    },
+    "onFileChange": {
+      "pattern": "**/*.py",
+      "command": "python3 -c \"import json; import datetime; log={'event': 'file_change', 'time': str(datetime.datetime.now())}; print(json.dumps(log))\" >> mcp_logs/file_changes.json",
+      "description": "Pythonファイル変更を記録"
+    },
+    "onTask": {
+      "command": "python3 -c \"import sys; import json; from mcp_hooks import log_task; log_task(sys.argv[1] if len(sys.argv) > 1 else 'unknown')\"",
+      "description": "タスク実行を記録"
+    },
+    "onInterval": {
+      "interval": 600,
+      "command": "python3 mcp_auto_record.py",
+      "description": "10分ごとに自動記録"
+    },
+    "onBuild": {
+      "command": "python3 -c \"import json; import datetime; log={'event': 'build', 'time': str(datetime.datetime.now())}; print(json.dumps(log))\" >> mcp_logs/builds.json",
+      "description": "ビルド実行を記録"
+    },
+    "onTest": {
+      "command": "python3 -c \"import json; import datetime; log={'event': 'test', 'time': str(datetime.datetime.now())}; print(json.dumps(log))\" >> mcp_logs/tests.json",
+      "description": "テスト実行を記録"
+    }
+  },
+  "autoExecute": {
+    "enabled": true,
+    "tasks": [
+      {
+        "name": "MCPサーバー自動起動",
+        "trigger": "startup",
+        "command": "python3 mcp_server.py &",
+        "background": true
+      },
+      {
+        "name": "定期記録",
+        "trigger": "interval",
+        "interval": 600,
+        "command": "python3 mcp_auto_record.py"
+      },
+      {
+        "name": "APIステータスチェック",
+        "trigger": "interval",
+        "interval": 1800,
+        "command": "python3 mcp_check_apis.py"
+      }
+    ]
+  }
+}
