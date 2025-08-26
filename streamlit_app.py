@@ -16,7 +16,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v5.0.0",
+    page_title="🎬 PV AI Generator v5.1.0",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -98,14 +98,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v5.0.0
+    # 🎬 PV AI Generator v5.1.0
     ### Midjourney→Kling 画像から動画ワークフロー
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v5.0.0 アップデート**: Midjourney→Klingワークフロー実装！")
+        st.info("🆕 **v5.1.0 アップデート**: クラシックモード画像→動画修正！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
