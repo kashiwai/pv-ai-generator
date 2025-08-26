@@ -46,18 +46,10 @@ class UnifiedTextToVideo:
         
         st.info("🎬 Google Vertex AI Veoで動画生成を開始...")
         
-        # Vertex AI Veoを使用
+        # Vertex AI Veoは一旦スキップ（限定アクセス）
         try:
-            from text_to_video_vertex_veo import generate_video_with_vertex_veo
-            
-            result = generate_video_with_vertex_veo(text_prompt, duration)
-            
-            if result.get('status') == 'completed':
-                return result
-            elif result.get('status') == 'unavailable':
-                # Veoが利用できない場合はフォールバック
-                st.warning("⚠️ Vertex AI Veoが利用できません。代替手段を使用します。")
-                endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.google_api_key}"
+            # Veo3は限定プレビューのためスキップ
+            pass
             
             headers = {
                 "Content-Type": "application/json"

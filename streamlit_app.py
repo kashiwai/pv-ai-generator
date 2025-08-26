@@ -864,8 +864,8 @@ def generate_pv_with_script(info: dict, script: dict):
     try:
         # Text-to-Videoモードの確認
         if st.session_state.workflow_mode == 'text_to_video':
-            # 統合Text-to-Video APIを使用（優先順位: Veo3 → RunComfy Seedance → PIAPI Hailuo）
-            from text_to_video_unified import generate_videos_from_script
+            # 修正版Text-to-Video APIを使用（PIAPI Hailuo/Kling）
+            from text_to_video_unified_fixed import generate_videos_from_script
             
             # APIキーを設定
             if 'google' not in st.session_state.api_keys:
