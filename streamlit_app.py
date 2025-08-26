@@ -1,7 +1,7 @@
 """
-🎬 PV AI Generator v5.2.0 - Streamlit版
-Midjourney画像→Kling動画ワークフロー
-日本人女性キャラクター一貫性保持
+🎬 PV AI Generator v5.3.0 - Streamlit版
+ステップバイステップワークフロー実装
+1. 台本生成 → 2. Midjourney画像生成 → 3. Kling動画生成
 本番LLM APIキー自動設定対応
 """
 
@@ -20,7 +20,7 @@ load_dotenv()
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v5.2.0",
+    page_title="🎬 PV AI Generator v5.3.0",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -109,14 +109,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v5.2.0
+    # 🎬 PV AI Generator v5.3.0
     ### Midjourney→Kling 画像から動画ワークフロー
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v5.2.0 アップデート**: 本番LLM APIキー自動設定対応！")
+        st.info("🆕 **v5.3.0 アップデート**: ステップバイステップワークフロー！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -200,11 +200,12 @@ def main():
             """)
         else:
             st.markdown("""
-            **クラシックモード**
-            1. 台本生成
-            2. Midjourney画像生成
-            3. Hailuo動画化
-            4. 音楽同期・合成
+            **クラシックモード（ステップバイステップ）**
+            1. 基本情報入力
+            2. 台本生成・編集
+            3. Midjourney画像生成
+            4. Kling動画生成
+            5. 最終確認・ダウンロード
             """)
     
     # メインコンテンツ - ステップに応じて表示を切り替え
@@ -214,8 +215,11 @@ def main():
     elif st.session_state.current_step == 'script_generation':
         # 台本生成・編集画面
         script_generation_step()
+    elif st.session_state.current_step == 'image_generation':
+        # 画像生成画面（Midjourney）
+        image_generation_step()
     elif st.session_state.current_step == 'video_generation':
-        # 動画生成画面
+        # 動画生成画面（Kling）
         video_generation_step()
     elif st.session_state.current_step == 'video_editing':
         # 動画編集画面
@@ -435,65 +439,317 @@ def script_generation_step():
         col1, col2, col3 = st.columns([1, 2, 1])
         
         with col2:
+            if st.button("🎨 画像生成へ進む →", type="primary", use_container_width=True):
+                st.session_state.current_step = 'image_generation'
+                st.rerun()
+
+def image_generation_step():
+    """画像生成ステップ（Midjourney）"""
+    st.markdown("## 🎨 ステップ3: 画像生成（Midjourney）")
+    
+    # 戻るボタンと次へボタン
+    col1, col2, col3 = st.columns([1, 4, 1])
+    with col1:
+        if st.button("← 戻る"):
+            st.session_state.current_step = 'script_generation'
+            st.rerun()
+    
+    # 台本の確認
+    if not st.session_state.selected_script:
+        st.warning("⚠️ 台本が選択されていません")
+        if st.button("台本生成に戻る"):
+            st.session_state.current_step = 'script_generation'
+            st.rerun()
+        return
+    
+    script = st.session_state.selected_script
+    scenes = script.get('scenes', [])
+    
+    st.markdown(f"### 📋 シーン数: {len(scenes)}個")
+    
+    # セッション状態の初期化
+    if 'generated_images' not in st.session_state:
+        st.session_state.generated_images = {}
+    
+    # PIAPIキーの確認
+    piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
+    if not piapi_xkey:
+        st.error("⚠️ PIAPI XKEYが設定されていません。サイドバーで設定してください。")
+        return
+    
+    # キャラクター写真の確認
+    character_photos = []
+    if st.session_state.basic_info and st.session_state.basic_info.get('character_images'):
+        st.info(f"✅ キャラクター写真: {len(st.session_state.basic_info['character_images'])}枚アップロード済み")
+        character_photos = st.session_state.basic_info['character_images']
+    
+    # 画像生成のメイン処理
+    st.markdown("---")
+    st.markdown("### 🖼️ シーンごとの画像生成")
+    
+    from image_to_video_workflow import ImageToVideoWorkflow
+    workflow = ImageToVideoWorkflow()
+    
+    # 各シーンの画像生成
+    for i, scene in enumerate(scenes):
+        scene_num = i + 1
+        scene_key = f"scene_{scene_num}"
+        
+        with st.expander(f"📸 シーン{scene_num}: {scene.get('timestamp', '')}秒", expanded=True):
+            # シーンの内容表示
+            col1, col2 = st.columns([2, 3])
+            
+            with col1:
+                st.markdown("**📝 シーン内容:**")
+                st.text_area("ストーリー", scene.get('content', ''), height=100, disabled=True, key=f"story_{scene_num}")
+            
+            with col2:
+                st.markdown("**🎨 Midjourneyプロンプト:**")
+                # プロンプトを編集可能にする
+                prompt_key = f"prompt_{scene_num}"
+                default_prompt = scene.get('midjourney_prompt', scene.get('visual_prompt', ''))
+                
+                edited_prompt = st.text_area(
+                    "プロンプト（編集可能）", 
+                    default_prompt,
+                    height=100,
+                    key=prompt_key
+                )
+            
+            # 画像生成ボタンと結果表示
+            col1, col2, col3 = st.columns([2, 2, 1])
+            
+            with col1:
+                if st.button(f"🎨 画像生成", key=f"gen_{scene_num}"):
+                    with st.spinner(f"シーン{scene_num}の画像を生成中..."):
+                        # Midjourney画像生成
+                        result = workflow.generate_midjourney_image(
+                            prompt=edited_prompt,
+                            character_photos=character_photos
+                        )
+                        
+                        if result.get('status') == 'success':
+                            st.session_state.generated_images[scene_key] = result.get('image_url')
+                            st.success(f"✅ シーン{scene_num}の画像生成完了！")
+                        else:
+                            st.error(f"❌ 生成失敗: {result.get('message', 'Unknown error')}")
+            
+            with col2:
+                if scene_key in st.session_state.generated_images:
+                    if st.button(f"🔄 再生成", key=f"regen_{scene_num}"):
+                        with st.spinner(f"シーン{scene_num}を再生成中..."):
+                            result = workflow.generate_midjourney_image(
+                                prompt=edited_prompt,
+                                character_photos=character_photos
+                            )
+                            
+                            if result.get('status') == 'success':
+                                st.session_state.generated_images[scene_key] = result.get('image_url')
+                                st.success(f"✅ シーン{scene_num}を再生成しました！")
+                                st.rerun()
+            
+            # 生成済み画像の表示
+            if scene_key in st.session_state.generated_images:
+                st.markdown("**🖼️ 生成された画像:**")
+                image_url = st.session_state.generated_images[scene_key]
+                
+                # 画像URLがデモでない場合は表示
+                if not image_url.startswith('demo://'):
+                    st.image(image_url, use_column_width=True)
+                else:
+                    st.info("📸 デモモード: 実際の画像はここに表示されます")
+                
+                st.code(image_url, language=None)
+            else:
+                st.info("⏳ まだ画像が生成されていません")
+    
+    # 全シーンの画像が生成されているか確認
+    all_generated = all(f"scene_{i+1}" in st.session_state.generated_images for i in range(len(scenes)))
+    
+    st.markdown("---")
+    
+    # 進捗状況の表示
+    generated_count = sum(1 for i in range(len(scenes)) if f"scene_{i+1}" in st.session_state.generated_images)
+    progress = generated_count / len(scenes) if scenes else 0
+    
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.progress(progress)
+        st.markdown(f"**進捗: {generated_count}/{len(scenes)} シーン完了**")
+    
+    with col2:
+        if all_generated:
             if st.button("🎬 動画生成へ進む →", type="primary", use_container_width=True):
                 st.session_state.current_step = 'video_generation'
                 st.rerun()
+        else:
+            st.info(f"残り {len(scenes) - generated_count} シーン")
 
 def video_generation_step():
-    """動画生成ステップ"""
-    st.markdown("## 🎬 ステップ3: 動画生成")
+    """動画生成ステップ（Kling）"""
+    st.markdown("## 🎬 ステップ4: 動画生成（Kling）")
     
     # 戻るボタン
     col1, col2, col3 = st.columns([1, 4, 1])
     with col1:
-        if st.button("← 台本編集に戻る"):
-            st.session_state.current_step = 'script_generation'
+        if st.button("← 画像生成に戻る"):
+            st.session_state.current_step = 'image_generation'
             st.rerun()
     
-    # 選択された台本の確認
-    with st.expander("📜 選択した台本", expanded=False):
-        if st.session_state.selected_script:
-            for i, scene in enumerate(st.session_state.selected_script.get('scenes', [])):
-                st.write(f"**シーン {i+1}:** {scene.get('content', '')[:100]}...")
+    # 画像が生成されているか確認
+    if 'generated_images' not in st.session_state or not st.session_state.generated_images:
+        st.warning("⚠️ まだ画像が生成されていません")
+        if st.button("画像生成に戻る"):
+            st.session_state.current_step = 'image_generation'
+            st.rerun()
+        return
     
-    # 生成設定
-    st.markdown("### ⚙️ 生成設定")
+    # 台本の確認
+    script = st.session_state.selected_script
+    scenes = script.get('scenes', [])
     
-    if st.session_state.workflow_mode == 'text_to_video':
-        col1, col2 = st.columns(2)
-        with col1:
-            provider = st.selectbox(
-                "プロバイダー",
-                ["Veo3 (高品質)", "Seedance (高速)", "自動選択"]
-            )
-        with col2:
-            quality = st.select_slider(
-                "品質",
-                options=["draft", "standard", "high", "ultra"],
-                value="high"
-            )
+    st.markdown(f"### 📋 生成された画像: {len(st.session_state.generated_images)}個")
     
-    # 生成開始
+    # セッション状態の初期化
+    if 'generated_videos' not in st.session_state:
+        st.session_state.generated_videos = {}
+    
+    # PIAPIキーの確認
+    piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
+    if not piapi_xkey:
+        st.error("⚠️ PIAPI XKEYが設定されていません。サイドバーで設定してください。")
+        return
+    
+    # 動画生成のメイン処理
     st.markdown("---")
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.markdown("### 🎥 画像から動画を生成")
+    
+    from image_to_video_workflow import ImageToVideoWorkflow
+    workflow = ImageToVideoWorkflow()
+    
+    # 各シーンの動画生成
+    for i, scene in enumerate(scenes):
+        scene_num = i + 1
+        scene_key = f"scene_{scene_num}"
+        video_key = f"video_{scene_num}"
+        
+        # 画像が生成されているシーンのみ処理
+        if scene_key in st.session_state.generated_images:
+            with st.expander(f"🎬 シーン{scene_num}: {scene.get('timestamp', '')}秒", expanded=True):
+                # 画像とプロンプト表示
+                col1, col2 = st.columns([1, 2])
+                
+                with col1:
+                    st.markdown("**🖼️ 生成済み画像:**")
+                    image_url = st.session_state.generated_images[scene_key]
+                    if not image_url.startswith('demo://'):
+                        st.image(image_url, use_column_width=True)
+                    else:
+                        st.info("📸 デモモード画像")
+                
+                with col2:
+                    st.markdown("**🎬 動画生成プロンプト:**")
+                    # 動画用のプロンプトを編集可能に
+                    video_prompt_key = f"video_prompt_{scene_num}"
+                    default_video_prompt = scene.get('content', '') + " cinematic movement, smooth camera motion"
+                    
+                    edited_video_prompt = st.text_area(
+                        "動画プロンプト（編集可能）",
+                        default_video_prompt,
+                        height=100,
+                        key=video_prompt_key
+                    )
+                    
+                    # カメラ設定
+                    st.markdown("**📹 カメラ設定:**")
+                    col_cam1, col_cam2 = st.columns(2)
+                    with col_cam1:
+                        camera_movement = st.selectbox(
+                            "カメラ動作",
+                            ["static", "pan_left", "pan_right", "zoom_in", "zoom_out", "tilt_up", "tilt_down"],
+                            key=f"cam_{scene_num}"
+                        )
+                    with col_cam2:
+                        duration = st.slider(
+                            "動画の長さ（秒）",
+                            min_value=5,
+                            max_value=10,
+                            value=8,
+                            key=f"dur_{scene_num}"
+                        )
+                
+                # 動画生成ボタン
+                col1, col2, col3 = st.columns([2, 2, 1])
+                
+                with col1:
+                    if st.button(f"🎥 動画生成", key=f"gen_video_{scene_num}"):
+                        with st.spinner(f"シーン{scene_num}の動画を生成中（最大20分かかる場合があります）..."):
+                            # Kling動画生成
+                            result = workflow.generate_kling_video(
+                                image_url=image_url,
+                                prompt=edited_video_prompt,
+                                camera_movement=camera_movement,
+                                duration=duration
+                            )
+                            
+                            if result.get('status') == 'success':
+                                st.session_state.generated_videos[video_key] = result.get('video_url')
+                                st.success(f"✅ シーン{scene_num}の動画生成完了！")
+                                st.rerun()
+                            else:
+                                st.error(f"❌ 生成失敗: {result.get('message', 'Unknown error')}")
+                
+                with col2:
+                    if video_key in st.session_state.generated_videos:
+                        if st.button(f"🔄 再生成", key=f"regen_video_{scene_num}"):
+                            with st.spinner(f"シーン{scene_num}を再生成中..."):
+                                result = workflow.generate_kling_video(
+                                    image_url=image_url,
+                                    prompt=edited_video_prompt,
+                                    camera_movement=camera_movement,
+                                    duration=duration
+                                )
+                                
+                                if result.get('status') == 'success':
+                                    st.session_state.generated_videos[video_key] = result.get('video_url')
+                                    st.success(f"✅ シーン{scene_num}を再生成しました！")
+                                    st.rerun()
+                
+                # 生成済み動画の表示
+                if video_key in st.session_state.generated_videos:
+                    st.markdown("**🎥 生成された動画:**")
+                    video_url = st.session_state.generated_videos[video_key]
+                    
+                    # 動画プレビュー
+                    if not video_url.startswith('demo://'):
+                        st.video(video_url)
+                    else:
+                        st.info("🎬 デモモード: 実際の動画はここに表示されます")
+                    
+                    st.code(video_url, language=None)
+                else:
+                    st.info("⏳ まだ動画が生成されていません")
+    
+    # 全シーンの動画が生成されているか確認
+    total_images = len([k for k in st.session_state.generated_images.keys() if k.startswith('scene_')])
+    generated_count = len([k for k in st.session_state.generated_videos.keys() if k.startswith('video_')])
+    progress = generated_count / total_images if total_images > 0 else 0
+    
+    st.markdown("---")
+    
+    # 進捗状況の表示
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.progress(progress)
+        st.markdown(f"**進捗: {generated_count}/{total_images} シーン完了**")
     
     with col2:
-        if st.button("🚀 動画生成を開始", type="primary", use_container_width=True):
-            # 基本情報と台本を使って生成
-            info = st.session_state.basic_info
-            script = st.session_state.selected_script
-            
-            # 動画を生成
-            result = generate_pv_with_script(
-                info=info,
-                script=script
-            )
-            
-            # 生成結果を保存
-            if result and result.get('status') == 'success':
-                st.session_state.generated_videos = result.get('videos', [])
-                st.session_state.current_step = 'video_management'  # 動画管理画面へ遷移
+        if generated_count == total_images and total_images > 0:
+            if st.button("✅ 完了・ダウンロード →", type="primary", use_container_width=True):
+                st.session_state.current_step = 'video_management'
                 st.rerun()
+        else:
+            st.info(f"残り {total_images - generated_count} シーン")
 
 def video_editing_step():
     """動画編集ステップ"""
