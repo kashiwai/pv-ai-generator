@@ -1,6 +1,6 @@
 """
-🎬 PV AI Generator v2.6.1 - Streamlit版
-動画URL管理強化・台本連携表示版
+🎬 PV AI Generator v3.1.0 - Streamlit版
+Google Veo3/Seedance Text-to-Video統合版
 """
 
 import streamlit as st
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v2.6.1",
+    page_title="🎬 PV AI Generator v3.1.0",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -50,10 +50,10 @@ def load_api_keys():
     if hasattr(st, 'secrets'):
         keys['openai'] = st.secrets.get('OPENAI_API_KEY', '')
         keys['google'] = st.secrets.get('GOOGLE_API_KEY', '')
+        keys['google_ai'] = keys['google']  # エイリアスを追加
         keys['anthropic'] = st.secrets.get('ANTHROPIC_API_KEY', '')
         keys['piapi'] = st.secrets.get('PIAPI_KEY', '')
         keys['piapi_xkey'] = st.secrets.get('PIAPI_XKEY', '')
-        keys['veo3'] = st.secrets.get('VEO3_API_KEY', '')
         keys['seedance'] = st.secrets.get('SEEDANCE_API_KEY', '')
         keys['midjourney'] = st.secrets.get('MIDJOURNEY_API_KEY', keys.get('piapi_xkey', ''))
         keys['hailuo'] = st.secrets.get('HAILUO_API_KEY', keys.get('piapi', ''))
@@ -61,7 +61,7 @@ def load_api_keys():
     # 環境変数から読み込み（フォールバック）
     keys['openai'] = keys.get('openai') or os.getenv('OPENAI_API_KEY', '')
     keys['google'] = keys.get('google') or os.getenv('GOOGLE_API_KEY', '')
-    keys['veo3'] = keys.get('veo3') or os.getenv('VEO3_API_KEY', '')
+    keys['google_ai'] = keys['google']  # エイリアスを追加
     keys['seedance'] = keys.get('seedance') or os.getenv('SEEDANCE_API_KEY', '')
     
     return keys
@@ -856,15 +856,14 @@ def generate_pv_with_script(info: dict, script: dict):
     try:
         # Text-to-Videoモードの確認
         if st.session_state.workflow_mode == 'text_to_video':
-            # APIキー設定
-            config = {
-                'veo3_api_key': st.session_state.api_keys.get('veo3', ''),
-                'seedance_api_key': st.session_state.api_keys.get('seedance', ''),
-                'piapi_key': st.session_state.api_keys.get('piapi', '')
-            }
+            # Google Veo3/Seedance Text-to-Video APIを使用
+            from text_to_video_veo3_seedance import generate_videos_from_script
             
-            # Text-to-Video APIを初期化
-            video_api = TextToVideoAPI(config)
+            # APIキーを設定
+            if 'google' not in st.session_state.api_keys:
+                st.session_state.api_keys['google'] = st.session_state.api_keys.get('google_ai', '')
+            if 'seedance' not in st.session_state.api_keys:
+                st.session_state.api_keys['seedance'] = st.session_state.api_keys.get('seedance', '')
             
             # キャラクター参照を準備
             character_ref = None
@@ -872,22 +871,14 @@ def generate_pv_with_script(info: dict, script: dict):
                 # 最初の画像を参照として使用
                 character_ref = "character_reference"
             
-            # 非同期処理を実行
-            async def generate_videos():
-                update_progress(0.05, "🎥 Text-to-Video生成を開始...")
-                
-                # 全シーンの動画を生成
-                results = await video_api.generate_all_scenes(
-                    scenes=script.get('scenes', []),
-                    character_reference=character_ref,
-                    provider="auto",
-                    progress_callback=update_progress
-                )
-                
-                return results
-            
             # 動画生成を実行
-            video_results = asyncio.run(generate_videos())
+            update_progress(0.05, "🎥 Google Veo3/Seedance Text-to-Video生成を開始...")
+            
+            # キャラクター写真があれば渡す
+            character_photos = info.get('character_images', [])
+            
+            # Text-to-Video生成
+            video_results = generate_videos_from_script(script, character_photos)
             
             # 結果を表示
             update_progress(1.0, "✅ 動画生成完了！")
