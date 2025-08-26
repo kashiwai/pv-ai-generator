@@ -1,6 +1,6 @@
 """
-🎬 PV AI Generator v3.1.0 - Streamlit版
-Google Veo3/Seedance Text-to-Video統合版
+🎬 PV AI Generator v3.2.0 - Streamlit版
+統合Text-to-Video版（Veo3 → RunComfy Seedance → PIAPI Hailuo）
 """
 
 import streamlit as st
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v3.1.0",
+    page_title="🎬 PV AI Generator v3.2.0",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -88,18 +88,18 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v3.1.0
+    # 🎬 PV AI Generator v3.2.0
     ### 完全自動化・高速処理対応版
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v3.1.0 アップデート**: Google Veo3/Seedance Text-to-Video統合")
+        st.info("🆕 **v3.2.0 アップデート**: 統合Text-to-Video（Veo3 → RunComfy Seedance → PIAPI Hailuo）")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
-            ["Text-to-Video (v3.1.0)", "クラシック (画像→動画)"],
+            ["Text-to-Video (v3.2.0)", "クラシック (画像→動画)"],
             horizontal=True
         )
         st.session_state.workflow_mode = 'text_to_video' if "Text-to-Video" in workflow_mode else 'classic'
@@ -170,7 +170,7 @@ def main():
         st.markdown("### 📊 ワークフロー情報")
         if st.session_state.workflow_mode == 'text_to_video':
             st.markdown("""
-            **Text-to-Video モード v3.1.0**
+            **Text-to-Video モード v3.2.0**
             1. 歌詞・情景の深層分析
             2. 最適化台本生成 (500-1000文字/シーン)
             3. Veo3/Seedance直接生成
@@ -856,8 +856,8 @@ def generate_pv_with_script(info: dict, script: dict):
     try:
         # Text-to-Videoモードの確認
         if st.session_state.workflow_mode == 'text_to_video':
-            # Google Veo3/Seedance Text-to-Video APIを使用
-            from text_to_video_veo3_seedance import generate_videos_from_script
+            # 統合Text-to-Video APIを使用（優先順位: Veo3 → RunComfy Seedance → PIAPI Hailuo）
+            from text_to_video_unified import generate_videos_from_script
             
             # APIキーを設定
             if 'google' not in st.session_state.api_keys:
@@ -872,7 +872,7 @@ def generate_pv_with_script(info: dict, script: dict):
                 character_ref = "character_reference"
             
             # 動画生成を実行
-            update_progress(0.05, "🎥 Google Veo3/Seedance Text-to-Video生成を開始...")
+            update_progress(0.05, "🎥 Text-to-Video生成を開始（Veo3 → RunComfy → Hailuo）...")
             
             # キャラクター写真があれば渡す
             character_photos = info.get('character_images', [])
@@ -1030,7 +1030,7 @@ def generate_pv_tab():
     
     # v2.4.0 詳細設定
     if st.session_state.workflow_mode == 'text_to_video' and v240_available:
-        with st.expander("🎯 v3.1.0 詳細設定"):
+        with st.expander("🎯 v3.2.0 詳細設定"):
             col1, col2 = st.columns(2)
             with col1:
                 scene_duration = st.slider("シーン長(秒)", 5, 10, 8)
@@ -1097,8 +1097,8 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
                     char_paths.append(tmp_img.name)
         
         if st.session_state.workflow_mode == 'text_to_video' and v240_available:
-            # v3.1.0 新ワークフロー
-            status_text.text("🚀 v3.1.0 Text-to-Videoワークフローを開始...")
+            # v3.2.0 新ワークフロー
+            status_text.text("🚀 v3.2.0 統合Text-to-Videoワークフローを開始...")
             progress_bar.progress(0.05)
             percentage_text.text("5%")
             detail_text.text("初期化中...")
@@ -1343,7 +1343,7 @@ def load_project(project_id: str):
 def show_help():
     """ヘルプダイアログ"""
     st.markdown("""
-    ### 📚 v3.1.0 使い方ガイド
+    ### 📚 v3.2.0 使い方ガイド
     
     #### 🆕 新機能
     - **詳細台本生成**: 各シーン2000-3000文字の詳細な描写

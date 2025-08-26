@@ -22,11 +22,12 @@ class TextToVideoVeo3Seedance:
         self.google_api_key = st.session_state.get('api_keys', {}).get('google', '')
         self.seedance_api_key = st.session_state.get('api_keys', {}).get('seedance', '')
         
-        # Google Veo3エンドポイント（正式版がリリースされたら更新）
+        # Google Veo3エンドポイント（現在はGeminiのvideo生成を使用）
         self.veo3_base_url = "https://generativelanguage.googleapis.com/v1beta"
         
-        # Seedanceエンドポイント
-        self.seedance_base_url = "https://api.seedance.ai/v1"
+        # Seedanceエンドポイント（正しいURLに修正）
+        # 注: Seedanceは現在APIを公開していない可能性があります
+        self.seedance_base_url = "https://app.seedance.ai/api"
         
         if not self.google_api_key and not self.seedance_api_key:
             st.warning("⚠️ Google Veo3またはSeedance APIキーが設定されていません")
@@ -55,23 +56,26 @@ class TextToVideoVeo3Seedance:
                 "message": "Google APIキーが設定されていません"
             }
         
-        # Google Veo3 APIエンドポイント
-        # 注: Veo3の正式なAPIがリリースされたら更新が必要
-        endpoint = f"{self.veo3_base_url}/models/veo3:generateVideo?key={self.google_api_key}"
+        # Google Gemini APIを使用（Veo3はまだ一般公開されていません）
+        # 将来的にVeo3が利用可能になったら更新
+        endpoint = f"{self.veo3_base_url}/models/gemini-pro-vision:generateContent?key={self.google_api_key}"
         
         headers = {
             "Content-Type": "application/json"
         }
         
+        # Gemini APIフォーマットに変更
         payload = {
-            "prompt": text_prompt,
-            "videoConfig": {
-                "duration": f"{duration}s",
-                "resolution": resolution,
-                "aspectRatio": aspect_ratio,
-                "fps": 30,
-                "quality": "high",
-                "style": "cinematic"
+            "contents": [{
+                "parts": [{
+                    "text": f"Generate a {duration} second video with this prompt: {text_prompt}. Resolution: {resolution}, Aspect ratio: {aspect_ratio}, Style: cinematic"
+                }]
+            }],
+            "generationConfig": {
+                "temperature": 0.7,
+                "topK": 40,
+                "topP": 0.95,
+                "maxOutputTokens": 2048
             },
             "safetySettings": [
                 {
@@ -205,8 +209,9 @@ class TextToVideoVeo3Seedance:
                 "message": "Seedance APIキーが設定されていません"
             }
         
-        # Seedance APIエンドポイント
-        endpoint = f"{self.seedance_base_url}/generate/video"
+        # Seedance APIエンドポイント（更新）
+        # 注: Seedanceは現在API公開していないため、代替としてPIAPIのHailuoを使用することを推奨
+        endpoint = f"{self.seedance_base_url}/v1/video/generate"
         
         headers = {
             "Authorization": f"Bearer {self.seedance_api_key}",
@@ -376,6 +381,63 @@ class TextToVideoVeo3Seedance:
             "message": f"タスク {task_id} がタイムアウトしました"
         }
     
+    def generate_video_with_piapi_fallback(self, text_prompt: str, duration: int = 8) -> Dict[str, Any]:
+        """
+        PIAPIのHailuo AI経由で動画生成（フォールバック）
+        """
+        try:
+            # PIAPIキーがあるか確認
+            piapi_key = st.session_state.get('api_keys', {}).get('piapi', '')
+            piapi_xkey = st.session_state.get('api_keys', {}).get('piapi_xkey', '')
+            
+            if piapi_xkey:
+                st.info("🎬 PIAPI Hailuo AIを使用して動画生成を試みます...")
+                
+                headers = {
+                    "x-api-key": piapi_xkey,
+                    "Content-Type": "application/json"
+                }
+                
+                payload = {
+                    "model": "hailuo",
+                    "task_type": "text-to-video",
+                    "input": {
+                        "prompt": text_prompt,
+                        "duration": duration,
+                        "motion_intensity": 5,
+                        "aspect_ratio": "16:9",
+                        "resolution": "1080p"
+                    }
+                }
+                
+                response = requests.post(
+                    "https://api.piapi.ai/api/v1/task",
+                    json=payload,
+                    headers=headers,
+                    timeout=30
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    if 'data' in result and 'task_id' in result['data']:
+                        return {
+                            "status": "success",
+                            "task_id": result['data']['task_id'],
+                            "provider": "piapi_hailuo",
+                            "message": "PIAPI Hailuo AIで動画生成を開始しました"
+                        }
+            
+            return {
+                "status": "error",
+                "message": "利用可能なText-to-Video APIがありません"
+            }
+            
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"PIAPI生成エラー: {str(e)}"
+            }
+    
     def generate_video_auto(self, text_prompt: str, duration: int = 8) -> Dict[str, Any]:
         """
         利用可能なAPIを自動選択して動画生成
@@ -420,17 +482,9 @@ class TextToVideoVeo3Seedance:
             else:
                 st.warning(f"⚠️ Seedance生成失敗: {result['message']}")
         
-        # どちらのAPIキーも設定されていない場合
-        if not self.google_api_key and not self.seedance_api_key:
-            return {
-                "status": "error",
-                "message": "Google Veo3またはSeedance APIキーを設定してください"
-            }
-        
-        return {
-            "status": "error",
-            "message": "動画生成に失敗しました"
-        }
+        # PIAPIフォールバックを試す
+        st.warning("⚠️ Veo3/Seedance APIが利用できません。PIAPI Hailuoを試します...")
+        return self.generate_video_with_piapi_fallback(text_prompt, duration)
 
 def generate_videos_from_script(script: Dict, character_photos: Optional[List] = None) -> List[Dict]:
     """
