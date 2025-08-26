@@ -79,7 +79,7 @@ def test_text_to_video():
     print("=" * 60)
     
     # セッション状態をモック
-    if 'api_keys' not in st.session_state:
+    if not hasattr(st.session_state, 'api_keys'):
         st.session_state.api_keys = {}
     
     # APIキーを設定（環境変数から読み込み）

@@ -1,5 +1,5 @@
 """
-🎬 PV AI Generator v3.3.0 - Streamlit版
+🎬 PV AI Generator v3.5.0 - Streamlit版
 Google Vertex AI Veo統合版（正式Veo API対応）
 """
 
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v3.3.0",
+    page_title="🎬 PV AI Generator v3.5.0",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
