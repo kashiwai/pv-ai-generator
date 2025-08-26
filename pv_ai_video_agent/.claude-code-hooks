@@ -1,8 +1,8 @@
 {
   "hooks": {
     "onStart": {
-      "command": "python3 mcp_server.py &",
-      "description": "MCPサーバーをバックグラウンドで起動"
+      "command": "python3 mcp_server.py & && python3 auto_version_manager.py",
+      "description": "MCPサーバー起動と自動バージョン管理"
     },
     "onFileChange": {
       "pattern": "**/*.py",

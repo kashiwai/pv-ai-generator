@@ -1,0 +1,109 @@
+# Claude Code Auto-Approve Settings
+# このファイルはClaude Codeの自動承認設定です
+
+[auto_approve]
+enabled = true
+mode = "full_auto"  # full_auto | semi_auto | manual
+
+[tools]
+# すべてのツールを自動承認
+Read = true
+Write = true
+Edit = true
+MultiEdit = true
+Bash = true
+WebSearch = true
+WebFetch = true
+TodoWrite = true
+Task = true
+NotebookEdit = true
+BashOutput = true
+KillBash = true
+Grep = true
+Glob = true
+LS = true
+ExitPlanMode = true
+
+[file_patterns]
+# 自動承認するファイルパターン
+auto_approve = [
+    "*.py",
+    "*.js", 
+    "*.ts",
+    "*.json",
+    "*.md",
+    "*.txt",
+    "*.sh",
+    "*.yml",
+    "*.yaml",
+    "*.toml",
+    "version.*",
+    "CHANGELOG.*",
+    ".env.example"
+]
+
+[commands]
+# 自動承認するコマンドパターン
+auto_approve = [
+    "git add",
+    "git commit",
+    "git push",
+    "git pull",
+    "git status",
+    "git log",
+    "python3 test_*",
+    "python3 *_test.py",
+    "npm test",
+    "npm run",
+    "pip install",
+    "pip3 install",
+    "ls",
+    "cat",
+    "echo",
+    "pwd",
+    "cd"
+]
+
+# ブロックするコマンド（安全性のため）
+block = [
+    "rm -rf /",
+    "sudo rm -rf",
+    "format c:",
+    "dd if=/dev/zero"
+]
+
+[version_control]
+# バージョン自動管理
+auto_version_bump = true
+auto_changelog = true
+auto_commit = true
+auto_push = true
+
+# コミットメッセージテンプレート
+commit_template = """
+🤖 Auto: {action} v{version}
+
+{changes}
+
+🤖 Generated with Claude Code Auto-Approve
+Co-Authored-By: Claude <noreply@anthropic.com>
+"""
+
+[workflows]
+# ワークフロー自動化
+on_file_save = ["test", "version_check", "commit"]
+on_test_pass = ["version_bump", "changelog", "push"]
+on_error = ["log", "rollback"]
+
+[monitoring]
+# 監視設定
+log_all_operations = true
+log_file = "mcp_logs/claude_auto_approve.log"
+record_interval = 600  # 10分ごと
+
+[safety]
+# 安全設定
+max_file_size = 10485760  # 10MB
+max_files_per_operation = 100
+require_backup = false
+enable_rollback = true

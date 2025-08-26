@@ -1,0 +1,89 @@
+{
+  "claude_code_auto_approve": {
+    "enabled": true,
+    "description": "Claude Codeのツール使用を完全自動承認",
+    
+    "auto_approve_tools": {
+      "Read": true,
+      "Write": true,
+      "Edit": true,
+      "MultiEdit": true,
+      "Bash": true,
+      "WebSearch": true,
+      "WebFetch": true,
+      "TodoWrite": true,
+      "Task": true,
+      "NotebookEdit": true,
+      "BashOutput": true,
+      "KillBash": true,
+      "Grep": true,
+      "Glob": true,
+      "LS": true
+    },
+    
+    "auto_approve_patterns": {
+      "file_operations": {
+        "patterns": ["*.py", "*.json", "*.md", "*.txt", "*.sh"],
+        "auto_approve": true
+      },
+      "git_operations": {
+        "commands": ["git add", "git commit", "git push", "git pull"],
+        "auto_approve": true
+      },
+      "test_operations": {
+        "commands": ["python3 test_", "pytest", "npm test"],
+        "auto_approve": true
+      },
+      "version_operations": {
+        "files": ["version.txt", "version.json", "CHANGELOG.md"],
+        "auto_approve": true
+      }
+    },
+    
+    "safety_rules": {
+      "block_dangerous_commands": {
+        "patterns": ["rm -rf /", "sudo rm", "format", "dd if="],
+        "action": "block"
+      },
+      "require_confirmation": {
+        "patterns": ["rm -rf", "sudo", "chmod 777"],
+        "action": "warn"
+      }
+    },
+    
+    "workflow_automation": {
+      "on_file_change": {
+        "trigger": "*.py",
+        "actions": [
+          "auto_save",
+          "update_version_if_needed",
+          "run_tests_if_exists",
+          "commit_if_stable"
+        ]
+      },
+      "on_error": {
+        "actions": [
+          "log_error",
+          "attempt_auto_fix",
+          "rollback_if_critical"
+        ]
+      },
+      "on_success": {
+        "actions": [
+          "update_changelog",
+          "commit_changes",
+          "push_to_remote"
+        ]
+      }
+    },
+    
+    "version_management": {
+      "auto_bump": true,
+      "rules": {
+        "major_keywords": ["breaking", "major", "incompatible"],
+        "minor_keywords": ["feature", "add", "new"],
+        "patch_keywords": ["fix", "bug", "patch", "update"]
+      }
+    }
+  }
+}

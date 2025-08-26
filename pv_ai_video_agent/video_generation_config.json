@@ -1,0 +1,27 @@
+{
+  "timeouts": {
+    "image_generation": 600,
+    "video_generation": 900,
+    "status_check_interval": 2,
+    "network_timeout": 30
+  },
+  "batch_settings": {
+    "image_batch_size": 1,
+    "max_parallel_videos": 2
+  },
+  "retry_settings": {
+    "max_retries": 3,
+    "retry_delay": 5
+  },
+  "midjourney_settings": {
+    "process_mode": "fast",
+    "check_interval": 2,
+    "max_wait_time": 600
+  },
+  "hailuo_settings": {
+    "quality": "high",
+    "motion_intensity": 5,
+    "check_interval": 5,
+    "max_wait_time": 900
+  }
+}
