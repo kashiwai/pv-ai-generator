@@ -1,8 +1,8 @@
 """
-🎬 PV AI Generator v5.3.0 - Streamlit版
+🎬 PV AI Generator v5.3.1 - Streamlit版
 ステップバイステップワークフロー実装
 1. 台本生成 → 2. Midjourney画像生成 → 3. Kling動画生成
-本番LLM APIキー自動設定対応
+メソッド名修正とカメラ設定対応
 """
 
 import streamlit as st
@@ -20,7 +20,7 @@ load_dotenv()
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v5.3.0",
+    page_title="🎬 PV AI Generator v5.3.1",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -109,14 +109,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v5.3.0
+    # 🎬 PV AI Generator v5.3.1
     ### Midjourney→Kling 画像から動画ワークフロー
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v5.3.0 アップデート**: ステップバイステップワークフロー！")
+        st.info("🆕 **v5.3.1 アップデート**: APIメソッド名修正、カメラ設定対応！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -523,9 +523,8 @@ def image_generation_step():
                 if st.button(f"🎨 画像生成", key=f"gen_{scene_num}"):
                     with st.spinner(f"シーン{scene_num}の画像を生成中..."):
                         # Midjourney画像生成
-                        result = workflow.generate_midjourney_image(
-                            prompt=edited_prompt,
-                            character_photos=character_photos
+                        result = workflow.generate_image_with_midjourney(
+                            prompt=edited_prompt
                         )
                         
                         if result.get('status') == 'success':
@@ -538,9 +537,8 @@ def image_generation_step():
                 if scene_key in st.session_state.generated_images:
                     if st.button(f"🔄 再生成", key=f"regen_{scene_num}"):
                         with st.spinner(f"シーン{scene_num}を再生成中..."):
-                            result = workflow.generate_midjourney_image(
-                                prompt=edited_prompt,
-                                character_photos=character_photos
+                            result = workflow.generate_image_with_midjourney(
+                                prompt=edited_prompt
                             )
                             
                             if result.get('status') == 'success':
@@ -685,11 +683,25 @@ def video_generation_step():
                     if st.button(f"🎥 動画生成", key=f"gen_video_{scene_num}"):
                         with st.spinner(f"シーン{scene_num}の動画を生成中（最大20分かかる場合があります）..."):
                             # Kling動画生成
-                            result = workflow.generate_kling_video(
+                            # カメラ設定をマッピング
+                            camera_map = {
+                                'static': {'horizontal': 0, 'vertical': 0, 'zoom': 0},
+                                'pan_left': {'horizontal': -10, 'vertical': 0, 'zoom': 0},
+                                'pan_right': {'horizontal': 10, 'vertical': 0, 'zoom': 0},
+                                'zoom_in': {'horizontal': 0, 'vertical': 0, 'zoom': 10},
+                                'zoom_out': {'horizontal': 0, 'vertical': 0, 'zoom': -10},
+                                'tilt_up': {'horizontal': 0, 'vertical': 10, 'zoom': 0},
+                                'tilt_down': {'horizontal': 0, 'vertical': -10, 'zoom': 0}
+                            }
+                            camera_config = camera_map.get(camera_movement, camera_map['static'])
+                            
+                            result = workflow.generate_video_with_kling(
                                 image_url=image_url,
                                 prompt=edited_video_prompt,
-                                camera_movement=camera_movement,
-                                duration=duration
+                                duration=duration,
+                                camera_horizontal=camera_config['horizontal'],
+                                camera_vertical=camera_config['vertical'],
+                                camera_zoom=camera_config['zoom']
                             )
                             
                             if result.get('status') == 'success':
@@ -703,11 +715,25 @@ def video_generation_step():
                     if video_key in st.session_state.generated_videos:
                         if st.button(f"🔄 再生成", key=f"regen_video_{scene_num}"):
                             with st.spinner(f"シーン{scene_num}を再生成中..."):
-                                result = workflow.generate_kling_video(
+                                # カメラ設定をマッピング
+                                camera_map = {
+                                    'static': {'horizontal': 0, 'vertical': 0, 'zoom': 0},
+                                    'pan_left': {'horizontal': -10, 'vertical': 0, 'zoom': 0},
+                                    'pan_right': {'horizontal': 10, 'vertical': 0, 'zoom': 0},
+                                    'zoom_in': {'horizontal': 0, 'vertical': 0, 'zoom': 10},
+                                    'zoom_out': {'horizontal': 0, 'vertical': 0, 'zoom': -10},
+                                    'tilt_up': {'horizontal': 0, 'vertical': 10, 'zoom': 0},
+                                    'tilt_down': {'horizontal': 0, 'vertical': -10, 'zoom': 0}
+                                }
+                                camera_config = camera_map.get(camera_movement, camera_map['static'])
+                                
+                                result = workflow.generate_video_with_kling(
                                     image_url=image_url,
                                     prompt=edited_video_prompt,
-                                    camera_movement=camera_movement,
-                                    duration=duration
+                                    duration=duration,
+                                    camera_horizontal=camera_config['horizontal'],
+                                    camera_vertical=camera_config['vertical'],
+                                    camera_zoom=camera_config['zoom']
                                 )
                                 
                                 if result.get('status') == 'success':
