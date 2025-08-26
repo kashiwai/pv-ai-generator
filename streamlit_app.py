@@ -1,7 +1,8 @@
 """
-🎬 PV AI Generator v5.0.0 - Streamlit版
+🎬 PV AI Generator v5.1.0 - Streamlit版
 Midjourney画像→Kling動画ワークフロー
 日本人女性キャラクター一貫性保持
+クラシックモードで画像→動画ワークフロー修正
 """
 
 import streamlit as st
@@ -968,21 +969,71 @@ def generate_pv_with_script(info: dict, script: dict):
             }
             
         else:
-            # クラシックモードの処理
-            update_progress(0.5, "🎨 クラシックモードで処理中...")
-            st.info("クラシックモード（画像→動画）で処理します")
+            # クラシックモード（画像→動画）の処理
+            update_progress(0.05, "🎨 画像→動画ワークフローを開始...")
+            st.info("Midjourney画像生成 → Kling動画生成で処理します")
             
-            # 既存のgenerate_pv関数を呼び出し
-            generate_pv(
-                title=info['title'],
-                keywords=info.get('keywords', ''),
-                description=info.get('description', ''),
-                mood=info.get('mood', ''),
-                lyrics=info.get('lyrics', ''),
-                audio_file=info['audio_file'],
-                character_images=info.get('character_images'),
-                script=script
-            )
+            # image_to_video_workflowを使用
+            from image_to_video_workflow import ImageToVideoWorkflow
+            
+            workflow = ImageToVideoWorkflow()
+            
+            # キャラクター写真の処理
+            character_photos = []
+            if info.get('character_images'):
+                for img in info.get('character_images', []):
+                    # ファイルをBase64エンコード
+                    import base64
+                    img_data = img.read()
+                    img.seek(0)  # ファイルポインタをリセット
+                    b64_img = base64.b64encode(img_data).decode('utf-8')
+                    character_photos.append(b64_img)
+            
+            # 画像→動画生成を実行
+            update_progress(0.1, "🎬 シーンごとに処理を開始...")
+            
+            scenes = script.get('scenes', [])
+            results = []
+            
+            for i, scene in enumerate(scenes):
+                scene_num = i + 1
+                progress = 0.1 + (0.8 * i / len(scenes))
+                update_progress(progress, f"🎬 シーン{scene_num}/{len(scenes)}を処理中...")
+                
+                # 各シーンを処理（画像生成→動画生成）
+                result = workflow.process_scene(
+                    scene_number=scene_num,
+                    scene_data=scene,
+                    character_photos=character_photos
+                )
+                
+                results.append(result)
+                
+                if result.get('status') == 'success':
+                    st.success(f"✅ シーン{scene_num}完了")
+                    if result.get('video_url'):
+                        st.video(result['video_url'])
+                else:
+                    st.warning(f"⚠️ シーン{scene_num}生成失敗: {result.get('message', 'Unknown error')}")
+            
+            update_progress(1.0, "✅ 全シーン処理完了！")
+            
+            # 結果を保存
+            st.session_state.last_generated_videos = results
+            
+            # 履歴に追加
+            st.session_state.generation_history.append({
+                'title': info['title'],
+                'timestamp': datetime.now().isoformat(),
+                'mode': 'image_to_video',
+                'status': 'success',
+                'results': results
+            })
+            
+            return {
+                'status': 'success',
+                'videos': results
+            }
     
     except Exception as e:
         st.error(f"❌ エラーが発生しました: {str(e)}")
