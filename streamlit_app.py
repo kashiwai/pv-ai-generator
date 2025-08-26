@@ -66,7 +66,7 @@ def load_api_keys():
     
     return keys
 
-# v2.4.0モジュールのインポート
+# v3.1.0モジュールのインポート
 try:
     from agent_core.workflow.advanced_pv_generator import AdvancedPVGenerator
     from agent_core.plot.detailed_script_writer import DetailedScriptWriter
@@ -75,7 +75,7 @@ try:
     v240_available = True
 except ImportError as e:
     v240_available = False
-    print(f"v2.4.0 modules not available: {e}")
+    print(f"v3.1.0 modules not available: {e}")
 
 # 既存モジュールのインポート
 try:
@@ -88,18 +88,18 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v3.0.0
+    # 🎬 PV AI Generator v3.1.0
     ### 完全自動化・高速処理対応版
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v3.0.0 メジャーアップデート**: 完全自動承認システム・高速動画生成・タイムアウト修正")
+        st.info("🆕 **v3.1.0 アップデート**: Google Veo3/Seedance Text-to-Video統合")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
-            ["Text-to-Video (v2.4.0)", "クラシック (画像→動画)"],
+            ["Text-to-Video (v3.1.0)", "クラシック (画像→動画)"],
             horizontal=True
         )
         st.session_state.workflow_mode = 'text_to_video' if "Text-to-Video" in workflow_mode else 'classic'
@@ -170,7 +170,7 @@ def main():
         st.markdown("### 📊 ワークフロー情報")
         if st.session_state.workflow_mode == 'text_to_video':
             st.markdown("""
-            **Text-to-Video モード v2.6.0**
+            **Text-to-Video モード v3.1.0**
             1. 歌詞・情景の深層分析
             2. 最適化台本生成 (500-1000文字/シーン)
             3. Veo3/Seedance直接生成
@@ -1030,7 +1030,7 @@ def generate_pv_tab():
     
     # v2.4.0 詳細設定
     if st.session_state.workflow_mode == 'text_to_video' and v240_available:
-        with st.expander("🎯 v2.4.0 詳細設定"):
+        with st.expander("🎯 v3.1.0 詳細設定"):
             col1, col2 = st.columns(2)
             with col1:
                 scene_duration = st.slider("シーン長(秒)", 5, 10, 8)
@@ -1097,8 +1097,8 @@ def generate_pv(title, keywords, description, mood, lyrics, audio_file, characte
                     char_paths.append(tmp_img.name)
         
         if st.session_state.workflow_mode == 'text_to_video' and v240_available:
-            # v2.4.1 新ワークフロー
-            status_text.text("🚀 v2.4.1 Text-to-Videoワークフローを開始...")
+            # v3.1.0 新ワークフロー
+            status_text.text("🚀 v3.1.0 Text-to-Videoワークフローを開始...")
             progress_bar.progress(0.05)
             percentage_text.text("5%")
             detail_text.text("初期化中...")
@@ -1343,7 +1343,7 @@ def load_project(project_id: str):
 def show_help():
     """ヘルプダイアログ"""
     st.markdown("""
-    ### 📚 v2.6.0 使い方ガイド
+    ### 📚 v3.1.0 使い方ガイド
     
     #### 🆕 新機能
     - **詳細台本生成**: 各シーン2000-3000文字の詳細な描写
