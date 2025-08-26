@@ -1,6 +1,6 @@
 """
-🎬 PV AI Generator v4.0.0 - Streamlit版
-PIAPI Kling/Hailuo動画生成対応版
+🎬 PV AI Generator v4.0.1 - Streamlit版
+PIAPI Kling/Hailuo動画生成対応版（修正版）
 """
 
 import streamlit as st
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v4.0.0",
+    page_title="🎬 PV AI Generator v4.0.1",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -96,14 +96,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v4.0.0
-    ### PIAPI Kling/Hailuo動画生成対応版
+    # 🎬 PV AI Generator v4.0.1
+    ### PIAPI Kling/Hailuo動画生成対応版（修正版）
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v4.0.0 アップデート**: PIAPI Kling/Hailuo動画生成実装！")
+        st.info("🆕 **v4.0.1 アップデート**: エラー修正・PIAPI動画生成最適化！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
