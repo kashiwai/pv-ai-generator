@@ -1,8 +1,8 @@
 {
-  "version": "2.6.2",
-  "major": 2,
-  "minor": 6,
-  "patch": 2,
+  "version": "3.0.0",
+  "major": 3,
+  "minor": 0,
+  "patch": 0,
   "build_date": "2025-08-26",
-  "description": "PV自動生成AIエージェント - 動画生成タイムアウト修正版"
+  "description": "自動更新 v3.0.0"
 }
