@@ -1,6 +1,6 @@
 """
-🎬 PV AI Generator v3.5.0 - Streamlit版
-Google Vertex AI Veo統合版（正式Veo API対応）
+🎬 PV AI Generator v4.0.0 - Streamlit版
+PIAPI Kling/Hailuo動画生成対応版
 """
 
 import streamlit as st
@@ -14,7 +14,7 @@ import shutil
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v3.5.0",
+    page_title="🎬 PV AI Generator v4.0.0",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -85,17 +85,25 @@ except ImportError:
     piapi_available = False
     print("PIAPI integration not available")
 
+# v4.0.0 動画生成モジュール
+try:
+    from streamlit_video_generator import StreamlitVideoGenerator, create_video_generation_ui
+    video_generation_available = True
+except ImportError:
+    video_generation_available = False
+    print("Video generation module not available")
+
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v3.3.0
-    ### 完全自動化・高速処理対応版
+    # 🎬 PV AI Generator v4.0.0
+    ### PIAPI Kling/Hailuo動画生成対応版
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v3.3.0 アップデート**: Google Vertex AI Veo正式対応！")
+        st.info("🆕 **v4.0.0 アップデート**: PIAPI Kling/Hailuo動画生成実装！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
