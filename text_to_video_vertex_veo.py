@@ -8,43 +8,40 @@ import streamlit as st
 import time
 import json
 import base64
+import os
 from typing import Dict, Any, List, Optional
 from pathlib import Path
-from google.cloud import aiplatform
-from google.oauth2 import service_account
-import vertexai
-from vertexai.preview.vision_models import VideoGenerationModel
-import google.auth
-import google.auth.transport.requests
 import requests
+
+# Google Cloud SDKは条件付きインポート
+try:
+    from google.cloud import aiplatform
+    from google.oauth2 import service_account
+    import vertexai
+    from vertexai.preview.vision_models import VideoGenerationModel
+    import google.auth
+    import google.auth.transport.requests
+    VERTEX_AI_AVAILABLE = True
+except ImportError:
+    VERTEX_AI_AVAILABLE = False
+    st.warning("⚠️ Google Cloud SDKがインストールされていません。APIキーモードで動作します。")
 
 class VertexAIVeo:
     """Google Vertex AI Veo Text-to-Video生成クラス"""
     
     def __init__(self):
-        # Google Cloud設定
-        self.project_id = "your-project-id"  # プロジェクトIDを設定
-        self.location = "us-central1"  # リージョン設定
+        # Google Cloud設定ヘルパーを使用
+        from google_cloud_setup import initialize_google_cloud
         
-        # APIキー（認証用）
+        # Google Cloud設定
+        self.location = "us-central1"  # リージョン設定
         self.google_api_key = st.session_state.get('api_keys', {}).get('google', 'AIzaSyAECKBO-BicCvXijRrZQvErEDXrrLOxxn8')
         
-        # Vertex AI初期化
-        try:
-            # プロジェクトIDを自動検出
-            import subprocess
-            result = subprocess.run(['gcloud', 'config', 'get-value', 'project'], 
-                                  capture_output=True, text=True)
-            if result.returncode == 0 and result.stdout.strip():
-                self.project_id = result.stdout.strip()
-                
-            # Vertex AI初期化
-            vertexai.init(project=self.project_id, location=self.location)
-            self.initialized = True
-            
-        except Exception as e:
-            st.warning(f"⚠️ Vertex AI初期化エラー: {str(e)}")
-            self.initialized = False
+        # Google Cloud SDK初期化
+        self.initialized = initialize_google_cloud()
+        
+        # プロジェクトID取得
+        self.project_id = os.environ.get('GOOGLE_CLOUD_PROJECT', 'your-project-id')
     
     def generate_video_with_veo(self, 
                                text_prompt: str,

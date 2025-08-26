@@ -248,14 +248,16 @@ class UnifiedTextToVideo:
         
         payload = {
             "model": "hailuo",
-            "task_type": "text-to-video",
+            "task_type": "video_generation",
             "input": {
                 "prompt": text_prompt,
+                "model": "s2v-01",
+                "expand_prompt": True,
                 "duration": duration,
-                "motion_intensity": 5,
-                "aspect_ratio": "16:9",
-                "resolution": "1080p",
-                "camera_movement": "smooth"
+                "resolution": 768
+            },
+            "config": {
+                "service_mode": "public"
             }
         }
         
