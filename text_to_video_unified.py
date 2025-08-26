@@ -18,8 +18,8 @@ class UnifiedTextToVideo:
     """統合Text-to-Video生成クラス"""
     
     def __init__(self):
-        # APIキーを取得
-        self.google_api_key = st.session_state.get('api_keys', {}).get('google', '')
+        # APIキーを取得（新しいキー）
+        self.google_api_key = st.session_state.get('api_keys', {}).get('google', 'AIzaSyAECKBO-BicCvXijRrZQvErEDXrrLOxxn8')
         
         # RunComfy API設定
         self.runcomfy_userid = "4368e0d2-edde-48c2-be18-e3caac513c1a"
@@ -35,7 +35,7 @@ class UnifiedTextToVideo:
     def generate_with_google_veo(self, text_prompt: str, duration: int = 8) -> Dict[str, Any]:
         """
         Google Veo3で動画生成（最優先）
-        注: Veo3は現在限定アクセスのため、利用可能になり次第実装
+        Vertex AI経由で正式なVeo APIを使用
         """
         
         if not self.google_api_key:
@@ -44,15 +44,20 @@ class UnifiedTextToVideo:
                 "message": "Google APIキーが設定されていません"
             }
         
-        # Veo3 APIエンドポイント（正式リリース待ち）
-        # 現在はVideoPoet APIまたはVertex AI経由でのアクセスを試みる
+        st.info("🎬 Google Vertex AI Veoで動画生成を開始...")
         
-        st.info("🎬 Google Veo3で動画生成を試みています...")
-        
-        # Vertex AI経由でVeo3にアクセス（プロジェクト設定が必要）
+        # Vertex AI Veoを使用
         try:
-            # 現時点ではVeo3は限定プレビューのため、代替としてGemini Proを使用
-            endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={self.google_api_key}"
+            from text_to_video_vertex_veo import generate_video_with_vertex_veo
+            
+            result = generate_video_with_vertex_veo(text_prompt, duration)
+            
+            if result.get('status') == 'completed':
+                return result
+            elif result.get('status') == 'unavailable':
+                # Veoが利用できない場合はフォールバック
+                st.warning("⚠️ Vertex AI Veoが利用できません。代替手段を使用します。")
+                endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.google_api_key}"
             
             headers = {
                 "Content-Type": "application/json"
