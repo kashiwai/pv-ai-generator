@@ -73,7 +73,7 @@ class PIAPIClient:
             "input": {
                 "prompt": full_prompt,
                 "aspect_ratio": aspect_ratio,
-                "process_mode": kwargs.get("process_mode", "relax"),  # relax, fast, turbo
+                "process_mode": kwargs.get("process_mode", "fast"),  # relax, fast, turbo - fastを推奨
                 "skip_prompt_check": kwargs.get("skip_prompt_check", False)
             }
         }
@@ -534,7 +534,7 @@ def generate_images_with_piapi(script: Dict, character_photos: Optional[List] = 
         return []
 
 
-def wait_for_image_completion(client: PIAPIClient, images: List[Dict], timeout: int = 300) -> List[Dict]:
+def wait_for_image_completion(client: PIAPIClient, images: List[Dict], timeout: int = 600) -> List[Dict]:
     """
     画像生成の完了を待つ
     
@@ -580,7 +580,7 @@ def wait_for_image_completion(client: PIAPIClient, images: List[Dict], timeout: 
         if all_completed:
             break
         
-        time.sleep(5)  # 5秒ごとにチェック
+        time.sleep(2)  # 2秒ごとにチェック
     
     return completed_images
 
