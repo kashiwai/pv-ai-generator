@@ -88,14 +88,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v2.6.1
-    ### 動画URL管理強化・台本連携表示版
+    # 🎬 PV AI Generator v3.0.0
+    ### 完全自動化・高速処理対応版
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v2.6.1 URL管理強化**: 生成動画と台本を一緒に確認・URL一覧表示・ダウンロード機能")
+        st.info("🆕 **v3.0.0 メジャーアップデート**: 完全自動承認システム・高速動画生成・タイムアウト修正")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",

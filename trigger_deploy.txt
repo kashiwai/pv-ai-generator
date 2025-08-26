@@ -1,0 +1,5 @@
+Deploy trigger for v3.0.0
+Time: 2025-08-26 14:05
+Version: 3.0.0
+
+This file triggers Streamlit Cloud redeployment.
