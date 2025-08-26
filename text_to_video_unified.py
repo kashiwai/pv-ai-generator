@@ -25,11 +25,11 @@ class UnifiedTextToVideo:
         self.runcomfy_userid = "4368e0d2-edde-48c2-be18-e3caac513c1a"
         self.runcomfy_token = "79521d2f-f728-47fe-923a-fde31f65df1f"
         self.runcomfy_token2 = "2bc59974-218f-45d7-b50e-3fb11e970f33"
-        self.runcomfy_base_url = "https://api.runcomfy.com"
+        self.runcomfy_base_url = "https://api.runcomfy.net/prod/v1"
         
         # PIAPI設定（Hailuo AI用）
-        self.piapi_key = st.session_state.get('api_keys', {}).get('piapi', '')
-        self.piapi_xkey = st.session_state.get('api_keys', {}).get('piapi_xkey', '')
+        self.piapi_key = st.session_state.get('api_keys', {}).get('piapi', '328fcfae00e3efcfb895f1d0c916ce6a2657daecff3f748f174b12bd03402f6b')
+        self.piapi_xkey = st.session_state.get('api_keys', {}).get('piapi_xkey', '5e6dd612b7acee46b055acf37d314c90f1c118fde228c218c3722c132ae79bf4')
         self.piapi_base_url = "https://api.piapi.ai"
     
     def generate_with_google_veo(self, text_prompt: str, duration: int = 8) -> Dict[str, Any]:
@@ -109,37 +109,34 @@ class UnifiedTextToVideo:
                 "fallback": True
             }
     
-    def generate_with_runcomfy_seedance(self, text_prompt: str, duration: int = 8) -> Dict[str, Any]:
+    def generate_with_piapi_seedance(self, text_prompt: str, duration: int = 8) -> Dict[str, Any]:
         """
-        RunComfy経由でSeedanceを使用（第2優先）
+        PIAPI経由でSeedanceを使用（第2優先）
         """
         
-        st.info("🎬 RunComfy Seedanceで動画生成中...")
+        st.info("🎬 PIAPI Seedanceで動画生成中...")
         
-        # RunComfy APIエンドポイント
-        endpoint = f"{self.runcomfy_base_url}/v1/run"
+        # PIAPI Seedanceエンドポイント（標準のPIAPIエンドポイントを使用）
+        endpoint = f"{self.piapi_base_url}/api/v1/task"
         
         headers = {
-            "Authorization": f"Bearer {self.runcomfy_token}",
-            "X-User-ID": self.runcomfy_userid,
+            "x-api-key": self.piapi_xkey,
             "Content-Type": "application/json"
         }
         
-        # Seedanceワークフロー設定
+        # PIAPI Seedanceペイロード
         payload = {
-            "workflow_id": "seedance-v1-text-to-video",
-            "parameters": {
+            "model": "seedance",
+            "task_type": "text-to-video",
+            "input": {
                 "prompt": text_prompt,
                 "duration": duration,
-                "model": "bytedance/seedance-v1",
                 "resolution": "1920x1080",
                 "fps": 30,
+                "aspect_ratio": "16:9",
                 "motion_intensity": 5,
-                "style": "cinematic",
-                "quality": "high"
-            },
-            "callback_url": None,
-            "api_token": self.runcomfy_token2
+                "style": "cinematic"
+            }
         }
         
         try:
@@ -148,13 +145,13 @@ class UnifiedTextToVideo:
             if response.status_code == 200:
                 result = response.json()
                 
-                run_id = result.get('run_id')
-                if run_id:
+                task_id = result.get('task_id', result.get('data', {}).get('task_id'))
+                if task_id:
                     return {
                         "status": "success",
-                        "run_id": run_id,
-                        "provider": "runcomfy_seedance",
-                        "message": "RunComfy Seedanceで生成開始"
+                        "task_id": task_id,
+                        "provider": "piapi_seedance",
+                        "message": "PIAPI Seedanceで生成開始"
                     }
                 else:
                     return {
@@ -174,15 +171,14 @@ class UnifiedTextToVideo:
                 "message": f"RunComfyエラー: {str(e)}"
             }
     
-    def check_runcomfy_status(self, run_id: str) -> Dict[str, Any]:
+    def check_piapi_seedance_status(self, task_id: str) -> Dict[str, Any]:
         """
-        RunComfyジョブのステータス確認
+        PIAPI Seedanceタスクのステータス確認
         """
-        endpoint = f"{self.runcomfy_base_url}/v1/run/{run_id}"
+        endpoint = f"{self.piapi_base_url}/api/v1/task/{task_id}"
         
         headers = {
-            "Authorization": f"Bearer {self.runcomfy_token}",
-            "X-User-ID": self.runcomfy_userid
+            "x-api-key": self.piapi_xkey
         }
         
         try:
@@ -358,8 +354,8 @@ class UnifiedTextToVideo:
         
         while time.time() - start_time < timeout:
             # プロバイダーに応じてステータス確認
-            if provider == "runcomfy_seedance":
-                result = self.check_runcomfy_status(task_id)
+            if provider == "piapi_seedance":
+                result = self.check_piapi_seedance_status(task_id)
             elif provider == "piapi_hailuo":
                 result = self.check_piapi_status(task_id)
             else:
@@ -407,12 +403,12 @@ class UnifiedTextToVideo:
                 return self.wait_for_completion('veo3', result.get('task_id', result.get('operation_id')))
             return result
         
-        # 2. RunComfy Seedanceを試す（第2優先）
-        st.info("🎯 優先順位2: RunComfy Seedanceで生成...")
-        result = self.generate_with_runcomfy_seedance(text_prompt, duration)
+        # 2. PIAPI Seedanceを試す（第2優先）
+        st.info("🎯 優先順位2: PIAPI Seedanceで生成...")
+        result = self.generate_with_piapi_seedance(text_prompt, duration)
         
         if result.get('status') == 'success':
-            return self.wait_for_completion('runcomfy_seedance', result['run_id'])
+            return self.wait_for_completion('piapi_seedance', result['task_id'])
         
         # 3. PIAPI Hailuoを試す（フォールバック）
         st.info("🎯 優先順位3: PIAPI Hailuo AIで生成...")
