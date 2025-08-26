@@ -1,8 +1,8 @@
 """
-🎬 PV AI Generator v5.1.0 - Streamlit版
+🎬 PV AI Generator v5.2.0 - Streamlit版
 Midjourney画像→Kling動画ワークフロー
 日本人女性キャラクター一貫性保持
-クラシックモードで画像→動画ワークフロー修正
+本番LLM APIキー自動設定対応
 """
 
 import streamlit as st
@@ -13,10 +13,14 @@ from pathlib import Path
 from datetime import datetime
 import tempfile
 import shutil
+from dotenv import load_dotenv
+
+# .envファイルから環境変数を読み込み
+load_dotenv()
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v5.1.0",
+    page_title="🎬 PV AI Generator v5.2.0",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -24,7 +28,14 @@ st.set_page_config(
 
 # セッション状態の初期化
 if 'api_keys' not in st.session_state:
-    st.session_state.api_keys = {}
+    # 環境変数またはStreamlit Secretsから自動読み込み
+    st.session_state.api_keys = {
+        'openai': os.getenv('OPENAI_API_KEY', st.secrets.get('OPENAI_API_KEY', '')),
+        'anthropic': os.getenv('ANTHROPIC_API_KEY', st.secrets.get('ANTHROPIC_API_KEY', '')),
+        'google': os.getenv('GOOGLE_API_KEY', st.secrets.get('GOOGLE_API_KEY', '')),
+        'piapi': os.getenv('PIAPI_KEY', st.secrets.get('PIAPI_KEY', '')),
+        'piapi_xkey': os.getenv('PIAPI_XKEY', st.secrets.get('PIAPI_XKEY', ''))
+    }
 if 'workflow_mode' not in st.session_state:
     st.session_state.workflow_mode = 'text_to_video'
 if 'generation_history' not in st.session_state:
@@ -98,14 +109,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v5.1.0
+    # 🎬 PV AI Generator v5.2.0
     ### Midjourney→Kling 画像から動画ワークフロー
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v5.1.0 アップデート**: クラシックモード画像→動画修正！")
+        st.info("🆕 **v5.2.0 アップデート**: 本番LLM APIキー自動設定対応！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
