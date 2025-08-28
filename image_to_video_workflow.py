@@ -147,18 +147,29 @@ class ImageToVideoWorkflow:
     def generate_image_with_midjourney(self, prompt: str) -> Dict[str, Any]:
         """Midjourneyで画像生成"""
         
-        url = "https://api.piapi.ai/mj/v2/imagine"
+        # PIAPI v1 APIを使用
+        url = "https://api.piapi.ai/api/v1/task"
         
         headers = {
             "X-API-Key": self.piapi_xkey,
             "Content-Type": "application/json"
         }
         
+        # Midjourney用のペイロード
         payload = {
-            "prompt": prompt,
-            "process_mode": "fast",
-            "webhook_endpoint": "",
-            "webhook_secret": ""
+            "model": "midjourney",
+            "task_type": "imagine",
+            "input": {
+                "prompt": prompt + " --ar 16:9 --v 6",  # アスペクト比とバージョンを追加
+                "process_mode": "fast"
+            },
+            "config": {
+                "service_mode": "public",
+                "webhook_config": {
+                    "endpoint": "",
+                    "secret": ""
+                }
+            }
         }
         
         try:
@@ -166,59 +177,132 @@ class ImageToVideoWorkflow:
             
             if response.status_code == 200:
                 result = response.json()
-                task_id = result.get('task_id')
                 
-                if task_id:
-                    # ポーリングして結果取得
-                    image_url = self._poll_midjourney_task(task_id)
+                if result.get('code') == 200:
+                    data = result.get('data', {})
+                    task_id = data.get('task_id')
                     
-                    if image_url:
+                    if task_id:
+                        st.info(f"🎨 Midjourney Task ID: {task_id[:8]}...")
+                        
+                        # ポーリングして結果取得
+                        image_url = self._poll_midjourney_task(task_id)
+                        
+                        if image_url:
+                            return {
+                                'status': 'success',
+                                'image_url': image_url,
+                                'task_id': task_id,
+                                'message': 'Midjourney画像生成成功'
+                            }
+                        else:
+                            return {
+                                'status': 'error',
+                                'message': 'Midjourney画像生成タイムアウト'
+                            }
+                    else:
                         return {
-                            'status': 'success',
-                            'image_url': image_url,
-                            'task_id': task_id
+                            'status': 'error',
+                            'message': 'Task ID が取得できませんでした'
                         }
-            
-            return {'status': 'error', 'message': f'Midjourney失敗: {response.status_code}'}
+                else:
+                    return {
+                        'status': 'error',
+                        'message': f'API Error: {result.get("message", "Unknown error")}'
+                    }
+            else:
+                return {
+                    'status': 'error',
+                    'message': f'HTTP Error: {response.status_code}'
+                }
             
         except Exception as e:
-            return {'status': 'error', 'message': f'Midjourney例外: {str(e)}'}
+            return {
+                'status': 'error',
+                'message': f'Exception: {str(e)}'
+            }
     
     def _poll_midjourney_task(self, task_id: str, max_attempts: int = 60) -> Optional[str]:
         """Midjourneyタスクのポーリング（最大3分待機）"""
         
-        url = f"https://api.piapi.ai/mj/v2/task/{task_id}/fetch"
+        # PIAPI v1 APIのタスク状態確認
+        url = f"https://api.piapi.ai/api/v1/task/{task_id}"
         headers = {"X-API-Key": self.piapi_xkey}
         
+        progress_text = st.empty()
+        
         for i in range(max_attempts):
-            time.sleep(3)  # 3秒ごとにチェック
+            progress_text.text(f"⏳ Midjourney処理中... [{i+1}/{max_attempts}]")
             
             try:
                 response = requests.get(url, headers=headers, timeout=10)
                 
                 if response.status_code == 200:
                     result = response.json()
-                    status = result.get('status', 'PENDING')
                     
-                    if status == 'SUCCESS':
-                        # 画像URL取得
-                        imageUrls = result.get('imageUrls', [])
-                        if imageUrls and len(imageUrls) > 0:
-                            return imageUrls[0]
+                    if result.get('code') == 200:
+                        data = result.get('data', {})
+                        status = data.get('status', 'pending')
                         
-                    elif status in ['FAILED', 'CANCELLED']:
-                        return None
+                        if status == 'completed':
+                            output = data.get('output', {})
+                            
+                            # Midjourneyの出力フォーマットを確認
+                            # 画像URLの取得（複数のフォーマットに対応）
+                            image_url = None
+                            
+                            # パターン1: image_url直接
+                            if output.get('image_url'):
+                                image_url = output['image_url']
+                            
+                            # パターン2: images配列
+                            elif output.get('images') and len(output['images']) > 0:
+                                image_url = output['images'][0]
+                            
+                            # パターン3: imageUrls配列
+                            elif output.get('imageUrls') and len(output['imageUrls']) > 0:
+                                image_url = output['imageUrls'][0]
+                            
+                            # パターン4: url直接
+                            elif output.get('url'):
+                                image_url = output['url']
+                            
+                            # パターン5: result内
+                            elif output.get('result'):
+                                if isinstance(output['result'], str):
+                                    image_url = output['result']
+                                elif isinstance(output['result'], dict):
+                                    image_url = output['result'].get('url') or output['result'].get('image_url')
+                            
+                            if image_url:
+                                progress_text.success("✅ Midjourney画像生成完了!")
+                                return image_url
+                            else:
+                                # デバッグ情報を表示
+                                st.warning(f"画像URLが見つかりません。Output: {output}")
+                                return None
                         
-            except Exception:
-                pass
+                        elif status in ['failed', 'error', 'cancelled']:
+                            error_msg = data.get('error', {}).get('message', 'Unknown error')
+                            progress_text.error(f"❌ 生成失敗: {error_msg}")
+                            return None
+                
+            except Exception as e:
+                if i == max_attempts - 1:
+                    progress_text.error(f"❌ エラー: {str(e)}")
+            
+            time.sleep(3)  # 3秒待機
         
+        progress_text.warning("⏱️ タイムアウト")
         return None
     
     def generate_video_with_kling(self, 
                                  image_url: str,
                                  prompt: str,
                                  duration: int = 5,
-                                 camera_movement: Dict[str, Any] = None) -> Dict[str, Any]:
+                                 camera_horizontal: int = 0,
+                                 camera_vertical: int = 0,
+                                 camera_zoom: int = 0) -> Dict[str, Any]:
         """Klingで画像から動画生成（Image-to-Video）"""
         
         url = "https://api.piapi.ai/api/v1/task"
@@ -227,14 +311,6 @@ class ImageToVideoWorkflow:
             "X-API-Key": self.piapi_xkey,
             "Content-Type": "application/json"
         }
-        
-        # カメラ設定
-        if camera_movement is None:
-            camera_movement = {
-                "horizontal": 0,
-                "vertical": 0,
-                "zoom": 0
-            }
         
         payload = {
             "model": "kling",
@@ -248,7 +324,14 @@ class ImageToVideoWorkflow:
                 "aspect_ratio": "16:9",
                 "camera_control": {
                     "type": "simple",
-                    "config": camera_movement
+                    "config": {
+                        "horizontal": camera_horizontal,
+                        "vertical": camera_vertical,
+                        "pan": 0,
+                        "tilt": 0,
+                        "roll": 0,
+                        "zoom": camera_zoom
+                    }
                 },
                 "mode": "std"
             },
