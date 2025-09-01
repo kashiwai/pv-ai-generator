@@ -1,8 +1,8 @@
 """
-🎬 PV AI Generator v5.3.3 - Streamlit版
+🎬 PV AI Generator v5.3.4 - Streamlit版
 ステップバイステップワークフロー実装
 1. 台本生成 → 2. Midjourney画像生成 → 3. Kling動画生成
-HTTP 500エラー修正とデバッグ機能追加
+Midjourneyプロンプト詳細化と台本品質向上
 """
 
 import streamlit as st
@@ -20,7 +20,7 @@ load_dotenv()
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v5.3.3",
+    page_title="🎬 PV AI Generator v5.3.4",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -109,14 +109,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v5.3.3
+    # 🎬 PV AI Generator v5.3.4
     ### Midjourney→Kling 画像から動画ワークフロー
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v5.3.3 アップデート**: HTTP 500エラー修正、デバッグ機能追加！")
+        st.info("🆕 **v5.3.4 アップデート**: Midjourneyプロンプト詳細化、台本品質向上！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",

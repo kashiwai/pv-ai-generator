@@ -120,8 +120,18 @@ class BasicScriptGenerator:
             progress_callback(0.8, "🎨 ビジュアルプロンプトを生成中...")
         
         for i, scene in enumerate(scenes):
+            # シーン番号を追加
+            scene['scene_number'] = i + 1
+            
+            # ビデオプロンプトとMidjourneyプロンプトを生成
             scene['video_prompt'] = self._create_video_prompt(scene, character_reference)
             scene['visual_description'] = self._create_visual_prompt(scene, character_reference)
+            
+            # Midjourneyプロンプトを明示的に追加
+            scene['midjourney_prompt'] = scene['visual_description']
+            
+            # ビジュアルプロンプトの短縮版も追加（UI表示用）
+            scene['visual_prompt'] = scene['visual_description'][:200] + "..."
             
             # シーンごとの進捗更新
             if progress_callback:
@@ -504,17 +514,77 @@ High quality, cinematic, 8 seconds
 """
     
     def _create_visual_prompt(self, scene: Dict, character_reference: Dict) -> str:
-        """Midjourney用のビジュアルプロンプトを生成"""
+        """Midjourney用の詳細なビジュアルプロンプトを生成"""
+        
+        # キャラクター描写
         char_desc = ""
         if character_reference:
-            char_desc = f"{character_reference.get('description', '')}, "
+            char_desc = f"""beautiful Japanese woman, 25 years old, {character_reference.get('appearance', 'elegant')}, 
+            {character_reference.get('features', 'professional look')}, """
         
-        return f"""
-{char_desc}{scene.get('content', '')[:100]}, 
-{scene.get('mood', 'normal')} mood, 
-cinematic lighting, high quality, 
---ar 16:9 --v 6
-"""
+        # シーンの詳細な視覚的描写を生成
+        scene_number = scene.get('scene_number', 1)
+        scene_content = scene.get('content', '')
+        
+        # シーンタイプに応じた視覚要素
+        visual_elements = {
+            1: "establishing shot, wide angle, golden hour lighting",
+            2: "medium shot, soft natural lighting, bokeh background",
+            3: "dynamic angle, dramatic lighting, motion blur",
+            4: "close-up shot, emotional expression, rim lighting",
+            5: "aerial view, sunset colors, cinematic composition",
+            6: "tracking shot, vibrant colors, depth of field",
+            7: "low angle, powerful stance, volumetric lighting",
+            8: "intimate framing, warm tones, soft focus",
+            9: "action sequence, high contrast, sharp details",
+            10: "sweeping panorama, epic scale, god rays",
+            11: "artistic composition, color grading, lens flare",
+            12: "emotional climax, dramatic shadows, backlight",
+            13: "resolution scene, balanced lighting, serene atmosphere",
+            14: "closing shot, sunset silhouette, nostalgic mood",
+            15: "final frame, perfect lighting, memorable composition"
+        }
+        
+        # 基本的な視覚要素を取得
+        base_visual = visual_elements.get(scene_number, "cinematic shot, professional lighting")
+        
+        # ムードに応じた追加要素
+        mood = scene.get('mood', 'normal')
+        mood_elements = {
+            '明るい': "bright colors, cheerful atmosphere, soft shadows",
+            '優しい': "pastel colors, soft lighting, dreamy quality",
+            'ドラマチック': "high contrast, dramatic shadows, intense colors",
+            '幻想的': "ethereal lighting, fantasy elements, magical atmosphere",
+            '情熱的': "warm colors, dynamic composition, intense mood",
+            '穏やか': "calm atmosphere, balanced colors, peaceful scene",
+            '神秘的': "mysterious lighting, fog effects, enigmatic mood"
+        }
+        
+        mood_visual = mood_elements.get(mood, "balanced lighting, natural colors")
+        
+        # カメラワークの詳細
+        camera = scene.get('camera_work', 'standard')
+        camera_details = {
+            'ワイドショット': "wide angle lens, full body shot, environmental context",
+            'ミディアムショット': "medium focal length, waist-up framing, clear details",
+            'クローズアップ': "close-up lens, facial details, emotional focus",
+            'パン': "panning motion, horizontal movement, dynamic flow",
+            'ドリー': "dolly shot, smooth forward movement, depth",
+            'トラッキング': "tracking shot, following subject, motion",
+            'クレーン': "crane shot, vertical movement, revealing composition"
+        }
+        
+        camera_visual = camera_details.get(camera, "standard framing, clear composition")
+        
+        # 完全なプロンプトを構築
+        midjourney_prompt = f"""{char_desc}{scene_content[:150]}, 
+{base_visual}, {mood_visual}, {camera_visual},
+photorealistic, ultra detailed, professional photography, 
+award winning composition, masterpiece quality,
+8k resolution, sharp focus, perfect lighting,
+--ar 16:9 --v 6 --style raw --quality 2"""
+        
+        return midjourney_prompt.strip()
     
     def _get_used_model(self) -> str:
         """使用したAIモデルを返す"""
