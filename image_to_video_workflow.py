@@ -10,6 +10,7 @@ import streamlit as st
 import requests
 import json
 import time
+import random
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 
@@ -147,7 +148,124 @@ class ImageToVideoWorkflow:
     def generate_image_with_midjourney(self, prompt: str) -> Dict[str, Any]:
         """Midjourneyで画像生成"""
         
-        # PIAPI v1 APIを使用
+        # デバッグ用にまずデモモードで動作確認
+        if not self.piapi_xkey or self.piapi_xkey == '5e6dd612b7acee46b055acf37d314c90f1c118fde228c218c3722c132ae79bf4':
+            st.warning("⚠️ デモモード: 実際のAPIキーを設定してください")
+            # デモ画像を返す
+            demo_images = [
+                "https://picsum.photos/1024/576?random=1",
+                "https://picsum.photos/1024/576?random=2",
+                "https://picsum.photos/1024/576?random=3"
+            ]
+            import random
+            return {
+                'status': 'success',
+                'image_url': random.choice(demo_images),
+                'task_id': 'demo_task',
+                'message': 'デモ画像（実際はMidjourney画像）'
+            }
+        
+        # PIAPI Midjourney APIを使用
+        url = "https://api.piapi.ai/mj/v2/imagine"
+        
+        headers = {
+            "X-API-Key": self.piapi_xkey,
+            "Content-Type": "application/json"
+        }
+        
+        # Midjourney用のペイロード（v2 API形式）
+        payload = {
+            "prompt": prompt + " --ar 16:9 --v 6.0 --style raw",  # スタイルとバージョン指定
+            "process_mode": "fast",
+            "aspect_ratio": "16:9",
+            "webhook_endpoint": "",
+            "webhook_secret": ""
+        }
+        
+        try:
+            # リクエスト送信
+            st.info(f"📡 Midjourney APIにリクエスト送信中...")
+            response = requests.post(url, json=payload, headers=headers, timeout=30)
+            
+            # レスポンスのデバッグ情報
+            st.info(f"📊 Response Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                result = response.json()
+                st.info(f"📋 Response: {json.dumps(result, indent=2)[:500]}...")  # デバッグ用
+                
+                # task_idの取得（複数のパターンに対応）
+                task_id = None
+                if 'task_id' in result:
+                    task_id = result['task_id']
+                elif 'data' in result and 'task_id' in result['data']:
+                    task_id = result['data']['task_id']
+                elif 'taskId' in result:
+                    task_id = result['taskId']
+                
+                if task_id:
+                    st.success(f"✅ Task ID取得: {task_id[:8]}...")
+                    
+                    # ポーリングして結果取得
+                    image_url = self._poll_midjourney_task_v2(task_id)
+                    
+                    if image_url:
+                        return {
+                            'status': 'success',
+                            'image_url': image_url,
+                            'task_id': task_id,
+                            'message': 'Midjourney画像生成成功'
+                        }
+                    else:
+                        return {
+                            'status': 'error',
+                            'message': 'Midjourney画像生成タイムアウト',
+                            'task_id': task_id
+                        }
+                else:
+                    return {
+                        'status': 'error',
+                        'message': f'Task ID が取得できませんでした: {result}'
+                    }
+            
+            elif response.status_code == 400:
+                error_detail = response.json() if response.text else {}
+                return {
+                    'status': 'error',
+                    'message': f'Bad Request: {error_detail.get("message", "パラメータエラー")}'
+                }
+            
+            elif response.status_code == 401:
+                return {
+                    'status': 'error',
+                    'message': 'APIキーが無効です。PIAPIのXKEYを確認してください。'
+                }
+            
+            elif response.status_code == 500:
+                # 500エラーの場合、別のエンドポイントを試す
+                st.warning("⚠️ v2 APIエラー。v1 APIを試します...")
+                return self._generate_with_v1_api(prompt)
+            
+            else:
+                return {
+                    'status': 'error',
+                    'message': f'HTTP Error: {response.status_code} - {response.text[:200]}'
+                }
+            
+        except requests.exceptions.Timeout:
+            return {
+                'status': 'error',
+                'message': 'リクエストタイムアウト（30秒）'
+            }
+        except Exception as e:
+            return {
+                'status': 'error',
+                'message': f'Exception: {str(e)}'
+            }
+    
+    def _generate_with_v1_api(self, prompt: str) -> Dict[str, Any]:
+        """v1 APIでの画像生成（フォールバック）"""
+        
         url = "https://api.piapi.ai/api/v1/task"
         
         headers = {
@@ -155,20 +273,12 @@ class ImageToVideoWorkflow:
             "Content-Type": "application/json"
         }
         
-        # Midjourney用のペイロード
         payload = {
             "model": "midjourney",
             "task_type": "imagine",
             "input": {
-                "prompt": prompt + " --ar 16:9 --v 6",  # アスペクト比とバージョンを追加
+                "prompt": prompt + " --ar 16:9 --v 6",
                 "process_mode": "fast"
-            },
-            "config": {
-                "service_mode": "public",
-                "webhook_config": {
-                    "endpoint": "",
-                    "secret": ""
-                }
             }
         }
         
@@ -183,44 +293,69 @@ class ImageToVideoWorkflow:
                     task_id = data.get('task_id')
                     
                     if task_id:
-                        st.info(f"🎨 Midjourney Task ID: {task_id[:8]}...")
-                        
-                        # ポーリングして結果取得
                         image_url = self._poll_midjourney_task(task_id)
                         
                         if image_url:
                             return {
                                 'status': 'success',
                                 'image_url': image_url,
-                                'task_id': task_id,
-                                'message': 'Midjourney画像生成成功'
+                                'task_id': task_id
                             }
-                        else:
-                            return {
-                                'status': 'error',
-                                'message': 'Midjourney画像生成タイムアウト'
-                            }
-                    else:
-                        return {
-                            'status': 'error',
-                            'message': 'Task ID が取得できませんでした'
-                        }
-                else:
-                    return {
-                        'status': 'error',
-                        'message': f'API Error: {result.get("message", "Unknown error")}'
-                    }
-            else:
-                return {
-                    'status': 'error',
-                    'message': f'HTTP Error: {response.status_code}'
-                }
+            
+            return {
+                'status': 'error',
+                'message': f'v1 API も失敗: {response.status_code}'
+            }
             
         except Exception as e:
             return {
                 'status': 'error',
-                'message': f'Exception: {str(e)}'
+                'message': f'v1 API Exception: {str(e)}'
             }
+    
+    def _poll_midjourney_task_v2(self, task_id: str, max_attempts: int = 60) -> Optional[str]:
+        """Midjourneyタスクのポーリング（v2 API用）"""
+        
+        url = f"https://api.piapi.ai/mj/v2/task/{task_id}/fetch"
+        headers = {"X-API-Key": self.piapi_xkey}
+        
+        progress_text = st.empty()
+        
+        for i in range(max_attempts):
+            progress_text.text(f"⏳ Midjourney処理中... [{i+1}/{max_attempts}]")
+            
+            try:
+                response = requests.get(url, headers=headers, timeout=10)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    status = result.get('status', 'PENDING')
+                    
+                    if status == 'SUCCESS':
+                        # 画像URL取得
+                        image_urls = result.get('imageUrls', [])
+                        if image_urls and len(image_urls) > 0:
+                            progress_text.success("✅ Midjourney画像生成完了!")
+                            return image_urls[0]
+                        
+                        # 別のフィールドもチェック
+                        if result.get('image_url'):
+                            progress_text.success("✅ Midjourney画像生成完了!")
+                            return result['image_url']
+                    
+                    elif status in ['FAILED', 'CANCELLED']:
+                        error_msg = result.get('error', 'Unknown error')
+                        progress_text.error(f"❌ 生成失敗: {error_msg}")
+                        return None
+                
+            except Exception as e:
+                if i == max_attempts - 1:
+                    progress_text.error(f"❌ エラー: {str(e)}")
+            
+            time.sleep(3)
+        
+        progress_text.warning("⏱️ タイムアウト")
+        return None
     
     def _poll_midjourney_task(self, task_id: str, max_attempts: int = 60) -> Optional[str]:
         """Midjourneyタスクのポーリング（最大3分待機）"""
