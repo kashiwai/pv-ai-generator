@@ -1,7 +1,7 @@
 """
-🎬 PV AI Generator v5.3.5 - Streamlit版
+🎬 PV AI Generator v5.3.7 - Streamlit版
 ステップバイステップワークフロー実装
-1. 台本生成 → 2. Midjourney画像生成 → 3. Kling動画生成
+1. 台本生成 → 2. nano-banana画像生成 → 3. Kling動画生成
 APIキー読み込み修正とデモモード削除
 """
 
@@ -20,7 +20,7 @@ load_dotenv()
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v5.3.5",
+    page_title="🎬 PV AI Generator v5.3.7",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -109,14 +109,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v5.3.5
-    ### Midjourney→Kling 画像から動画ワークフロー
+    # 🎬 PV AI Generator v5.3.7
+    ### nano-banana→Kling 画像から動画ワークフロー
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v5.3.5 アップデート**: APIキー読み込み修正、デモモード削除！")
+        st.info("🆕 **v5.3.7 アップデート**: nano-banana画像生成、Kling v1.6実装！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -167,9 +167,9 @@ def main():
         # 既存APIs
         st.markdown("#### 基本APIs")
         
-        # PIAPI/Midjourney
-        if api_keys.get('piapi') and api_keys.get('piapi_xkey'):
-            st.success("✅ PIAPI/Midjourney: 接続済み")
+        # PIAPI/nano-banana
+        if api_keys.get('piapi'):
+            st.success("✅ PIAPI/nano-banana: 接続済み")
         else:
             st.warning("⚠️ PIAPI: 未設定")
         
@@ -444,8 +444,8 @@ def script_generation_step():
                 st.rerun()
 
 def image_generation_step():
-    """画像生成ステップ（Midjourney）"""
-    st.markdown("## 🎨 ステップ3: 画像生成（Midjourney）")
+    """画像生成ステップ（nano-banana）"""
+    st.markdown("## 🎨 ステップ3: 画像生成（nano-banana）")
     
     # 戻るボタンと次へボタン
     col1, col2, col3 = st.columns([1, 4, 1])
@@ -504,7 +504,7 @@ def image_generation_step():
                 st.text_area("ストーリー", scene.get('content', ''), height=100, disabled=True, key=f"story_{scene_num}")
             
             with col2:
-                st.markdown("**🎨 Midjourneyプロンプト:**")
+                st.markdown("**🎨 画像生成プロンプト:**")
                 # プロンプトを編集可能にする
                 prompt_key = f"prompt_{scene_num}"
                 default_prompt = scene.get('midjourney_prompt', scene.get('visual_prompt', ''))
@@ -522,8 +522,8 @@ def image_generation_step():
             with col1:
                 if st.button(f"🎨 画像生成", key=f"gen_{scene_num}"):
                     with st.spinner(f"シーン{scene_num}の画像を生成中..."):
-                        # Midjourney画像生成
-                        result = workflow.generate_image_with_midjourney(
+                        # nano-banana画像生成
+                        result = workflow.generate_image_with_nano_banana(
                             prompt=edited_prompt
                         )
                         
@@ -551,11 +551,12 @@ def image_generation_step():
                 st.markdown("**🖼️ 生成された画像:**")
                 image_url = st.session_state.generated_images[scene_key]
                 
-                # 画像URLがデモでない場合は表示
-                if not image_url.startswith('demo://'):
+                # 画像を表示
+                try:
                     st.image(image_url, use_container_width=True)
-                else:
-                    st.info("📸 デモモード: 実際の画像はここに表示されます")
+                except Exception as e:
+                    st.error(f"画像表示エラー: {str(e)}")
+                    st.info(f"画像URL: {image_url}")
                 
                 st.code(image_url, language=None)
             else:
@@ -640,10 +641,10 @@ def video_generation_step():
                 with col1:
                     st.markdown("**🖼️ 生成済み画像:**")
                     image_url = st.session_state.generated_images[scene_key]
-                    if not image_url.startswith('demo://'):
+                    try:
                         st.image(image_url, use_container_width=True)
-                    else:
-                        st.info("📸 デモモード画像")
+                    except Exception as e:
+                        st.error(f"画像表示エラー: {str(e)}")
                 
                 with col2:
                     st.markdown("**🎬 動画生成プロンプト:**")
@@ -747,10 +748,11 @@ def video_generation_step():
                     video_url = st.session_state.generated_videos[video_key]
                     
                     # 動画プレビュー
-                    if not video_url.startswith('demo://'):
+                    try:
                         st.video(video_url)
-                    else:
-                        st.info("🎬 デモモード: 実際の動画はここに表示されます")
+                    except Exception as e:
+                        st.error(f"動画表示エラー: {str(e)}")
+                        st.info(f"動画URL: {video_url}")
                     
                     st.code(video_url, language=None)
                 else:

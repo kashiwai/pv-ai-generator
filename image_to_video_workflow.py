@@ -82,7 +82,7 @@ class ImageToVideoWorkflow:
                 'character_description': self._generate_character_description(i, num_scenes),
                 
                 # Midjourneyプロンプト（画像生成用）
-                'midjourney_prompt': '',  # 後で生成
+                'image_prompt': '',  # nano-banana用プロンプト
                 
                 # Kling動画プロンプト（動画化用）
                 'kling_prompt': '',  # 後で生成
@@ -92,7 +92,7 @@ class ImageToVideoWorkflow:
             }
             
             # プロンプト生成
-            scene['midjourney_prompt'] = self._create_midjourney_prompt(scene)
+            scene['image_prompt'] = self._create_image_prompt(scene)
             scene['kling_prompt'] = self._create_kling_prompt(scene)
             
             script['scenes'].append(scene)
@@ -141,12 +141,12 @@ class ImageToVideoWorkflow:
         
         return movements[scene_index % len(movements)]
     
-    def _create_midjourney_prompt(self, scene: Dict[str, Any]) -> str:
-        """Midjourney用プロンプト生成"""
+    def _create_image_prompt(self, scene: Dict[str, Any]) -> str:
+        """nano-banana用プロンプト生成"""
         
         prompt = f"{scene['character_description']}, {scene['narrative']}, "
         prompt += f"{self.character_style}, cinematic composition, "
-        prompt += f"8k resolution, professional photography --ar 16:9 --v 6 --style raw"
+        prompt += f"8k resolution, professional photography, 16:9 aspect ratio"
         
         return prompt
     
@@ -161,36 +161,50 @@ class ImageToVideoWorkflow:
         
         return prompt
     
-    def generate_image_with_midjourney(self, prompt: str) -> Dict[str, Any]:
-        """Midjourneyで画像生成"""
+    def generate_image_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
+        """nano-bananaで画像生成（PIAPI経由）"""
         
-        # APIキーの確認
-        if not self.piapi_xkey:
+        # APIキーの確認（nano-bananaはpiapi_keyを使用）
+        if not self.piapi_key:
             return {
                 'status': 'error',
-                'message': 'PIAPI XKEYが設定されていません。サイドバーで設定してください。'
+                'message': 'PIAPI KEYが設定されていません。サイドバーで設定してください。'
             }
         
-        # PIAPI Midjourney APIを使用
-        url = "https://api.piapi.ai/mj/v2/imagine"
+        # nano-banana APIを優先的に使用
+        return self._generate_with_nano_banana(prompt)
+    
+    def _generate_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
+        """nano-bananaで画像生成"""
+        
+        # nano-banana用のAPI（PIAPI経由）
+        url = "https://api.piapi.ai/api/v1/task"
         
         headers = {
-            "X-API-Key": self.piapi_xkey,
+            "X-API-Key": self.piapi_key,  # nano-bananaはメインキーを使用
             "Content-Type": "application/json"
         }
         
-        # Midjourney用のペイロード（v2 API形式）
+        # nano-banana用のペイロード
         payload = {
-            "prompt": prompt + " --ar 16:9 --v 6.0 --style raw",  # スタイルとバージョン指定
-            "process_mode": "fast",
-            "aspect_ratio": "16:9",
-            "webhook_endpoint": "",
-            "webhook_secret": ""
+            "model": "nano-banana",
+            "task_type": "text_to_image",
+            "input": {
+                "prompt": prompt,
+                "width": 1024,
+                "height": 576,
+                "num_images": 1,
+                "quality": "high",
+                "style": "photorealistic"
+            },
+            "config": {
+                "service_mode": "public"
+            }
         }
         
         try:
             # リクエスト送信
-            st.info(f"📡 Midjourney APIにリクエスト送信中...")
+            st.info(f"🍌 nano-banana APIにリクエスト送信中...")
             response = requests.post(url, json=payload, headers=headers, timeout=30)
             
             # レスポンスのデバッグ情報
@@ -200,34 +214,30 @@ class ImageToVideoWorkflow:
                 result = response.json()
                 st.info(f"📋 Response: {json.dumps(result, indent=2)[:500]}...")  # デバッグ用
                 
-                # task_idの取得（複数のパターンに対応）
-                task_id = None
-                if 'task_id' in result:
-                    task_id = result['task_id']
-                elif 'data' in result and 'task_id' in result['data']:
-                    task_id = result['data']['task_id']
-                elif 'taskId' in result:
-                    task_id = result['taskId']
-                
-                if task_id:
-                    st.success(f"✅ Task ID取得: {task_id[:8]}...")
+                # PIAPI標準レスポンスチェック
+                if result.get('code') == 200:
+                    data = result.get('data', {})
+                    task_id = data.get('task_id')
                     
-                    # ポーリングして結果取得
-                    image_url = self._poll_midjourney_task_v2(task_id)
-                    
-                    if image_url:
-                        return {
-                            'status': 'success',
-                            'image_url': image_url,
-                            'task_id': task_id,
-                            'message': 'Midjourney画像生成成功'
-                        }
-                    else:
-                        return {
-                            'status': 'error',
-                            'message': 'Midjourney画像生成タイムアウト',
-                            'task_id': task_id
-                        }
+                    if task_id:
+                        st.success(f"✅ nano-banana Task ID取得: {task_id[:8]}...")
+                        
+                        # nano-banana用のポーリング
+                        image_url = self._poll_nano_banana_task(task_id)
+                        
+                        if image_url:
+                            return {
+                                'status': 'success',
+                                'image_url': image_url,
+                                'task_id': task_id,
+                                'message': 'nano-banana画像生成成功'
+                            }
+                        else:
+                            return {
+                                'status': 'error',
+                                'message': 'nano-banana画像生成タイムアウト',
+                                'task_id': task_id
+                            }
                 else:
                     return {
                         'status': 'error',
@@ -248,9 +258,9 @@ class ImageToVideoWorkflow:
                 }
             
             elif response.status_code == 500:
-                # 500エラーの場合、別のエンドポイントを試す
-                st.warning("⚠️ v2 APIエラー。v1 APIを試します...")
-                return self._generate_with_v1_api(prompt)
+                # 500エラーの場合、Midjourneyにフォールバック
+                st.warning("⚠️ nano-bananaエラー。Midjourney APIを試します...")
+                return self._generate_with_midjourney_fallback(prompt)
             
             else:
                 return {
@@ -363,6 +373,121 @@ class ImageToVideoWorkflow:
         progress_text.warning("⏱️ タイムアウト")
         return None
     
+    def _poll_nano_banana_task(self, task_id: str, max_attempts: int = 60) -> Optional[str]:
+        """nano-bananaタスクのポーリング（最大3分待機）"""
+        
+        url = f"https://api.piapi.ai/api/v1/task/{task_id}"
+        headers = {"X-API-Key": self.piapi_key}
+        
+        progress_text = st.empty()
+        
+        for i in range(max_attempts):
+            progress_text.text(f"🍌 nano-banana処理中... [{i+1}/{max_attempts}]")
+            
+            try:
+                response = requests.get(url, headers=headers, timeout=10)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    
+                    if result.get('code') == 200:
+                        data = result.get('data', {})
+                        status = data.get('status', 'pending')
+                        
+                        if status == 'completed':
+                            output = data.get('output', {})
+                            
+                            # nano-bananaの出力フォーマットを確認
+                            image_url = None
+                            
+                            # パターン1: image_url直接
+                            if output.get('image_url'):
+                                image_url = output['image_url']
+                            # パターン2: images配列
+                            elif output.get('images') and len(output['images']) > 0:
+                                image_url = output['images'][0]
+                            # パターン3: url直接
+                            elif output.get('url'):
+                                image_url = output['url']
+                            # パターン4: result内
+                            elif output.get('result'):
+                                if isinstance(output['result'], str):
+                                    image_url = output['result']
+                                elif isinstance(output['result'], list) and len(output['result']) > 0:
+                                    image_url = output['result'][0]
+                            
+                            if image_url:
+                                progress_text.success("✅ nano-banana画像生成完了!")
+                                return image_url
+                            else:
+                                st.warning(f"画像URLが見つかりません。Output: {output}")
+                                return None
+                        
+                        elif status in ['failed', 'error', 'cancelled']:
+                            error_msg = data.get('error', {}).get('message', 'Unknown error')
+                            progress_text.error(f"❌ 生成失敗: {error_msg}")
+                            return None
+                
+            except Exception as e:
+                if i == max_attempts - 1:
+                    progress_text.error(f"❌ エラー: {str(e)}")
+            
+            time.sleep(3)  # 3秒待機
+        
+        progress_text.warning("⏱️ タイムアウト")
+        return None
+    
+    def _generate_with_midjourney_fallback(self, prompt: str) -> Dict[str, Any]:
+        """Midjourneyフォールバック（nano-banana失敗時）"""
+        
+        url = "https://api.piapi.ai/api/v1/task"
+        
+        headers = {
+            "X-API-Key": self.piapi_xkey,  # MidjourneyはXKEYを使用
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "midjourney",
+            "task_type": "imagine",
+            "input": {
+                "prompt": prompt + " --ar 16:9 --v 6",
+                "process_mode": "fast"
+            }
+        }
+        
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=30)
+            
+            if response.status_code == 200:
+                result = response.json()
+                
+                if result.get('code') == 200:
+                    data = result.get('data', {})
+                    task_id = data.get('task_id')
+                    
+                    if task_id:
+                        image_url = self._poll_midjourney_task(task_id)
+                        
+                        if image_url:
+                            return {
+                                'status': 'success',
+                                'image_url': image_url,
+                                'task_id': task_id,
+                                'message': 'Midjourney画像生成成功（フォールバック）'
+                            }
+            
+            return {
+                'status': 'error',
+                'message': f'Midjourney も失敗: {response.status_code}'
+            }
+            
+        except Exception as e:
+            return {
+                'status': 'error',
+                'message': f'Midjourney Exception: {str(e)}'
+            }
+    
     def _poll_midjourney_task(self, task_id: str, max_attempts: int = 60) -> Optional[str]:
         """Midjourneyタスクのポーリング（最大3分待機）"""
         
@@ -474,7 +599,8 @@ class ImageToVideoWorkflow:
                         "zoom": camera_zoom
                     }
                 },
-                "mode": "std"
+                "mode": "std",
+                "version": "2.1-master"  # Kling v2.1-masterを使用（本番）
             },
             "config": {
                 "service_mode": "public",
@@ -573,7 +699,7 @@ class ImageToVideoWorkflow:
         # プロンプトを編集可能にする
         edited_prompt = st.text_area(
             f"Midjourneyプロンプト（編集可能）",
-            value=scene['midjourney_prompt'],
+            value=scene.get('image_prompt', scene.get('midjourney_prompt', '')),
             key=f"prompt_scene_{scene['scene_number']}",
             height=100
         )
@@ -596,7 +722,7 @@ class ImageToVideoWorkflow:
         image_result = None
         if generate_image or regenerate_image:
             with st.spinner(f"🎨 画像生成中..."):
-                image_result = self.generate_image_with_midjourney(edited_prompt)
+                image_result = self.generate_image_with_nano_banana(edited_prompt)
                 
                 if image_result['status'] == 'success':
                     st.success("✅ 画像生成成功")
@@ -703,7 +829,7 @@ class ImageToVideoWorkflow:
                 st.markdown(f"**シーン{scene['scene_number']}** ({scene['time_range']})")
                 st.write(f"ナラティブ: {scene['narrative']}")
                 st.write(f"キャラクター: {scene['character_description']}")
-                st.write(f"Midjourneyプロンプト: {scene['midjourney_prompt'][:100]}...")
+                st.write(f"画像生成プロンプト: {scene.get('image_prompt', scene.get('midjourney_prompt', ''))[:100]}...")
                 st.write("---")
         
         # Step 2: 各シーンを処理
