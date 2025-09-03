@@ -11,6 +11,7 @@ import requests
 import json
 import time
 import random
+import os
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 
@@ -18,9 +19,24 @@ class ImageToVideoWorkflow:
     """画像→動画ワークフロー（Klingメイン）"""
     
     def __init__(self):
-        # APIキー設定
-        self.piapi_key = st.session_state.get('api_keys', {}).get('piapi', '328fcfae00e3efcfb895f1d0c916ce6a2657daecff3f748f174b12bd03402f6b')
-        self.piapi_xkey = st.session_state.get('api_keys', {}).get('piapi_xkey', '5e6dd612b7acee46b055acf37d314c90f1c118fde228c218c3722c132ae79bf4')
+        # APIキー設定（セッション状態またはSecretsから取得）
+        if 'api_keys' in st.session_state and st.session_state.api_keys:
+            self.piapi_key = st.session_state.api_keys.get('piapi', '')
+            self.piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
+        else:
+            # Streamlit Secretsから取得
+            try:
+                self.piapi_key = st.secrets.get('PIAPI_KEY', '')
+                self.piapi_xkey = st.secrets.get('PIAPI_XKEY', '')
+            except:
+                self.piapi_key = ''
+                self.piapi_xkey = ''
+        
+        # APIキーが空の場合、環境変数から取得を試みる
+        if not self.piapi_key:
+            self.piapi_key = os.getenv('PIAPI_KEY', '')
+        if not self.piapi_xkey:
+            self.piapi_xkey = os.getenv('PIAPI_XKEY', '')
         
         # キャラクター設定（日本人女性）
         self.character_base = "beautiful Japanese woman, 25 years old, long black hair, elegant features"
@@ -148,21 +164,11 @@ class ImageToVideoWorkflow:
     def generate_image_with_midjourney(self, prompt: str) -> Dict[str, Any]:
         """Midjourneyで画像生成"""
         
-        # デバッグ用にまずデモモードで動作確認
-        if not self.piapi_xkey or self.piapi_xkey == '5e6dd612b7acee46b055acf37d314c90f1c118fde228c218c3722c132ae79bf4':
-            st.warning("⚠️ デモモード: 実際のAPIキーを設定してください")
-            # デモ画像を返す
-            demo_images = [
-                "https://picsum.photos/1024/576?random=1",
-                "https://picsum.photos/1024/576?random=2",
-                "https://picsum.photos/1024/576?random=3"
-            ]
-            import random
+        # APIキーの確認
+        if not self.piapi_xkey:
             return {
-                'status': 'success',
-                'image_url': random.choice(demo_images),
-                'task_id': 'demo_task',
-                'message': 'デモ画像（実際はMidjourney画像）'
+                'status': 'error',
+                'message': 'PIAPI XKEYが設定されていません。サイドバーで設定してください。'
             }
         
         # PIAPI Midjourney APIを使用

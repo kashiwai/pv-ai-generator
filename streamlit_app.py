@@ -1,8 +1,8 @@
 """
-🎬 PV AI Generator v5.3.4 - Streamlit版
+🎬 PV AI Generator v5.3.5 - Streamlit版
 ステップバイステップワークフロー実装
 1. 台本生成 → 2. Midjourney画像生成 → 3. Kling動画生成
-Midjourneyプロンプト詳細化と台本品質向上
+APIキー読み込み修正とデモモード削除
 """
 
 import streamlit as st
@@ -20,7 +20,7 @@ load_dotenv()
 
 # ページ設定
 st.set_page_config(
-    page_title="🎬 PV AI Generator v5.3.4",
+    page_title="🎬 PV AI Generator v5.3.5",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -109,14 +109,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v5.3.4
+    # 🎬 PV AI Generator v5.3.5
     ### Midjourney→Kling 画像から動画ワークフロー
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v5.3.4 アップデート**: Midjourneyプロンプト詳細化、台本品質向上！")
+        st.info("🆕 **v5.3.5 アップデート**: APIキー読み込み修正、デモモード削除！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -553,7 +553,7 @@ def image_generation_step():
                 
                 # 画像URLがデモでない場合は表示
                 if not image_url.startswith('demo://'):
-                    st.image(image_url, use_column_width=True)
+                    st.image(image_url, use_container_width=True)
                 else:
                     st.info("📸 デモモード: 実際の画像はここに表示されます")
                 
@@ -641,7 +641,7 @@ def video_generation_step():
                     st.markdown("**🖼️ 生成済み画像:**")
                     image_url = st.session_state.generated_images[scene_key]
                     if not image_url.startswith('demo://'):
-                        st.image(image_url, use_column_width=True)
+                        st.image(image_url, use_container_width=True)
                     else:
                         st.info("📸 デモモード画像")
                 
