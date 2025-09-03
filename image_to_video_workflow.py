@@ -82,7 +82,7 @@ class ImageToVideoWorkflow:
                 'character_description': self._generate_character_description(i, num_scenes),
                 
                 # Midjourneyプロンプト（画像生成用）
-                'image_prompt': '',  # nano-banana用プロンプト
+                'image_prompt': '',  # Gemini用プロンプト
                 
                 # Kling動画プロンプト（動画化用）
                 'kling_prompt': '',  # 後で生成
@@ -142,7 +142,7 @@ class ImageToVideoWorkflow:
         return movements[scene_index % len(movements)]
     
     def _create_image_prompt(self, scene: Dict[str, Any]) -> str:
-        """nano-banana用プロンプト生成"""
+        """Gemini用プロンプト生成"""
         
         prompt = f"{scene['character_description']}, {scene['narrative']}, "
         prompt += f"{self.character_style}, cinematic composition, "
@@ -164,24 +164,24 @@ class ImageToVideoWorkflow:
     def generate_image_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
         """Gemini 2.5 Flashで画像生成（PIAPI経由）"""
         
-        # APIキーの確認（nano-bananaはpiapi_keyを使用）
+        # APIキーの確認（Geminiはpiapi_keyを使用）
         if not self.piapi_key:
             return {
                 'status': 'error',
                 'message': 'PIAPI KEYが設定されていません。サイドバーで設定してください。'
             }
         
-        # nano-banana APIを優先的に使用
-        return self._generate_with_nano_banana(prompt)
+        # Gemini APIを優先的に使用
+        return self._generate_with_gemini(prompt)
     
-    def _generate_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
-        """nano-bananaで画像生成"""
+    def _generate_with_gemini(self, prompt: str) -> Dict[str, Any]:
+        """Gemini 2.5 Flashで画像生成"""
         
-        # nano-banana用のAPI（PIAPI経由）
+        # Gemini用のAPI（PIAPI経由）
         url = "https://api.piapi.ai/api/v1/task"
         
         headers = {
-            "X-API-Key": self.piapi_key,  # nano-bananaはメインキーを使用
+            "X-API-Key": self.piapi_key,  # Geminiはメインキーを使用
             "Content-Type": "application/json"
         }
         
@@ -435,7 +435,7 @@ class ImageToVideoWorkflow:
         return None
     
     def _generate_with_midjourney_fallback(self, prompt: str) -> Dict[str, Any]:
-        """Midjourneyフォールバック（nano-banana失敗時）"""
+        """Midjourneyフォールバック（Gemini失敗時）""
         
         url = "https://api.piapi.ai/api/v1/task"
         
