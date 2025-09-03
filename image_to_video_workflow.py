@@ -162,7 +162,7 @@ class ImageToVideoWorkflow:
         return prompt
     
     def generate_image_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
-        """nano-bananaで画像生成（PIAPI経由）"""
+        """Gemini 2.5 Flashで画像生成（PIAPI経由）"""
         
         # APIキーの確認（nano-bananaはpiapi_keyを使用）
         if not self.piapi_key:
@@ -185,17 +185,14 @@ class ImageToVideoWorkflow:
             "Content-Type": "application/json"
         }
         
-        # nano-banana用のペイロード
+        # Gemini用のペイロード（PIAPI経由）
         payload = {
-            "model": "nano-banana",
-            "task_type": "text_to_image",
+            "model": "gemini",
+            "task_type": "gemini-2.5-flash-image",
             "input": {
                 "prompt": prompt,
-                "width": 1024,
-                "height": 576,
                 "num_images": 1,
-                "quality": "high",
-                "style": "photorealistic"
+                "output_format": "png"
             },
             "config": {
                 "service_mode": "public"
@@ -204,7 +201,7 @@ class ImageToVideoWorkflow:
         
         try:
             # リクエスト送信
-            st.info(f"🍌 nano-banana APIにリクエスト送信中...")
+            st.info(f"✨ Gemini 2.5 Flash画像生成中...")
             response = requests.post(url, json=payload, headers=headers, timeout=30)
             
             # レスポンスのデバッグ情報
@@ -220,22 +217,22 @@ class ImageToVideoWorkflow:
                     task_id = data.get('task_id')
                     
                     if task_id:
-                        st.success(f"✅ nano-banana Task ID取得: {task_id[:8]}...")
+                        st.success(f"✅ Gemini Task ID取得: {task_id[:8]}...")
                         
-                        # nano-banana用のポーリング
-                        image_url = self._poll_nano_banana_task(task_id)
+                        # Gemini用のポーリング
+                        image_url = self._poll_gemini_task(task_id)
                         
                         if image_url:
                             return {
                                 'status': 'success',
                                 'image_url': image_url,
                                 'task_id': task_id,
-                                'message': 'nano-banana画像生成成功'
+                                'message': 'Gemini画像生成成功'
                             }
                         else:
                             return {
                                 'status': 'error',
-                                'message': 'nano-banana画像生成タイムアウト',
+                                'message': 'Gemini画像生成タイムアウト',
                                 'task_id': task_id
                             }
                 else:
@@ -259,7 +256,7 @@ class ImageToVideoWorkflow:
             
             elif response.status_code == 500:
                 # 500エラーの場合、Midjourneyにフォールバック
-                st.warning("⚠️ nano-bananaエラー。Midjourney APIを試します...")
+                st.warning("⚠️ Geminiエラー。Midjourney APIを試します...")
                 return self._generate_with_midjourney_fallback(prompt)
             
             else:
@@ -373,8 +370,8 @@ class ImageToVideoWorkflow:
         progress_text.warning("⏱️ タイムアウト")
         return None
     
-    def _poll_nano_banana_task(self, task_id: str, max_attempts: int = 60) -> Optional[str]:
-        """nano-bananaタスクのポーリング（最大3分待機）"""
+    def _poll_gemini_task(self, task_id: str, max_attempts: int = 60) -> Optional[str]:
+        """Geminiタスクのポーリング（最大3分待機）"""
         
         url = f"https://api.piapi.ai/api/v1/task/{task_id}"
         headers = {"X-API-Key": self.piapi_key}
@@ -382,7 +379,7 @@ class ImageToVideoWorkflow:
         progress_text = st.empty()
         
         for i in range(max_attempts):
-            progress_text.text(f"🍌 nano-banana処理中... [{i+1}/{max_attempts}]")
+            progress_text.text(f"✨ Gemini処理中... [{i+1}/{max_attempts}]")
             
             try:
                 response = requests.get(url, headers=headers, timeout=10)
@@ -397,7 +394,7 @@ class ImageToVideoWorkflow:
                         if status == 'completed':
                             output = data.get('output', {})
                             
-                            # nano-bananaの出力フォーマットを確認
+                            # Geminiの出力フォーマットを確認
                             image_url = None
                             
                             # パターン1: image_url直接
@@ -417,7 +414,7 @@ class ImageToVideoWorkflow:
                                     image_url = output['result'][0]
                             
                             if image_url:
-                                progress_text.success("✅ nano-banana画像生成完了!")
+                                progress_text.success("✅ Gemini画像生成完了!")
                                 return image_url
                             else:
                                 st.warning(f"画像URLが見つかりません。Output: {output}")

@@ -1,7 +1,7 @@
 """
 🎬 PV AI Generator v5.3.7 - Streamlit版
 ステップバイステップワークフロー実装
-1. 台本生成 → 2. nano-banana画像生成 → 3. Kling動画生成
+1. 台本生成 → 2. Gemini 2.5 Flash画像生成 → 3. Kling動画生成
 APIキー読み込み修正とデモモード削除
 """
 
@@ -110,13 +110,13 @@ def main():
     # ヘッダー
     st.markdown("""
     # 🎬 PV AI Generator v5.3.7
-    ### nano-banana→Kling 画像から動画ワークフロー
+    ### Gemini 2.5 Flash→Kling 画像から動画ワークフロー
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v5.3.7 アップデート**: nano-banana画像生成、Kling v1.6実装！")
+        st.info("🆕 **v5.3.8 アップデート**: Gemini 2.5 Flash画像生成、Kling v2.1-master実装！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
@@ -167,9 +167,9 @@ def main():
         # 既存APIs
         st.markdown("#### 基本APIs")
         
-        # PIAPI/nano-banana
+        # PIAPI/Gemini
         if api_keys.get('piapi'):
-            st.success("✅ PIAPI/nano-banana: 接続済み")
+            st.success("✅ PIAPI/Gemini 2.5 Flash: 接続済み")
         else:
             st.warning("⚠️ PIAPI: 未設定")
         
@@ -444,8 +444,8 @@ def script_generation_step():
                 st.rerun()
 
 def image_generation_step():
-    """画像生成ステップ（nano-banana）"""
-    st.markdown("## 🎨 ステップ3: 画像生成（nano-banana）")
+    """画像生成ステップ（Gemini 2.5 Flash）"""
+    st.markdown("## 🎨 ステップ3: 画像生成（Gemini 2.5 Flash）")
     
     # 戻るボタンと次へボタン
     col1, col2, col3 = st.columns([1, 4, 1])
@@ -522,7 +522,7 @@ def image_generation_step():
             with col1:
                 if st.button(f"🎨 画像生成", key=f"gen_{scene_num}"):
                     with st.spinner(f"シーン{scene_num}の画像を生成中..."):
-                        # nano-banana画像生成
+                        # Gemini 2.5 Flash画像生成
                         result = workflow.generate_image_with_nano_banana(
                             prompt=edited_prompt
                         )
