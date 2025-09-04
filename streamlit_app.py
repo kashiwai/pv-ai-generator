@@ -523,7 +523,7 @@ def image_generation_step():
                 if st.button(f"🎨 画像生成", key=f"gen_{scene_num}"):
                     with st.spinner(f"シーン{scene_num}の画像を生成中..."):
                         # Gemini 2.5 Flash画像生成
-                        result = workflow.generate_image_with_nano_banana(
+                        result = workflow.generate_image_with_gemini(
                             prompt=edited_prompt
                         )
                         

@@ -22,12 +22,12 @@ class ImageToVideoWorkflow:
         # APIキー設定（セッション状態またはSecretsから取得）
         if 'api_keys' in st.session_state and st.session_state.api_keys:
             self.piapi_key = st.session_state.api_keys.get('piapi', '')
-            self.piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '')
+            self.piapi_xkey = st.session_state.api_keys.get('piapi_xkey', '') or self.piapi_key  # XKEYがない場合はメインKEYを使用
         else:
             # Streamlit Secretsから取得
             try:
                 self.piapi_key = st.secrets.get('PIAPI_KEY', '')
-                self.piapi_xkey = st.secrets.get('PIAPI_XKEY', '')
+                self.piapi_xkey = st.secrets.get('PIAPI_XKEY', '') or self.piapi_key  # XKEYがない場合はメインKEYを使用
             except:
                 self.piapi_key = ''
                 self.piapi_xkey = ''
@@ -36,7 +36,7 @@ class ImageToVideoWorkflow:
         if not self.piapi_key:
             self.piapi_key = os.getenv('PIAPI_KEY', '')
         if not self.piapi_xkey:
-            self.piapi_xkey = os.getenv('PIAPI_XKEY', '')
+            self.piapi_xkey = os.getenv('PIAPI_XKEY', '') or self.piapi_key  # XKEYがない場合はメインKEYを使用
         
         # キャラクター設定（日本人女性）
         self.character_base = "beautiful Japanese woman, 25 years old, long black hair, elegant features"
@@ -161,8 +161,16 @@ class ImageToVideoWorkflow:
         
         return prompt
     
-    def generate_image_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
+    def generate_image_with_gemini(self, prompt: str) -> Dict[str, Any]:
         """Gemini 2.5 Flashで画像生成（PIAPI経由）"""
+    
+    # 旧関数名の互換性維持
+    def generate_image_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
+        """後方互換性のためのエイリアス"""
+        return self.generate_image_with_gemini(prompt)
+    
+    def _generate_image_with_gemini_impl(self, prompt: str) -> Dict[str, Any]:
+        """Gemini 2.5 Flashで画像生成（実装）"""
         
         # APIキーの確認（Geminiはpiapi_keyを使用）
         if not self.piapi_key:
@@ -172,9 +180,9 @@ class ImageToVideoWorkflow:
             }
         
         # Gemini APIを優先的に使用
-        return self._generate_with_gemini(prompt)
+        return self._generate_with_gemini_impl(prompt)
     
-    def _generate_with_gemini(self, prompt: str) -> Dict[str, Any]:
+    def _generate_with_gemini_impl(self, prompt: str) -> Dict[str, Any]:
         """Gemini 2.5 Flashで画像生成"""
         
         # Gemini用のAPI（PIAPI経由）
@@ -435,7 +443,7 @@ class ImageToVideoWorkflow:
         return None
     
     def _generate_with_midjourney_fallback(self, prompt: str) -> Dict[str, Any]:
-        """Midjourneyフォールバック（Gemini失敗時）""
+        """Midjourneyフォールバック(Gemini失敗時)"""
         
         url = "https://api.piapi.ai/api/v1/task"
         
@@ -486,7 +494,7 @@ class ImageToVideoWorkflow:
             }
     
     def _poll_midjourney_task(self, task_id: str, max_attempts: int = 60) -> Optional[str]:
-        """Midjourneyタスクのポーリング（最大3分待機）"""
+        """Midjourneyタスクのポーリング(最大3分待機)"""
         
         # PIAPI v1 APIのタスク状態確認
         url = f"https://api.piapi.ai/api/v1/task/{task_id}"
