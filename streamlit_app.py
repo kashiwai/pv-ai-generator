@@ -18,6 +18,13 @@ from dotenv import load_dotenv
 # .envファイルから環境変数を読み込み
 load_dotenv()
 
+# データ永続化モジュールをインポート
+try:
+    from data_persistence import DataPersistenceManager, create_persistence_ui
+except ImportError:
+    DataPersistenceManager = None
+    create_persistence_ui = None
+
 # ページ設定
 st.set_page_config(
     page_title="🎬 PV AI Generator v5.3.9",
@@ -232,7 +239,7 @@ def main():
         project_management_step()
     else:
         # デフォルトでタブ表示
-        tabs = st.tabs(["🎬 PV生成", "📝 詳細設定", "📊 生成履歴", "📁 プロジェクト管理"])
+        tabs = st.tabs(["🎬 PV生成", "📝 詳細設定", "📊 生成履歴", "📁 プロジェクト管理", "💾 データ管理"])
         
         with tabs[0]:
             generate_pv_tab()
@@ -245,6 +252,15 @@ def main():
         
         with tabs[3]:
             project_management_tab()
+        
+        with tabs[4]:
+            # データ永続化タブ
+            if create_persistence_ui:
+                st.markdown("### 💾 データ永続化管理")
+                st.info("📌 デプロイ時にもデータを保持するための機能です")
+                create_persistence_ui()
+            else:
+                st.warning("データ永続化モジュールが見つかりません")
 
 def basic_info_step():
     """基本情報入力ステップ"""
