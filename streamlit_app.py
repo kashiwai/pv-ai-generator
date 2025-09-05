@@ -1,8 +1,8 @@
 """
-🎬 PV AI Generator v5.3.9 - Streamlit版
+🎬 PV AI Generator v5.4.0 - Streamlit版
 ステップバイステップワークフロー実装
 1. 台本生成 → 2. Gemini 2.5 Flash画像生成 → 3. Kling動画生成
-APIキー読み込み修正とデモモード削除
+✨ Gemini 2.5 Flash完全対応版
 """
 
 import streamlit as st
@@ -109,14 +109,14 @@ except ImportError:
 def main():
     # ヘッダー
     st.markdown("""
-    # 🎬 PV AI Generator v5.3.9
+    # 🎬 PV AI Generator v5.4.0
     ### Gemini 2.5 Flash→Kling 画像から動画ワークフロー
     """)
     
     # バージョン情報
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
-        st.info("🆕 **v5.3.9 アップデート**: Gemini 2.5 Flash完全実装、残りnano-banana参照削除！")
+        st.info("🆕 **v5.4.0 アップデート**: Gemini 2.5 Flash完全対応、関数名整理、PIAPIキー簡略化！")
     with col2:
         workflow_mode = st.radio(
             "ワークフローモード",
