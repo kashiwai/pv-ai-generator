@@ -163,14 +163,6 @@ class ImageToVideoWorkflow:
     
     def generate_image_with_gemini(self, prompt: str) -> Dict[str, Any]:
         """Gemini 2.5 Flashで画像生成（PIAPI経由）"""
-    
-    # 旧関数名の互換性維持
-    def generate_image_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
-        """後方互換性のためのエイリアス"""
-        return self.generate_image_with_gemini(prompt)
-    
-    def _generate_image_with_gemini_impl(self, prompt: str) -> Dict[str, Any]:
-        """Gemini 2.5 Flashで画像生成（実装）"""
         
         # APIキーの確認（Geminiはpiapi_keyを使用）
         if not self.piapi_key:
@@ -179,8 +171,14 @@ class ImageToVideoWorkflow:
                 'message': 'PIAPI KEYが設定されていません。サイドバーで設定してください。'
             }
         
-        # Gemini APIを優先的に使用
-        return self._generate_with_gemini_impl(prompt)
+        # 現在はMidjourneyを使用（Gemini APIの準備中）
+        # TODO: Gemini 2.5 Flash APIが利用可能になったら切り替え
+        return self.generate_image_with_midjourney(prompt)
+    
+    # 旧関数名の互換性維持
+    def generate_image_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
+        """後方互換性のためのエイリアス"""
+        return self.generate_image_with_gemini(prompt)
     
     def _generate_with_gemini_impl(self, prompt: str) -> Dict[str, Any]:
         """Gemini 2.5 Flashで画像生成"""
