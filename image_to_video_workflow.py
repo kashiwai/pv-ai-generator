@@ -440,7 +440,17 @@ class ImageToVideoWorkflow:
                                 return image_url
                         
                         elif status in ['failed', 'error', 'cancelled']:
-                            error_msg = data.get('error', 'Unknown error')
+                            error_data = data.get('error', {})
+                            if isinstance(error_data, dict):
+                                error_code = error_data.get('code', 0)
+                                error_msg = error_data.get('message', 'Unknown error')
+                                # エラーコード10003は一時的なエラーなのでリトライ
+                                if error_code == 10003 and i < max_attempts - 1:
+                                    progress_text.warning(f"⚠️ 一時的エラー (code: {error_code}), リトライします...")
+                                    time.sleep(5)  # 少し待ってからリトライ
+                                    continue
+                            else:
+                                error_msg = str(error_data) if error_data else 'Unknown error'
                             progress_text.error(f"❌ 生成失敗: {error_msg}")
                             return None
                     

@@ -1,0 +1,54 @@
+[
+  {
+    "timestamp": "2025-09-05T04:37:44.663557",
+    "git": {
+      "branch": "main",
+      "status": [
+        "M pv_ai_video_agent/mcp_logs/record_20250826.json",
+        " M pv_ai_video_agent/mcp_state.json",
+        " M pv_ai_video_agent/pv-ai-generator",
+        "?? pv_ai_video_agent/mcp_logs/record_20250827.json",
+        "?? pv_ai_video_agent/mcp_logs/record_20250828.json",
+        "?? pv_ai_video_agent/mcp_logs/record_20250829.json",
+        "?? pv_ai_video_agent/mcp_logs/record_20250830.json",
+        "?? pv_ai_video_agent/mcp_logs/record_20250831.json",
+        "?? pv_ai_video_agent/mcp_logs/record_20250901.json",
+        "?? pv_ai_video_agent/mcp_logs/record_20250902.json",
+        "?? pv_ai_video_agent/mcp_logs/record_20250903.json",
+        "?? pv_ai_video_agent/mcp_logs/record_20250904.json",
+        "?? pv_ai_video_agent/mcp_logs/record_20250905.json"
+      ]
+    },
+    "project": {
+      "python_files": 126,
+      "total_lines": 39653,
+      "modified_files": [
+        "pv_ai_video_agent/mcp_logs/record_20250826.json",
+        "pv_ai_video_agent/mcp_state.json",
+        "pv_ai_video_agent/pv-ai-generator",
+        "pv_ai_video_agent/mcp_logs/record_20250827.json",
+        "pv_ai_video_agent/mcp_logs/record_20250828.json",
+        "pv_ai_video_agent/mcp_logs/record_20250829.json",
+        "pv_ai_video_agent/mcp_logs/record_20250830.json",
+        "pv_ai_video_agent/mcp_logs/record_20250831.json",
+        "pv_ai_video_agent/mcp_logs/record_20250901.json",
+        "pv_ai_video_agent/mcp_logs/record_20250902.json",
+        "pv_ai_video_agent/mcp_logs/record_20250903.json",
+        "pv_ai_video_agent/mcp_logs/record_20250904.json",
+        "pv_ai_video_agent/mcp_logs/record_20250905.json"
+      ]
+    },
+    "apis": {
+      "PIAPI_KEY": false,
+      "PIAPI_XKEY": false,
+      "OPENAI_API_KEY": false,
+      "GOOGLE_API_KEY": false,
+      "ANTHROPIC_API_KEY": false
+    },
+    "environment": {
+      "python_version": "3.12.8",
+      "platform": "darwin",
+      "cwd": "/Users/kotarokashiwai/PVmovieegent/pv_ai_video_agent"
+    }
+  }
+]

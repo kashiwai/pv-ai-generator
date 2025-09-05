@@ -1,0 +1,4031 @@
+[
+  {
+    "timestamp": "2025-08-29T00:00:22.643852",
+    "uptime": 248637.4767282009,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 324,
+    "memory_usage": {
+      "rss_mb": 7.265625,
+      "percent": 0.011277198791503906
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:09:55.313968",
+    "uptime": 228838.37287282944,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 325,
+    "memory_usage": {
+      "rss_mb": 11.03125,
+      "percent": 0.016832351684570312
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:10:22.633041",
+    "uptime": 249237.46583914757,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 325,
+    "memory_usage": {
+      "rss_mb": 10.34375,
+      "percent": 0.015783309936523438
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:19:55.301046",
+    "uptime": 229438.3599588871,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 326,
+    "memory_usage": {
+      "rss_mb": 11.09375,
+      "percent": 0.016927719116210938
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:20:22.621104",
+    "uptime": 249837.45391392708,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 326,
+    "memory_usage": {
+      "rss_mb": 10.59375,
+      "percent": 0.016164779663085938
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:29:55.321462",
+    "uptime": 230038.38037919998,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 327,
+    "memory_usage": {
+      "rss_mb": 11.109375,
+      "percent": 0.016951560974121094
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:30:22.639691",
+    "uptime": 250437.47247600555,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 327,
+    "memory_usage": {
+      "rss_mb": 10.65625,
+      "percent": 0.016260147094726562
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:39:55.318957",
+    "uptime": 230638.37785696983,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 328,
+    "memory_usage": {
+      "rss_mb": 11.109375,
+      "percent": 0.016951560974121094
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:40:22.635923",
+    "uptime": 251037.46870613098,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 328,
+    "memory_usage": {
+      "rss_mb": 10.703125,
+      "percent": 0.01633167266845703
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:49:55.315853",
+    "uptime": 231238.37476921082,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 329,
+    "memory_usage": {
+      "rss_mb": 11.109375,
+      "percent": 0.016951560974121094
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:50:22.632913",
+    "uptime": 251637.4657201767,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 329,
+    "memory_usage": {
+      "rss_mb": 10.703125,
+      "percent": 0.01633167266845703
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T00:59:55.314475",
+    "uptime": 231838.37339901924,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 330,
+    "memory_usage": {
+      "rss_mb": 11.125,
+      "percent": 0.01697540283203125
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:00:22.630590",
+    "uptime": 252237.46340608597,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 330,
+    "memory_usage": {
+      "rss_mb": 10.71875,
+      "percent": 0.016355514526367188
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:09:55.312507",
+    "uptime": 232438.3714261055,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 331,
+    "memory_usage": {
+      "rss_mb": 11.140625,
+      "percent": 0.016999244689941406
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:10:22.628011",
+    "uptime": 252837.46080303192,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 331,
+    "memory_usage": {
+      "rss_mb": 10.734375,
+      "percent": 0.016379356384277344
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:19:55.311328",
+    "uptime": 233038.37024998665,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 332,
+    "memory_usage": {
+      "rss_mb": 11.203125,
+      "percent": 0.01709461212158203
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:20:22.628019",
+    "uptime": 253437.4608259201,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 332,
+    "memory_usage": {
+      "rss_mb": 10.765625,
+      "percent": 0.016427040100097656
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:29:55.310495",
+    "uptime": 233638.36942005157,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 333,
+    "memory_usage": {
+      "rss_mb": 11.203125,
+      "percent": 0.01709461212158203
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:30:22.628540",
+    "uptime": 254037.4613518715,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 333,
+    "memory_usage": {
+      "rss_mb": 10.796875,
+      "percent": 0.01647472381591797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:39:55.384842",
+    "uptime": 234238.44376397133,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 334,
+    "memory_usage": {
+      "rss_mb": 11.203125,
+      "percent": 0.01709461212158203
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:40:22.704179",
+    "uptime": 254637.53698515892,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 334,
+    "memory_usage": {
+      "rss_mb": 10.796875,
+      "percent": 0.01647472381591797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:49:55.396090",
+    "uptime": 234838.4550089836,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 335,
+    "memory_usage": {
+      "rss_mb": 11.21875,
+      "percent": 0.017118453979492188
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:50:22.714193",
+    "uptime": 255237.5469918251,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 335,
+    "memory_usage": {
+      "rss_mb": 10.796875,
+      "percent": 0.01647472381591797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T01:59:55.405543",
+    "uptime": 235438.4644598961,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 336,
+    "memory_usage": {
+      "rss_mb": 11.21875,
+      "percent": 0.017118453979492188
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:00:22.722815",
+    "uptime": 255837.55559802055,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 336,
+    "memory_usage": {
+      "rss_mb": 10.859375,
+      "percent": 0.016570091247558594
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:09:55.415230",
+    "uptime": 236038.474162817,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 337,
+    "memory_usage": {
+      "rss_mb": 11.25,
+      "percent": 0.0171661376953125
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:10:22.732109",
+    "uptime": 256437.56490302086,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 337,
+    "memory_usage": {
+      "rss_mb": 10.890625,
+      "percent": 0.016617774963378906
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:19:55.425845",
+    "uptime": 236638.48474788666,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 338,
+    "memory_usage": {
+      "rss_mb": 11.265625,
+      "percent": 0.017189979553222656
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:20:22.743529",
+    "uptime": 257037.57631993294,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 338,
+    "memory_usage": {
+      "rss_mb": 10.96875,
+      "percent": 0.016736984252929688
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:29:55.436132",
+    "uptime": 237238.49503684044,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 339,
+    "memory_usage": {
+      "rss_mb": 11.265625,
+      "percent": 0.017189979553222656
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:30:22.751952",
+    "uptime": 257637.58477902412,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 339,
+    "memory_usage": {
+      "rss_mb": 10.96875,
+      "percent": 0.016736984252929688
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:39:55.447084",
+    "uptime": 237838.50600790977,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 340,
+    "memory_usage": {
+      "rss_mb": 11.265625,
+      "percent": 0.017189979553222656
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:40:22.763707",
+    "uptime": 258237.59652209282,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 340,
+    "memory_usage": {
+      "rss_mb": 11.0,
+      "percent": 0.01678466796875
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:49:55.457058",
+    "uptime": 238438.51597094536,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 341,
+    "memory_usage": {
+      "rss_mb": 11.265625,
+      "percent": 0.017189979553222656
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:50:22.775408",
+    "uptime": 258837.60821294785,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 341,
+    "memory_usage": {
+      "rss_mb": 11.015625,
+      "percent": 0.016808509826660156
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T02:59:55.444068",
+    "uptime": 239038.50299692154,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 342,
+    "memory_usage": {
+      "rss_mb": 11.28125,
+      "percent": 0.017213821411132812
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:00:22.761114",
+    "uptime": 259437.5939269066,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 342,
+    "memory_usage": {
+      "rss_mb": 11.03125,
+      "percent": 0.016832351684570312
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:09:55.451493",
+    "uptime": 239638.5104060173,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 343,
+    "memory_usage": {
+      "rss_mb": 11.296875,
+      "percent": 0.01723766326904297
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:10:22.768491",
+    "uptime": 260037.60130000114,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 343,
+    "memory_usage": {
+      "rss_mb": 11.046875,
+      "percent": 0.01685619354248047
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:19:55.456701",
+    "uptime": 240238.5156199932,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 344,
+    "memory_usage": {
+      "rss_mb": 11.3125,
+      "percent": 0.017261505126953125
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:20:22.776603",
+    "uptime": 260637.6094121933,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 344,
+    "memory_usage": {
+      "rss_mb": 11.0625,
+      "percent": 0.016880035400390625
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:29:55.464363",
+    "uptime": 240838.52329015732,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 345,
+    "memory_usage": {
+      "rss_mb": 11.328125,
+      "percent": 0.01728534698486328
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:30:22.783648",
+    "uptime": 261237.61643004417,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 345,
+    "memory_usage": {
+      "rss_mb": 11.078125,
+      "percent": 0.01690387725830078
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:39:55.472552",
+    "uptime": 241438.5315029621,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 346,
+    "memory_usage": {
+      "rss_mb": 11.328125,
+      "percent": 0.01728534698486328
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:40:22.788853",
+    "uptime": 261837.62164998055,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 346,
+    "memory_usage": {
+      "rss_mb": 11.09375,
+      "percent": 0.016927719116210938
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:49:55.482871",
+    "uptime": 242038.54178714752,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 347,
+    "memory_usage": {
+      "rss_mb": 11.359375,
+      "percent": 0.017333030700683594
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:50:22.795384",
+    "uptime": 262437.62818312645,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 347,
+    "memory_usage": {
+      "rss_mb": 11.09375,
+      "percent": 0.016927719116210938
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T03:59:55.490943",
+    "uptime": 242638.54985809326,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 348,
+    "memory_usage": {
+      "rss_mb": 11.375,
+      "percent": 0.01735687255859375
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:00:22.803552",
+    "uptime": 263037.63638210297,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 348,
+    "memory_usage": {
+      "rss_mb": 11.09375,
+      "percent": 0.016927719116210938
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:09:55.497007",
+    "uptime": 243238.55605077744,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 349,
+    "memory_usage": {
+      "rss_mb": 11.390625,
+      "percent": 0.017380714416503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:10:22.810016",
+    "uptime": 263637.642827034,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 349,
+    "memory_usage": {
+      "rss_mb": 11.09375,
+      "percent": 0.016927719116210938
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:19:55.454707",
+    "uptime": 243838.51362895966,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 350,
+    "memory_usage": {
+      "rss_mb": 11.390625,
+      "percent": 0.017380714416503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:20:22.768076",
+    "uptime": 264237.6008579731,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 350,
+    "memory_usage": {
+      "rss_mb": 11.140625,
+      "percent": 0.016999244689941406
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:29:55.455891",
+    "uptime": 244438.51482892036,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 351,
+    "memory_usage": {
+      "rss_mb": 11.390625,
+      "percent": 0.017380714416503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:30:22.768220",
+    "uptime": 264837.6010220051,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 351,
+    "memory_usage": {
+      "rss_mb": 11.28125,
+      "percent": 0.017213821411132812
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:39:55.457378",
+    "uptime": 245038.51629781723,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 352,
+    "memory_usage": {
+      "rss_mb": 11.421875,
+      "percent": 0.01742839813232422
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:40:22.768372",
+    "uptime": 265437.6011772156,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 352,
+    "memory_usage": {
+      "rss_mb": 11.28125,
+      "percent": 0.017213821411132812
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:49:55.459252",
+    "uptime": 245638.51818323135,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 353,
+    "memory_usage": {
+      "rss_mb": 11.4375,
+      "percent": 0.017452239990234375
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:50:22.769354",
+    "uptime": 266037.6021659374,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 353,
+    "memory_usage": {
+      "rss_mb": 11.296875,
+      "percent": 0.01723766326904297
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T04:59:55.460887",
+    "uptime": 246238.5198020935,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 354,
+    "memory_usage": {
+      "rss_mb": 11.453125,
+      "percent": 0.01747608184814453
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:00:22.771392",
+    "uptime": 266637.6041929722,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 354,
+    "memory_usage": {
+      "rss_mb": 11.328125,
+      "percent": 0.01728534698486328
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:09:55.463116",
+    "uptime": 246838.5220348835,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 355,
+    "memory_usage": {
+      "rss_mb": 11.46875,
+      "percent": 0.017499923706054688
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:10:22.773779",
+    "uptime": 267237.60657787323,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 355,
+    "memory_usage": {
+      "rss_mb": 11.328125,
+      "percent": 0.01728534698486328
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:19:55.465742",
+    "uptime": 247438.52465701103,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 356,
+    "memory_usage": {
+      "rss_mb": 11.375,
+      "percent": 0.01735687255859375
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:20:22.774035",
+    "uptime": 267837.60684394836,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 356,
+    "memory_usage": {
+      "rss_mb": 11.234375,
+      "percent": 0.017142295837402344
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:29:55.468965",
+    "uptime": 248038.52787995338,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 357,
+    "memory_usage": {
+      "rss_mb": 11.390625,
+      "percent": 0.017380714416503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:30:22.774686",
+    "uptime": 268437.60751485825,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 357,
+    "memory_usage": {
+      "rss_mb": 11.171875,
+      "percent": 0.01704692840576172
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:39:55.579152",
+    "uptime": 248638.6380660534,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 358,
+    "memory_usage": {
+      "rss_mb": 11.453125,
+      "percent": 0.01747608184814453
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:40:22.884180",
+    "uptime": 269037.71697306633,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 358,
+    "memory_usage": {
+      "rss_mb": 11.25,
+      "percent": 0.0171661376953125
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:49:55.596486",
+    "uptime": 249238.65539193153,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 359,
+    "memory_usage": {
+      "rss_mb": 10.96875,
+      "percent": 0.016736984252929688
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:50:22.899301",
+    "uptime": 269637.7320950031,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 359,
+    "memory_usage": {
+      "rss_mb": 11.078125,
+      "percent": 0.01690387725830078
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T05:59:55.613232",
+    "uptime": 249838.672134161,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 360,
+    "memory_usage": {
+      "rss_mb": 11.015625,
+      "percent": 0.016808509826660156
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:00:22.916462",
+    "uptime": 270237.7492611408,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 360,
+    "memory_usage": {
+      "rss_mb": 11.078125,
+      "percent": 0.01690387725830078
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:09:55.629201",
+    "uptime": 250438.68810796738,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 361,
+    "memory_usage": {
+      "rss_mb": 10.703125,
+      "percent": 0.01633167266845703
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:10:22.931165",
+    "uptime": 270837.76395606995,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 361,
+    "memory_usage": {
+      "rss_mb": 10.5625,
+      "percent": 0.016117095947265625
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:19:55.645002",
+    "uptime": 251038.70395493507,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 362,
+    "memory_usage": {
+      "rss_mb": 10.8125,
+      "percent": 0.016498565673828125
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:20:22.964078",
+    "uptime": 271437.7968788147,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 362,
+    "memory_usage": {
+      "rss_mb": 10.640625,
+      "percent": 0.016236305236816406
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:29:55.665568",
+    "uptime": 251638.724517107,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 363,
+    "memory_usage": {
+      "rss_mb": 11.0625,
+      "percent": 0.016880035400390625
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:30:22.980239",
+    "uptime": 272037.8130581379,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 363,
+    "memory_usage": {
+      "rss_mb": 10.6875,
+      "percent": 0.016307830810546875
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:39:55.683913",
+    "uptime": 252238.74282479286,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 364,
+    "memory_usage": {
+      "rss_mb": 11.09375,
+      "percent": 0.016927719116210938
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:40:22.998616",
+    "uptime": 272637.8314230442,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 364,
+    "memory_usage": {
+      "rss_mb": 10.90625,
+      "percent": 0.016641616821289062
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:49:55.701236",
+    "uptime": 252838.76013684273,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 365,
+    "memory_usage": {
+      "rss_mb": 11.265625,
+      "percent": 0.017189979553222656
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:50:23.017822",
+    "uptime": 273237.8506131172,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 365,
+    "memory_usage": {
+      "rss_mb": 10.921875,
+      "percent": 0.01666545867919922
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T06:59:55.615337",
+    "uptime": 253438.67426085472,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 366,
+    "memory_usage": {
+      "rss_mb": 11.21875,
+      "percent": 0.017118453979492188
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:00:22.933930",
+    "uptime": 273837.76672410965,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 366,
+    "memory_usage": {
+      "rss_mb": 10.9375,
+      "percent": 0.016689300537109375
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:09:55.618378",
+    "uptime": 254038.677298069,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 367,
+    "memory_usage": {
+      "rss_mb": 11.265625,
+      "percent": 0.017189979553222656
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:10:22.936594",
+    "uptime": 274437.7693901062,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 367,
+    "memory_usage": {
+      "rss_mb": 10.953125,
+      "percent": 0.01671314239501953
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:19:55.623869",
+    "uptime": 254638.68279004097,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 368,
+    "memory_usage": {
+      "rss_mb": 11.296875,
+      "percent": 0.01723766326904297
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:20:22.939428",
+    "uptime": 275037.7722308636,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 368,
+    "memory_usage": {
+      "rss_mb": 10.953125,
+      "percent": 0.01671314239501953
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:29:55.628783",
+    "uptime": 255238.68768882751,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 369,
+    "memory_usage": {
+      "rss_mb": 11.359375,
+      "percent": 0.017333030700683594
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:30:22.944785",
+    "uptime": 275637.7775890827,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 369,
+    "memory_usage": {
+      "rss_mb": 11.25,
+      "percent": 0.0171661376953125
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:39:55.630714",
+    "uptime": 255838.68962097168,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 370,
+    "memory_usage": {
+      "rss_mb": 11.5,
+      "percent": 0.017547607421875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:40:22.949726",
+    "uptime": 276237.7825112343,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 370,
+    "memory_usage": {
+      "rss_mb": 11.375,
+      "percent": 0.01735687255859375
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:49:55.631881",
+    "uptime": 256438.69080495834,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 371,
+    "memory_usage": {
+      "rss_mb": 11.5,
+      "percent": 0.017547607421875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:50:22.950383",
+    "uptime": 276837.78318214417,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 371,
+    "memory_usage": {
+      "rss_mb": 11.40625,
+      "percent": 0.017404556274414062
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T07:59:55.635529",
+    "uptime": 257038.69445085526,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 372,
+    "memory_usage": {
+      "rss_mb": 11.515625,
+      "percent": 0.017571449279785156
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:00:22.955286",
+    "uptime": 277437.7881128788,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 372,
+    "memory_usage": {
+      "rss_mb": 11.4375,
+      "percent": 0.017452239990234375
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:09:55.639500",
+    "uptime": 257638.69840192795,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 373,
+    "memory_usage": {
+      "rss_mb": 11.515625,
+      "percent": 0.017571449279785156
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:10:22.961185",
+    "uptime": 278037.7939860821,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 373,
+    "memory_usage": {
+      "rss_mb": 11.390625,
+      "percent": 0.017380714416503906
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:19:55.643963",
+    "uptime": 258238.70286893845,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 374,
+    "memory_usage": {
+      "rss_mb": 11.484375,
+      "percent": 0.017523765563964844
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:20:22.966353",
+    "uptime": 278637.7991540432,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 374,
+    "memory_usage": {
+      "rss_mb": 11.4375,
+      "percent": 0.017452239990234375
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:29:55.745276",
+    "uptime": 258838.80417704582,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 375,
+    "memory_usage": {
+      "rss_mb": 11.5,
+      "percent": 0.017547607421875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:30:23.067544",
+    "uptime": 279237.900357008,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 375,
+    "memory_usage": {
+      "rss_mb": 11.46875,
+      "percent": 0.017499923706054688
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:39:55.760871",
+    "uptime": 259438.8197710514,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 376,
+    "memory_usage": {
+      "rss_mb": 11.5,
+      "percent": 0.017547607421875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:40:23.085787",
+    "uptime": 279837.91859316826,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 376,
+    "memory_usage": {
+      "rss_mb": 11.5625,
+      "percent": 0.017642974853515625
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:49:55.774116",
+    "uptime": 260038.83301901817,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 377,
+    "memory_usage": {
+      "rss_mb": 11.5,
+      "percent": 0.017547607421875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:50:23.104501",
+    "uptime": 280437.93728995323,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 377,
+    "memory_usage": {
+      "rss_mb": 11.578125,
+      "percent": 0.01766681671142578
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T08:59:55.789123",
+    "uptime": 260638.84802412987,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 378,
+    "memory_usage": {
+      "rss_mb": 11.5,
+      "percent": 0.017547607421875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:00:23.119632",
+    "uptime": 281037.952436924,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 378,
+    "memory_usage": {
+      "rss_mb": 11.59375,
+      "percent": 0.017690658569335938
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:09:55.804999",
+    "uptime": 261238.8639101982,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 379,
+    "memory_usage": {
+      "rss_mb": 11.5,
+      "percent": 0.017547607421875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:10:23.137169",
+    "uptime": 281637.96997618675,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 379,
+    "memory_usage": {
+      "rss_mb": 11.578125,
+      "percent": 0.01766681671142578
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:19:55.819997",
+    "uptime": 261838.87889504433,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 380,
+    "memory_usage": {
+      "rss_mb": 11.5,
+      "percent": 0.017547607421875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:20:23.153053",
+    "uptime": 282237.9858620167,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 380,
+    "memory_usage": {
+      "rss_mb": 11.65625,
+      "percent": 0.017786026000976562
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:29:55.833989",
+    "uptime": 262438.8928949833,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 381,
+    "memory_usage": {
+      "rss_mb": 11.515625,
+      "percent": 0.017571449279785156
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:30:23.169092",
+    "uptime": 282838.0018889904,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 381,
+    "memory_usage": {
+      "rss_mb": 11.734375,
+      "percent": 0.017905235290527344
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:39:55.852167",
+    "uptime": 263038.9110660553,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 382,
+    "memory_usage": {
+      "rss_mb": 11.5625,
+      "percent": 0.017642974853515625
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:40:23.184857",
+    "uptime": 283438.01765203476,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 382,
+    "memory_usage": {
+      "rss_mb": 11.734375,
+      "percent": 0.017905235290527344
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:49:55.821121",
+    "uptime": 263638.8800461292,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 383,
+    "memory_usage": {
+      "rss_mb": 11.609375,
+      "percent": 0.017714500427246094
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:50:23.158136",
+    "uptime": 284037.990942955,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 383,
+    "memory_usage": {
+      "rss_mb": 11.765625,
+      "percent": 0.017952919006347656
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T09:59:55.830796",
+    "uptime": 264238.8897180557,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 384,
+    "memory_usage": {
+      "rss_mb": 11.609375,
+      "percent": 0.017714500427246094
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:00:23.168303",
+    "uptime": 284638.00112104416,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 384,
+    "memory_usage": {
+      "rss_mb": 11.765625,
+      "percent": 0.017952919006347656
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:09:55.841061",
+    "uptime": 264838.89998197556,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 385,
+    "memory_usage": {
+      "rss_mb": 11.609375,
+      "percent": 0.017714500427246094
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:10:23.179074",
+    "uptime": 285238.0118768215,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 385,
+    "memory_usage": {
+      "rss_mb": 11.78125,
+      "percent": 0.017976760864257812
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:19:55.855498",
+    "uptime": 265438.91442513466,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 386,
+    "memory_usage": {
+      "rss_mb": 11.6875,
+      "percent": 0.017833709716796875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:20:23.190589",
+    "uptime": 285838.0234041214,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 386,
+    "memory_usage": {
+      "rss_mb": 11.78125,
+      "percent": 0.017976760864257812
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:29:55.867941",
+    "uptime": 266038.92684197426,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 387,
+    "memory_usage": {
+      "rss_mb": 11.6875,
+      "percent": 0.017833709716796875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:30:23.201348",
+    "uptime": 286438.0341489315,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 387,
+    "memory_usage": {
+      "rss_mb": 11.796875,
+      "percent": 0.01800060272216797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:39:55.879095",
+    "uptime": 266638.93801116943,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 388,
+    "memory_usage": {
+      "rss_mb": 11.6875,
+      "percent": 0.017833709716796875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:40:23.212817",
+    "uptime": 287038.04559493065,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 388,
+    "memory_usage": {
+      "rss_mb": 11.796875,
+      "percent": 0.01800060272216797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:49:55.889682",
+    "uptime": 267238.94859695435,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 389,
+    "memory_usage": {
+      "rss_mb": 11.625,
+      "percent": 0.01773834228515625
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:50:23.219081",
+    "uptime": 287638.05188798904,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 389,
+    "memory_usage": {
+      "rss_mb": 11.78125,
+      "percent": 0.017976760864257812
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T10:59:55.898632",
+    "uptime": 267838.9575390816,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 390,
+    "memory_usage": {
+      "rss_mb": 11.640625,
+      "percent": 0.017762184143066406
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:00:23.230384",
+    "uptime": 288238.0631701946,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 390,
+    "memory_usage": {
+      "rss_mb": 11.796875,
+      "percent": 0.01800060272216797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:09:55.910559",
+    "uptime": 268438.9695160389,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 391,
+    "memory_usage": {
+      "rss_mb": 11.578125,
+      "percent": 0.01766681671142578
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:10:23.241369",
+    "uptime": 288838.0741639137,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 391,
+    "memory_usage": {
+      "rss_mb": 11.75,
+      "percent": 0.0179290771484375
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:19:55.923927",
+    "uptime": 269038.98284196854,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 392,
+    "memory_usage": {
+      "rss_mb": 11.796875,
+      "percent": 0.01800060272216797
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:20:23.252781",
+    "uptime": 289438.0855679512,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 392,
+    "memory_usage": {
+      "rss_mb": 11.796875,
+      "percent": 0.01800060272216797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:29:55.934036",
+    "uptime": 269638.99294900894,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 393,
+    "memory_usage": {
+      "rss_mb": 11.796875,
+      "percent": 0.01800060272216797
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:30:23.263276",
+    "uptime": 290038.0960788727,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 393,
+    "memory_usage": {
+      "rss_mb": 11.84375,
+      "percent": 0.018072128295898438
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:39:55.945370",
+    "uptime": 270239.00428009033,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 394,
+    "memory_usage": {
+      "rss_mb": 11.8125,
+      "percent": 0.018024444580078125
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:40:23.274933",
+    "uptime": 290638.10771512985,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 394,
+    "memory_usage": {
+      "rss_mb": 11.84375,
+      "percent": 0.018072128295898438
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:49:55.954843",
+    "uptime": 270839.0137550831,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 395,
+    "memory_usage": {
+      "rss_mb": 11.75,
+      "percent": 0.0179290771484375
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:50:23.283228",
+    "uptime": 291238.11603307724,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 395,
+    "memory_usage": {
+      "rss_mb": 11.8125,
+      "percent": 0.018024444580078125
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T11:59:55.967057",
+    "uptime": 271439.02597498894,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 396,
+    "memory_usage": {
+      "rss_mb": 11.828125,
+      "percent": 0.01804828643798828
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:00:23.294969",
+    "uptime": 291838.12778806686,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 396,
+    "memory_usage": {
+      "rss_mb": 11.796875,
+      "percent": 0.01800060272216797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:09:55.979372",
+    "uptime": 272039.03830099106,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 397,
+    "memory_usage": {
+      "rss_mb": 10.734375,
+      "percent": 0.016379356384277344
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:10:23.308025",
+    "uptime": 292438.14083623886,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 397,
+    "memory_usage": {
+      "rss_mb": 10.796875,
+      "percent": 0.01647472381591797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:19:55.994765",
+    "uptime": 272639.0536618233,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 398,
+    "memory_usage": {
+      "rss_mb": 11.234375,
+      "percent": 0.017142295837402344
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:20:23.323992",
+    "uptime": 293038.1567938328,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 398,
+    "memory_usage": {
+      "rss_mb": 10.796875,
+      "percent": 0.01647472381591797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:29:56.007616",
+    "uptime": 273239.06652903557,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 399,
+    "memory_usage": {
+      "rss_mb": 11.109375,
+      "percent": 0.016951560974121094
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:30:23.338508",
+    "uptime": 293638.1712861061,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 399,
+    "memory_usage": {
+      "rss_mb": 11.03125,
+      "percent": 0.016832351684570312
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:39:56.020071",
+    "uptime": 273839.0789949894,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 400,
+    "memory_usage": {
+      "rss_mb": 11.140625,
+      "percent": 0.016999244689941406
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:40:23.348294",
+    "uptime": 294238.18111491203,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 400,
+    "memory_usage": {
+      "rss_mb": 10.796875,
+      "percent": 0.01647472381591797
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:49:56.033047",
+    "uptime": 274439.09196805954,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 401,
+    "memory_usage": {
+      "rss_mb": 11.03125,
+      "percent": 0.016832351684570312
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:50:23.360962",
+    "uptime": 294838.1937599182,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 401,
+    "memory_usage": {
+      "rss_mb": 10.46875,
+      "percent": 0.015974044799804688
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T12:59:56.046840",
+    "uptime": 275039.1057679653,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 402,
+    "memory_usage": {
+      "rss_mb": 10.75,
+      "percent": 0.016427040100097656
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:00:23.375261",
+    "uptime": 295438.20811605453,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 402,
+    "memory_usage": {
+      "rss_mb": 7.921875,
+      "percent": 0.012254714965820312
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:09:56.057392",
+    "uptime": 275639.11629104614,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 403,
+    "memory_usage": {
+      "rss_mb": 10.625,
+      "percent": 0.01621246337890625
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:10:23.382571",
+    "uptime": 296038.21538090706,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 403,
+    "memory_usage": {
+      "rss_mb": 10.859375,
+      "percent": 0.016570091247558594
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:19:56.071746",
+    "uptime": 276239.13081002235,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 404,
+    "memory_usage": {
+      "rss_mb": 7.609375,
+      "percent": 0.011777877807617188
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:20:23.399547",
+    "uptime": 296638.23241496086,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 404,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:29:56.092053",
+    "uptime": 276839.1511631012,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 405,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011348724365234375
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:30:23.414811",
+    "uptime": 297238.2477271557,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 405,
+    "memory_usage": {
+      "rss_mb": 7.34375,
+      "percent": 0.011396408081054688
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:39:56.106171",
+    "uptime": 277439.1650800705,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 406,
+    "memory_usage": {
+      "rss_mb": 10.90625,
+      "percent": 0.016641616821289062
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:40:23.425165",
+    "uptime": 297838.25796985626,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 406,
+    "memory_usage": {
+      "rss_mb": 10.734375,
+      "percent": 0.016379356384277344
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:49:56.121315",
+    "uptime": 278039.1802921295,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 407,
+    "memory_usage": {
+      "rss_mb": 7.671875,
+      "percent": 0.011873245239257812
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:50:23.441654",
+    "uptime": 298438.27454805374,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 407,
+    "memory_usage": {
+      "rss_mb": 7.53125,
+      "percent": 0.011682510375976562
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T13:59:56.140366",
+    "uptime": 278639.19931316376,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 408,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T14:00:23.454557",
+    "uptime": 299038.28742718697,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 408,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011348724365234375
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T14:09:56.180492",
+    "uptime": 279239.23946118355,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 409,
+    "memory_usage": {
+      "rss_mb": 7.28125,
+      "percent": 0.011277198791503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T14:10:23.466070",
+    "uptime": 299638.298913002,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 409,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011348724365234375
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T15:34:28.341965",
+    "uptime": 284311.40091109276,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 410,
+    "memory_usage": {
+      "rss_mb": 7.28125,
+      "percent": 0.011277198791503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T15:34:55.626717",
+    "uptime": 304710.459608078,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 410,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T15:44:28.353111",
+    "uptime": 284911.41215991974,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 411,
+    "memory_usage": {
+      "rss_mb": 7.28125,
+      "percent": 0.011277198791503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T15:44:55.635192",
+    "uptime": 305310.4680798054,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 411,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T15:54:28.361827",
+    "uptime": 285511.4208700657,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 412,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011301040649414062
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T15:54:55.640792",
+    "uptime": 305910.4736919403,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 412,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:04:28.372141",
+    "uptime": 286111.43113803864,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 413,
+    "memory_usage": {
+      "rss_mb": 7.28125,
+      "percent": 0.011277198791503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:04:55.648689",
+    "uptime": 306510.4815528393,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 413,
+    "memory_usage": {
+      "rss_mb": 7.265625,
+      "percent": 0.011277198791503906
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:14:28.380346",
+    "uptime": 286711.4393777847,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 414,
+    "memory_usage": {
+      "rss_mb": 7.28125,
+      "percent": 0.011277198791503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:14:55.656393",
+    "uptime": 307110.4892690182,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 414,
+    "memory_usage": {
+      "rss_mb": 7.328125,
+      "percent": 0.011372566223144531
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:24:28.388564",
+    "uptime": 287311.4475519657,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 415,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:24:55.672343",
+    "uptime": 307710.5053498745,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 415,
+    "memory_usage": {
+      "rss_mb": 7.34375,
+      "percent": 0.011396408081054688
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:34:28.395326",
+    "uptime": 287911.4543039799,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 416,
+    "memory_usage": {
+      "rss_mb": 7.328125,
+      "percent": 0.011348724365234375
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:34:55.684131",
+    "uptime": 308310.51705503464,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 416,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:44:28.525857",
+    "uptime": 288511.5847899914,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 417,
+    "memory_usage": {
+      "rss_mb": 11.140625,
+      "percent": 0.016999244689941406
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:44:55.813807",
+    "uptime": 308910.6466271877,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 417,
+    "memory_usage": {
+      "rss_mb": 11.28125,
+      "percent": 0.017213821411132812
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:54:28.553662",
+    "uptime": 289111.6127049923,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 418,
+    "memory_usage": {
+      "rss_mb": 7.28125,
+      "percent": 0.011277198791503906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T16:54:55.836837",
+    "uptime": 309510.6696410179,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 418,
+    "memory_usage": {
+      "rss_mb": 7.34375,
+      "percent": 0.011396408081054688
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:04:28.577354",
+    "uptime": 289711.6363389492,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 419,
+    "memory_usage": {
+      "rss_mb": 7.34375,
+      "percent": 0.011372566223144531
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:04:55.853595",
+    "uptime": 310110.68642783165,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 419,
+    "memory_usage": {
+      "rss_mb": 7.265625,
+      "percent": 0.011277198791503906
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:14:28.605366",
+    "uptime": 290311.6643371582,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 420,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011301040649414062
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:14:55.875517",
+    "uptime": 310710.70842695236,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 420,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:24:28.630816",
+    "uptime": 290911.6898920536,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 421,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:24:55.901954",
+    "uptime": 311310.7348201275,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 421,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:34:28.657271",
+    "uptime": 291511.71631002426,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 422,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:34:55.924668",
+    "uptime": 311910.75752806664,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 422,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011348724365234375
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:44:28.686202",
+    "uptime": 292111.74517297745,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 423,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:44:55.948173",
+    "uptime": 312510.7810060978,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 423,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:54:28.606845",
+    "uptime": 292711.66584706306,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 424,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T17:54:55.865443",
+    "uptime": 313110.6983728409,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 424,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011372566223144531
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:04:28.625263",
+    "uptime": 293311.68428206444,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 425,
+    "memory_usage": {
+      "rss_mb": 7.359375,
+      "percent": 0.011420249938964844
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:04:55.875298",
+    "uptime": 313710.7081489563,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 425,
+    "memory_usage": {
+      "rss_mb": 7.328125,
+      "percent": 0.011372566223144531
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:14:28.635534",
+    "uptime": 293911.69450592995,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 426,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:14:55.883995",
+    "uptime": 314310.7168979645,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 426,
+    "memory_usage": {
+      "rss_mb": 7.328125,
+      "percent": 0.011372566223144531
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:24:28.644423",
+    "uptime": 294511.7033882141,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 427,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011301040649414062
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:24:55.894350",
+    "uptime": 314910.7272570133,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 427,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011324882507324219
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:34:28.654288",
+    "uptime": 295111.7133719921,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 428,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011301040649414062
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:34:55.903568",
+    "uptime": 315510.7364821434,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 428,
+    "memory_usage": {
+      "rss_mb": 7.28125,
+      "percent": 0.011301040649414062
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:44:28.673171",
+    "uptime": 295711.73276114464,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 429,
+    "memory_usage": {
+      "rss_mb": 7.296875,
+      "percent": 0.011301040649414062
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:44:55.915473",
+    "uptime": 316110.7485189438,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 429,
+    "memory_usage": {
+      "rss_mb": 7.3125,
+      "percent": 0.011348724365234375
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:54:28.691250",
+    "uptime": 296311.7502169609,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 430,
+    "memory_usage": {
+      "rss_mb": 6.71875,
+      "percent": 0.010418891906738281
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T18:54:55.923287",
+    "uptime": 316710.756125927,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 430,
+    "memory_usage": {
+      "rss_mb": 6.75,
+      "percent": 0.01049041748046875
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:04:28.799343",
+    "uptime": 296911.8582839966,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 431,
+    "memory_usage": {
+      "rss_mb": 6.734375,
+      "percent": 0.010442733764648438
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:04:56.031659",
+    "uptime": 317310.8645119667,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 431,
+    "memory_usage": {
+      "rss_mb": 6.765625,
+      "percent": 0.010538101196289062
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:14:28.827062",
+    "uptime": 297511.8860490322,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 432,
+    "memory_usage": {
+      "rss_mb": 6.765625,
+      "percent": 0.010514259338378906
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:14:56.055575",
+    "uptime": 317910.8884880543,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 432,
+    "memory_usage": {
+      "rss_mb": 6.765625,
+      "percent": 0.010514259338378906
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:24:28.853249",
+    "uptime": 298111.91232800484,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 433,
+    "memory_usage": {
+      "rss_mb": 6.796875,
+      "percent": 0.010538101196289062
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:24:56.081961",
+    "uptime": 318510.9148709774,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 433,
+    "memory_usage": {
+      "rss_mb": 6.765625,
+      "percent": 0.010514259338378906
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:34:28.881321",
+    "uptime": 298711.94042801857,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 434,
+    "memory_usage": {
+      "rss_mb": 6.734375,
+      "percent": 0.01049041748046875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:34:56.107670",
+    "uptime": 319110.94064998627,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 434,
+    "memory_usage": {
+      "rss_mb": 6.75,
+      "percent": 0.01049041748046875
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:44:28.910750",
+    "uptime": 299311.9697561264,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 435,
+    "memory_usage": {
+      "rss_mb": 6.71875,
+      "percent": 0.010418891906738281
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:44:56.132978",
+    "uptime": 319710.9657988548,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 435,
+    "memory_usage": {
+      "rss_mb": 6.75,
+      "percent": 0.01049041748046875
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:54:28.937532",
+    "uptime": 299911.9965097904,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 436,
+    "memory_usage": {
+      "rss_mb": 6.734375,
+      "percent": 0.010442733764648438
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T19:54:56.157492",
+    "uptime": 320310.9903550148,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 436,
+    "memory_usage": {
+      "rss_mb": 6.71875,
+      "percent": 0.010442733764648438
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:04:28.964221",
+    "uptime": 300512.0233259201,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 437,
+    "memory_usage": {
+      "rss_mb": 6.765625,
+      "percent": 0.01049041748046875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:04:56.186451",
+    "uptime": 320911.0193710327,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 437,
+    "memory_usage": {
+      "rss_mb": 6.71875,
+      "percent": 0.010442733764648438
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:14:28.992227",
+    "uptime": 301112.05129790306,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 438,
+    "memory_usage": {
+      "rss_mb": 6.734375,
+      "percent": 0.010442733764648438
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:14:56.211002",
+    "uptime": 321511.0439019203,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 438,
+    "memory_usage": {
+      "rss_mb": 6.734375,
+      "percent": 0.010466575622558594
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:24:26.761224",
+    "uptime": 301709.82023596764,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 439,
+    "memory_usage": {
+      "rss_mb": 6.75,
+      "percent": 0.010466575622558594
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:24:53.980728",
+    "uptime": 322108.8135650158,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 439,
+    "memory_usage": {
+      "rss_mb": 6.71875,
+      "percent": 0.010442733764648438
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:34:26.789550",
+    "uptime": 302309.84850502014,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 440,
+    "memory_usage": {
+      "rss_mb": 6.75,
+      "percent": 0.010466575622558594
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:34:54.004629",
+    "uptime": 322708.83752799034,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 440,
+    "memory_usage": {
+      "rss_mb": 6.75,
+      "percent": 0.01049041748046875
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:44:28.997950",
+    "uptime": 302912.05698394775,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 441,
+    "memory_usage": {
+      "rss_mb": 6.765625,
+      "percent": 0.01049041748046875
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:44:56.216116",
+    "uptime": 323311.0491631031,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 441,
+    "memory_usage": {
+      "rss_mb": 6.734375,
+      "percent": 0.010466575622558594
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:54:29.024807",
+    "uptime": 303512.083769083,
+    "active_tasks": 0,
+    "completed_tasks": 4,
+    "total_records": 442,
+    "memory_usage": {
+      "rss_mb": 6.75,
+      "percent": 0.010466575622558594
+    },
+    "api_status": {
+      "piapi": true,
+      "openai": true,
+      "google": true,
+      "anthropic": true
+    }
+  },
+  {
+    "timestamp": "2025-08-29T20:54:56.239438",
+    "uptime": 323911.0722811222,
+    "active_tasks": 0,
+    "completed_tasks": 2,
+    "total_records": 442,
+    "memory_usage": {
+      "rss_mb": 6.734375,
+      "percent": 0.010466575622558594
+    },
+    "api_status": {
+      "piapi": false,
+      "openai": false,
+      "google": false,
+      "anthropic": false
+    }
+  }
+]
