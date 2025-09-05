@@ -171,9 +171,14 @@ class ImageToVideoWorkflow:
                 'message': 'PIAPI KEYが設定されていません。サイドバーで設定してください。'
             }
         
-        # 現在はMidjourneyを使用（Gemini APIの準備中）
-        # TODO: Gemini 2.5 Flash APIが利用可能になったら切り替え
-        return self.generate_image_with_midjourney(prompt)
+        try:
+            # Gemini 2.5 Flash画像生成の実装
+            return self._generate_with_gemini_impl(prompt)
+        except Exception as e:
+            st.warning(f"⚠️ Gemini APIエラー: {str(e)}")
+            st.info("🔄 Midjourneyにフォールバックします...")
+            # エラー時はMidjourneyにフォールバック
+            return self.generate_image_with_midjourney(prompt)
     
     # 旧関数名の互換性維持
     def generate_image_with_nano_banana(self, prompt: str) -> Dict[str, Any]:
@@ -183,7 +188,7 @@ class ImageToVideoWorkflow:
     def _generate_with_gemini_impl(self, prompt: str) -> Dict[str, Any]:
         """Gemini 2.5 Flashで画像生成"""
         
-        # Gemini用のAPI（PIAPI経由）
+        # Gemini用のAPI（PIAPI v1 task API）
         url = "https://api.piapi.ai/api/v1/task"
         
         headers = {
@@ -191,17 +196,12 @@ class ImageToVideoWorkflow:
             "Content-Type": "application/json"
         }
         
-        # Gemini用のペイロード（PIAPI経由）
+        # Gemini 2.5 Flash用のペイロード
         payload = {
             "model": "gemini",
             "task_type": "gemini-2.5-flash-image",
             "input": {
-                "prompt": prompt,
-                "num_images": 1,
-                "output_format": "png"
-            },
-            "config": {
-                "service_mode": "public"
+                "prompt": prompt
             }
         }
         
@@ -217,7 +217,7 @@ class ImageToVideoWorkflow:
                 result = response.json()
                 st.info(f"📋 Response: {json.dumps(result, indent=2)[:500]}...")  # デバッグ用
                 
-                # PIAPI標準レスポンスチェック
+                # v1 task APIのレスポンス処理
                 if result.get('code') == 200:
                     data = result.get('data', {})
                     task_id = data.get('task_id')
@@ -233,7 +233,7 @@ class ImageToVideoWorkflow:
                                 'status': 'success',
                                 'image_url': image_url,
                                 'task_id': task_id,
-                                'message': 'Gemini画像生成成功'
+                                'message': 'Gemini 2.5 Flash画像生成成功'
                             }
                         else:
                             return {
@@ -393,6 +393,7 @@ class ImageToVideoWorkflow:
                 if response.status_code == 200:
                     result = response.json()
                     
+                    # v1 task API response format
                     if result.get('code') == 200:
                         data = result.get('data', {})
                         status = data.get('status', 'pending')
@@ -400,36 +401,91 @@ class ImageToVideoWorkflow:
                         if status == 'completed':
                             output = data.get('output', {})
                             
-                            # Geminiの出力フォーマットを確認
+                            # 画像URL取得（複数のフォーマットに対応）
                             image_url = None
                             
-                            # パターン1: image_url直接
-                            if output.get('image_url'):
-                                image_url = output['image_url']
-                            # パターン2: images配列
-                            elif output.get('images') and len(output['images']) > 0:
-                                image_url = output['images'][0]
-                            # パターン3: url直接
-                            elif output.get('url'):
-                                image_url = output['url']
-                            # パターン4: result内
-                            elif output.get('result'):
-                                if isinstance(output['result'], str):
-                                    image_url = output['result']
-                                elif isinstance(output['result'], list) and len(output['result']) > 0:
-                                    image_url = output['result'][0]
+                            # Geminiの出力形式
+                            if isinstance(output, str):
+                                # 直接URLが返される場合
+                                image_url = output
+                            elif isinstance(output, dict):
+                                # image_urls フィールド（Gemini 2.5 Flash）
+                                if output.get('image_urls'):
+                                    urls = output['image_urls']
+                                    if isinstance(urls, list) and len(urls) > 0:
+                                        image_url = urls[0]
+                                # image_url フィールド
+                                elif output.get('image_url'):
+                                    image_url = output['image_url']
+                                # images 配列
+                                elif output.get('images'):
+                                    images = output['images']
+                                    if isinstance(images, list) and len(images) > 0:
+                                        if isinstance(images[0], str):
+                                            image_url = images[0]
+                                        elif isinstance(images[0], dict) and images[0].get('url'):
+                                            image_url = images[0]['url']
+                                # url フィールド
+                                elif output.get('url'):
+                                    image_url = output['url']
+                            elif isinstance(output, list) and len(output) > 0:
+                                # 配列で返される場合
+                                if isinstance(output[0], str):
+                                    image_url = output[0]
+                                elif isinstance(output[0], dict) and output[0].get('url'):
+                                    image_url = output[0]['url']
                             
                             if image_url:
                                 progress_text.success("✅ Gemini画像生成完了!")
                                 return image_url
-                            else:
-                                st.warning(f"画像URLが見つかりません。Output: {output}")
-                                return None
                         
                         elif status in ['failed', 'error', 'cancelled']:
-                            error_msg = data.get('error', {}).get('message', 'Unknown error')
+                            error_msg = data.get('error', 'Unknown error')
                             progress_text.error(f"❌ 生成失敗: {error_msg}")
                             return None
+                    
+                    # 旧形式のレスポンス（後方互換性）
+                    elif result.get('status') == 'completed' or result.get('status') == 'success':
+                        # 直接画像URLが含まれている場合
+                        if result.get('images'):
+                            for img in result['images']:
+                                if img.get('url'):
+                                    progress_text.success("✅ Gemini画像生成完了!")
+                                    return img['url']
+                        
+                        # outputフィールドがある場合
+                        if result.get('output'):
+                            output = result['output']
+                            if isinstance(output, dict):
+                                if output.get('image_url'):
+                                    progress_text.success("✅ Gemini画像生成完了!")
+                                    return output['image_url']
+                                elif output.get('images'):
+                                    for img in output['images']:
+                                        if isinstance(img, dict) and img.get('url'):
+                                            progress_text.success("✅ Gemini画像生成完了!")
+                                            return img['url']
+                                        elif isinstance(img, str):
+                                            progress_text.success("✅ Gemini画像生成完了!")
+                                            return img
+                        
+                        # タスク形式のレスポンス
+                        if result.get('data'):
+                            data = result['data']
+                            if data.get('status') == 'completed':
+                                if data.get('output'):
+                                    output = data['output']
+                                    if output.get('image_url'):
+                                        progress_text.success("✅ Gemini画像生成完了!")
+                                        return output['image_url']
+                                    elif output.get('images'):
+                                        progress_text.success("✅ Gemini画像生成完了!")
+                                        return output['images'][0] if output['images'] else None
+                                        
+                    elif result.get('status') in ['failed', 'error']:
+                        error_msg = result.get('error', {}).get('message', 'Unknown error')
+                        progress_text.error(f"❌ 生成失敗: {error_msg}")
+                        return None
                 
             except Exception as e:
                 if i == max_attempts - 1:
