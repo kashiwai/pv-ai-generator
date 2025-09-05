@@ -527,21 +527,22 @@ def image_generation_step():
                             prompt=edited_prompt
                         )
                         
-                        if result.get('status') == 'success':
+                        if result and result.get('status') == 'success':
                             st.session_state.generated_images[scene_key] = result.get('image_url')
                             st.success(f"✅ シーン{scene_num}の画像生成完了！")
                         else:
-                            st.error(f"❌ 生成失敗: {result.get('message', 'Unknown error')}")
+                            error_msg = result.get('message', 'Unknown error') if result else 'APIからの応答がありません'
+                            st.error(f"❌ 生成失敗: {error_msg}")
             
             with col2:
                 if scene_key in st.session_state.generated_images:
                     if st.button(f"🔄 再生成", key=f"regen_{scene_num}"):
                         with st.spinner(f"シーン{scene_num}を再生成中..."):
-                            result = workflow.generate_image_with_midjourney(
+                            result = workflow.generate_image_with_gemini(
                                 prompt=edited_prompt
                             )
                             
-                            if result.get('status') == 'success':
+                            if result and result.get('status') == 'success':
                                 st.session_state.generated_images[scene_key] = result.get('image_url')
                                 st.success(f"✅ シーン{scene_num}を再生成しました！")
                                 st.rerun()

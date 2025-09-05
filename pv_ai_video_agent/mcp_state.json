@@ -1,7 +1,7 @@
 {
-  "started_at": 1756144585.167233,
-  "last_record": "2025-08-26T13:46:26.008168",
-  "total_records": 66,
+  "started_at": 1757014619.7140322,
+  "last_record": "2025-09-05T12:17:00.215661",
+  "total_records": 1305,
   "active_tasks": [],
   "completed_tasks": [
     {
@@ -27,6 +27,34 @@
       "started_at": "2025-08-26T02:56:25.167551",
       "status": "completed",
       "completed_at": "2025-08-26T02:56:28.168887",
+      "result": {
+        "status": "success",
+        "image_url": "https://example.com/image.png"
+      }
+    },
+    {
+      "id": "generate_script_1757014619.714333",
+      "type": "generate_script",
+      "params": {
+        "theme": "test"
+      },
+      "started_at": "2025-09-05T04:36:59.714338",
+      "status": "completed",
+      "completed_at": "2025-09-05T04:37:01.714911",
+      "result": {
+        "status": "success",
+        "script": "Generated script..."
+      }
+    },
+    {
+      "id": "generate_image_1757014619.714574",
+      "type": "generate_image",
+      "params": {
+        "prompt": "test image"
+      },
+      "started_at": "2025-09-05T04:36:59.714576",
+      "status": "completed",
+      "completed_at": "2025-09-05T04:37:02.715756",
       "result": {
         "status": "success",
         "image_url": "https://example.com/image.png"
